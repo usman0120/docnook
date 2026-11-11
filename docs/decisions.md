@@ -45,3 +45,17 @@ last publish date and manifest permissions (CLAUDE.md rule 3).
   real PDFium-saved file (not just a hand-built one) round-trips.
 - Limitation recorded: input must use a classic cross-reference table (what PDFium
   writes on a full save). Cross-reference streams are rejected as `unsupported`.
+
+## 2026-11-11 — Spike E: streaming XLSX parse — PASSED (desktop)
+
+- `lib/engines/office/xlsx/xlsx_parser.dart` walks each part with the `xml` event
+  API into `SheetModel` (typed, sparse rows; no XML tree, no per-cell objects).
+- AOT-compiled on the build PC: 50,000 cells in ~0.15 s; 1,000,000 cells in ~4–6 s.
+  The phone is expected to be 5–8× slower, inside the 3 s target for 50k cells.
+  To be re-measured on the Galaxy A06.
+- **Packages:** `archive` 4.6.0 (MIT) for ZIP, `xml` 7.x (MIT) for events. Both pure
+  Dart, no manifest permissions.
+- All ZIP access goes through `SafeZip` (entry count, total size, compression-ratio
+  and zip-slip guards). All XML goes through `xmlEvents`, which rejects any DOCTYPE.
+- Excel's built-in date format (id 14) is locale-dependent; DocNook shows it
+  day-first (`dd/mm/yyyy`) to match the target market.
