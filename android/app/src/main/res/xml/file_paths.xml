@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Only these app-private folders can be shared out, per share, read-only. -->
+<paths>
+    <cache-path name="share" path="share/" />
+    <cache-path name="tmp" path="tmp/" />
+    <files-path name="outputs" path="outputs/" />
+    <external-path name="docnook" path="Documents/DocNook/" />
+</paths>

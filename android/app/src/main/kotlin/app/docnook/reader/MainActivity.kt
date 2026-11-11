@@ -1,4 +1,4 @@
-package app.docnook.docnook
+package app.docnook.reader
 
 import io.flutter.embedding.android.FlutterActivity
 
