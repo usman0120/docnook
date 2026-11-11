@@ -63,3 +63,88 @@ extension XmlStartAttributes on XmlStartElementEvent {
     return value == '1' || value == 'true' || value == 'on';
   }
 }
+
+/// Pull-style reader over XML events, for recursive-descent parsers.
+///
+/// A handler passed to [children] may consume its element (by calling
+/// [children] or [text] on it) or simply return; whatever it leaves unread is
+/// skipped, so unknown markup never desynchronises the parser.
+final class XmlPull {
+  XmlPull(String source) : _events = xmlEvents(source).iterator;
+
+  final Iterator<XmlEvent> _events;
+  int _depth = 0;
+
+  XmlEvent? _read() {
+    if (!_events.moveNext()) return null;
+    final event = _events.current;
+    if (event is XmlStartElementEvent) {
+      if (!event.isSelfClosing) _depth++;
+    } else if (event is XmlEndElementEvent) {
+      _depth--;
+    }
+    return event;
+  }
+
+  /// Advances to the next start element named [localName] at any depth.
+  XmlStartElementEvent? find(String localName) {
+    while (true) {
+      final event = _read();
+      if (event == null) return null;
+      if (event is XmlStartElementEvent && event.localName == localName) {
+        return event;
+      }
+    }
+  }
+
+  /// Calls [onChild] for each direct child element of [parent], which must be
+  /// the element most recently read. [onText] receives direct text content.
+  void children(
+    XmlStartElementEvent parent,
+    void Function(XmlStartElementEvent child) onChild, {
+    void Function(String text)? onText,
+  }) {
+    if (parent.isSelfClosing) return;
+    final inside = _depth;
+    while (true) {
+      final event = _read();
+      if (event == null || _depth < inside) return;
+      if (event is XmlStartElementEvent) {
+        onChild(event);
+        while (_depth > inside) {
+          if (_read() == null) return;
+        }
+      } else if (onText != null && _depth == inside) {
+        if (event is XmlTextEvent) onText(event.value);
+        if (event is XmlCDATAEvent) onText(event.value);
+      }
+    }
+  }
+
+  /// All text inside [parent], including nested elements.
+  String text(XmlStartElementEvent parent) {
+    if (parent.isSelfClosing) return '';
+    final inside = _depth;
+    StringBuffer? buffer;
+    String? single;
+    while (true) {
+      final event = _read();
+      if (event == null || _depth < inside) break;
+      final String value;
+      if (event is XmlTextEvent) {
+        value = event.value;
+      } else if (event is XmlCDATAEvent) {
+        value = event.value;
+      } else {
+        continue;
+      }
+      if (single == null && buffer == null) {
+        single = value;
+      } else {
+        buffer ??= StringBuffer(single!);
+        buffer.write(value);
+      }
+    }
+    return buffer?.toString() ?? single ?? '';
+  }
+}

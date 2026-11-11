@@ -139,10 +139,11 @@ final class SafeZip {
     final file = _byName[_normalize(name)];
     if (file == null) return null;
     try {
-      final data = file.readBytes();
-      // Release the inflated copy held by the archive; callers own [data].
-      file.clear();
-      return data;
+      // Inflate into our own buffer so the archive keeps no second copy and
+      // the entry can be read again later.
+      final output = OutputMemoryStream(size: file.size > 0 ? file.size : 1024);
+      file.decompress(output);
+      return output.getBytes();
     } on Object catch (error) {
       throw DocNookFailure.corrupt(detail: 'zip entry: ${error.runtimeType}');
     }
