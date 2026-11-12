@@ -829,13 +829,13 @@ Claude Code writes all the code in ten phases; you install each phase's build on
 
 ### Phase 4 — Office and other viewers (5 weeks)
 
-- [ ] DocModel (domain) and DocModel → Flutter renderer.
-- [ ] DOCX parser: styles, runs, numbering/lists, tables (merged cells), images, headers/footers, page breaks; S15 Word viewer.
-- [ ] SheetModel, streaming XLSX parser (shared strings, styles, number formats, merges, column widths); CSV/TSV parser; S16 grid viewer.
-- [ ] PPTX parser (slide size, text frames, pictures, basic shapes) → S17 with outline mode.
-- [ ] ODT/ODS mapping; RTF tokenizer; legacy .doc/.xls/.ppt text reader (OLE compound files).
-- [ ] S18 text/code (streaming), S19 markdown, S20 EPUB, S21 image, S22 ZIP browser.
-- [ ] Indexing extended to DOCX, text, markdown, EPUB, RTF and legacy text.
+- [x] DocModel (domain) and DocModel → Flutter renderer.
+- [x] DOCX parser: styles, runs, numbering/lists, tables (merged cells), images, headers/footers, page breaks; S15 Word viewer.
+- [x] SheetModel, streaming XLSX parser (shared strings, styles, number formats, merges, column widths); CSV/TSV parser; S16 grid viewer.
+- [x] PPTX parser (slide size, text frames, pictures, basic shapes) → S17 with outline mode.
+- [x] ODT/ODS mapping; RTF tokenizer; legacy .doc/.xls/.ppt text reader (OLE compound files).
+- [x] S18 text/code (streaming), S19 markdown, S20 EPUB, S21 image, S22 ZIP browser.
+- [x] Indexing extended to DOCX, text, markdown, EPUB, RTF and legacy text.
 
 **Done when:** at least 90% of the Office fixture corpus (section 12) opens without error and passes visual review; no viewer janks while scrolling on the reference device.
 

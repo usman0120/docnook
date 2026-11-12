@@ -43,7 +43,8 @@ String sanitizeXhtml(String source) {
   s = s.replaceFirst(doctype, '');
   s = s.replaceAllMapped(RegExp('&([a-zA-Z]+);'), (m) {
     final name = m.group(1)!;
-    if (const {'amp', 'lt', 'gt', 'quot', 'apos'}.contains(name)) return m.group(0)!;
+    if (const {'amp', 'lt', 'gt', 'quot', 'apos'}.contains(name))
+      return m.group(0)!;
     final code = _entities[name];
     return code == null ? '' : '&#$code;';
   });
@@ -57,14 +58,12 @@ List<HtmlNode> parseXhtmlBody(String xhtml) {
   if (body == null) return const [];
   List<HtmlNode> childrenOf(XmlStartElementEvent e) {
     final out = <HtmlNode>[];
-    pull.children(
-      e,
-      (child) {
-        final attrs = {for (final a in child.attributes) a.localName: a.value};
-        out.add(HtmlElement(child.localName.toLowerCase(), attrs, childrenOf(child)));
-      },
-      onText: (t) => out.add(HtmlText(t)),
-    );
+    pull.children(e, (child) {
+      final attrs = {for (final a in child.attributes) a.localName: a.value};
+      out.add(
+        HtmlElement(child.localName.toLowerCase(), attrs, childrenOf(child)),
+      );
+    }, onText: (t) => out.add(HtmlText(t)));
     return out;
   }
 
@@ -94,7 +93,15 @@ final class HtmlToDocModel {
   }
 
   static const _blockTags = {
-    'p', 'div', 'section', 'article', 'header', 'footer', 'main', 'aside', 'nav', //
+    'p',
+    'div',
+    'section',
+    'article',
+    'header',
+    'footer',
+    'main',
+    'aside',
+    'nav', //
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'table', 'blockquote',
     'pre', 'hr', 'figure', 'figcaption', 'dl', 'dt', 'dd', 'body', 'center',
   };
@@ -102,7 +109,14 @@ final class HtmlToDocModel {
   void _flush() {
     final inlines = _trim(_inlines);
     if (inlines.isNotEmpty || _list != null) {
-      _blocks.add(Paragraph(inlines, style: _paraStyle, headingLevel: _heading, list: _list));
+      _blocks.add(
+        Paragraph(
+          inlines,
+          style: _paraStyle,
+          headingLevel: _heading,
+          list: _list,
+        ),
+      );
     }
     _inlines = [];
     _paraStyle = ParagraphStyle.plain;
@@ -168,7 +182,11 @@ final class HtmlToDocModel {
       case 'h1' || 'h2' || 'h3' || 'h4' || 'h5' || 'h6':
         _flush();
         _heading = int.parse(e.tag.substring(1));
-        _paraStyle = ParagraphStyle(align: _align(e), spaceBefore: 8, spaceAfter: 4);
+        _paraStyle = ParagraphStyle(
+          align: _align(e),
+          spaceBefore: 8,
+          spaceAfter: 4,
+        );
         _walkBlocks(e.children, style, depth + 1);
         _flush();
       case 'ul' || 'ol':
@@ -183,7 +201,8 @@ final class HtmlToDocModel {
           final checkbox = _checkbox(child);
           _list = ListInfo(
             level: level.clamp(0, 8),
-            marker: checkbox ?? (ordered ? '${n++}.' : (level.isEven ? '•' : '◦')),
+            marker:
+                checkbox ?? (ordered ? '${n++}.' : (level.isEven ? '•' : '◦')),
             ordered: ordered,
           );
           _walkBlocks(child.children, style, depth + 1);
@@ -203,8 +222,16 @@ final class HtmlToDocModel {
         _quoteDepth = before;
       case 'pre':
         _flush();
-        _paraStyle = ParagraphStyle(indentStart: 8 + _quoteDepth * 18.0, background: 0x14808080);
-        _inlines.add(TextRun(_textOf(e).replaceAll(RegExp(r'\n$'), ''), style.copyWith(font: FontClass.mono)));
+        _paraStyle = ParagraphStyle(
+          indentStart: 8 + _quoteDepth * 18.0,
+          background: 0x14808080,
+        );
+        _inlines.add(
+          TextRun(
+            _textOf(e).replaceAll(RegExp(r'\n$'), ''),
+            style.copyWith(font: FontClass.mono),
+          ),
+        );
         _flush();
       case 'hr':
         _flush();
@@ -215,7 +242,13 @@ final class HtmlToDocModel {
         if (table.rows.isNotEmpty) _blocks.add(table);
       case 'figcaption' || 'dt':
         _flush();
-        _walkBlocks(e.children, e.tag == 'dt' ? style.copyWith(bold: true) : style.copyWith(italic: true), depth + 1);
+        _walkBlocks(
+          e.children,
+          e.tag == 'dt'
+              ? style.copyWith(bold: true)
+              : style.copyWith(italic: true),
+          depth + 1,
+        );
         _flush();
       default:
         _flush();
@@ -246,7 +279,9 @@ final class HtmlToDocModel {
 
   static String? _checkbox(HtmlElement li) {
     for (final c in li.children) {
-      if (c is HtmlElement && c.tag == 'input' && c.attrs['type'] == 'checkbox') {
+      if (c is HtmlElement &&
+          c.tag == 'input' &&
+          c.attrs['type'] == 'checkbox') {
         return c.attrs.containsKey('checked') ? '☑' : '☐';
       }
     }
@@ -254,8 +289,10 @@ final class HtmlToDocModel {
   }
 
   static TextAlignment _align(HtmlElement e) {
-    final css = '${e.attrs['style'] ?? ''} ${e.attrs['align'] ?? ''}'.toLowerCase();
-    if (e.tag == 'center' || css.contains('center')) return TextAlignment.center;
+    final css = '${e.attrs['style'] ?? ''} ${e.attrs['align'] ?? ''}'
+        .toLowerCase();
+    if (e.tag == 'center' || css.contains('center'))
+      return TextAlignment.center;
     if (css.contains('right')) return TextAlignment.end;
     if (css.contains('justify')) return TextAlignment.justify;
     return TextAlignment.start;
@@ -274,26 +311,50 @@ final class HtmlToDocModel {
       case 's' || 'del' || 'strike':
         _walkBlocks(e.children, style.copyWith(strike: true), depth + 1);
       case 'sup':
-        _walkBlocks(e.children, style.copyWith(position: VerticalPosition.superscript), depth + 1);
+        _walkBlocks(
+          e.children,
+          style.copyWith(position: VerticalPosition.superscript),
+          depth + 1,
+        );
       case 'sub':
-        _walkBlocks(e.children, style.copyWith(position: VerticalPosition.subscript), depth + 1);
+        _walkBlocks(
+          e.children,
+          style.copyWith(position: VerticalPosition.subscript),
+          depth + 1,
+        );
       case 'code' || 'kbd' || 'samp' || 'tt':
-        _walkBlocks(e.children, style.copyWith(font: FontClass.mono), depth + 1);
+        _walkBlocks(
+          e.children,
+          style.copyWith(font: FontClass.mono),
+          depth + 1,
+        );
       case 'mark':
-        _walkBlocks(e.children, style.copyWith(highlight: 0xFFFFF59D), depth + 1);
+        _walkBlocks(
+          e.children,
+          style.copyWith(highlight: 0xFFFFF59D),
+          depth + 1,
+        );
       case 'a':
         final href = e.attrs['href'];
-        _walkBlocks(e.children, href == null ? style : style.copyWith(link: href), depth + 1);
+        _walkBlocks(
+          e.children,
+          href == null ? style : style.copyWith(link: href),
+          depth + 1,
+        );
       case 'img' || 'image':
         final src = e.attrs['src'] ?? e.attrs['href'];
         final id = src == null ? null : resolveImage?.call(src);
         if (id != null) {
           final w = double.tryParse(e.attrs['width'] ?? '') ?? 280;
           final h = double.tryParse(e.attrs['height'] ?? '') ?? w * 0.66;
-          final alone = _inlines.every((i) => i is TextRun && i.text.trim().isEmpty);
+          final alone = _inlines.every(
+            (i) => i is TextRun && i.text.trim().isEmpty,
+          );
           if (alone) {
             _flush();
-            _blocks.add(ImageBlock(id, width: w, height: h, align: TextAlignment.center));
+            _blocks.add(
+              ImageBlock(id, width: w, height: h, align: TextAlignment.center),
+            );
           } else {
             _inlines.add(InlineImage(id, width: w, height: h));
           }
@@ -306,7 +367,13 @@ final class HtmlToDocModel {
         final face = e.attrs['face'];
         if (face != null) s = s.copyWith(font: classifyFont(face));
         _walkBlocks(e.children, s, depth + 1);
-      case 'script' || 'style' || 'head' || 'title' || 'svg' || 'math' || 'input':
+      case 'script' ||
+          'style' ||
+          'head' ||
+          'title' ||
+          'svg' ||
+          'math' ||
+          'input':
         break;
       default:
         _walkBlocks(e.children, style, depth + 1);
@@ -326,7 +393,8 @@ final class HtmlToDocModel {
           final cells = <TableCell>[];
           var isHeader = header;
           for (final cell in child.children) {
-            if (cell is! HtmlElement || (cell.tag != 'td' && cell.tag != 'th')) continue;
+            if (cell is! HtmlElement || (cell.tag != 'td' && cell.tag != 'th'))
+              continue;
             if (cell.tag == 'th') isHeader = true;
             final inner = HtmlToDocModel(resolveImage: resolveImage);
             final blocks = inner.convert(
@@ -337,7 +405,10 @@ final class HtmlToDocModel {
             cells.add(
               TableCell(
                 blocks,
-                colSpan: (int.tryParse(cell.attrs['colspan'] ?? '') ?? 1).clamp(1, 30),
+                colSpan: (int.tryParse(cell.attrs['colspan'] ?? '') ?? 1).clamp(
+                  1,
+                  30,
+                ),
               ),
             );
           }

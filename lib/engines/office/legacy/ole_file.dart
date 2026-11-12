@@ -6,19 +6,37 @@ import 'package:docnook/core/failures.dart';
 /// Read-only reader for the Compound File Binary format (the container of
 /// old .doc, .xls and .ppt files). Enough to read named streams.
 final class OleFile {
-  OleFile._(this._bytes, this._sectorSize, this._fat, this._miniFat, this._miniStream, this._entries);
+  OleFile._(
+    this._bytes,
+    this._sectorSize,
+    this._fat,
+    this._miniFat,
+    this._miniStream,
+    this._entries,
+  );
 
   factory OleFile.parse(Uint8List bytes) {
     if (bytes.length < 512 ||
-        !_startsWith(bytes, const [0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1])) {
+        !_startsWith(bytes, const [
+          0xD0,
+          0xCF,
+          0x11,
+          0xE0,
+          0xA1,
+          0xB1,
+          0x1A,
+          0xE1,
+        ])) {
       throw const DocNookFailure.corrupt(detail: 'ole: header');
     }
     final h = ByteData.sublistView(bytes);
     final shift = h.getUint16(30, Endian.little);
-    if (shift != 9 && shift != 12) throw const DocNookFailure.corrupt(detail: 'ole: sector size');
+    if (shift != 9 && shift != 12)
+      throw const DocNookFailure.corrupt(detail: 'ole: sector size');
     final sectorSize = 1 << shift;
     final miniShift = h.getUint16(32, Endian.little);
-    if (miniShift != 6) throw const DocNookFailure.corrupt(detail: 'ole: mini sector');
+    if (miniShift != 6)
+      throw const DocNookFailure.corrupt(detail: 'ole: mini sector');
     final fatSectors = h.getUint32(44, Endian.little);
     final firstDir = h.getUint32(48, Endian.little);
     final firstMiniFat = h.getUint32(60, Endian.little);
@@ -27,7 +45,8 @@ final class OleFile {
     final difCount = h.getUint32(72, Endian.little);
 
     int sectorOffset(int s) => (s + 1) * sectorSize;
-    bool valid(int s) => s < 0xFFFFFFFA && sectorOffset(s) + sectorSize <= bytes.length;
+    bool valid(int s) =>
+        s < 0xFFFFFFFA && sectorOffset(s) + sectorSize <= bytes.length;
 
     // FAT sector list: 109 in the header, the rest in the DIFAT chain.
     final fatList = <int>[];
@@ -36,7 +55,11 @@ final class OleFile {
       if (s >= 0xFFFFFFFA) break;
       fatList.add(s);
     }
-    for (var n = 0; n < difCount && valid(difSector) && fatList.length < fatSectors; n++) {
+    for (
+      var n = 0;
+      n < difCount && valid(difSector) && fatList.length < fatSectors;
+      n++
+    ) {
       final base = sectorOffset(difSector);
       final perSector = sectorSize ~/ 4 - 1;
       for (var i = 0; i < perSector && fatList.length < fatSectors; i++) {
@@ -63,12 +86,20 @@ final class OleFile {
       var guard = 0;
       while (s < 0xFFFFFFFA && guard++ < fat.length + 1) {
         if (!valid(s)) break;
-        out.add(Uint8List.sublistView(bytes, sectorOffset(s), sectorOffset(s) + sectorSize));
+        out.add(
+          Uint8List.sublistView(
+            bytes,
+            sectorOffset(s),
+            sectorOffset(s) + sectorSize,
+          ),
+        );
         if (size != null && out.length >= size) break;
         s = s < fat.length ? fat[s] : 0xFFFFFFFE;
       }
       final data = out.toBytes();
-      return size != null && data.length > size ? Uint8List.sublistView(data, 0, size) : data;
+      return size != null && data.length > size
+          ? Uint8List.sublistView(data, 0, size)
+          : data;
     }
 
     // Directory.
@@ -80,7 +111,9 @@ final class OleFile {
       final nameLen = d.getUint16(64, Endian.little);
       final type = d.getUint8(66);
       if (type == 0 || nameLen < 2 || nameLen > 64) continue;
-      final units = [for (var i = 0; i < nameLen - 2; i += 2) d.getUint16(i, Endian.little)];
+      final units = [
+        for (var i = 0; i < nameLen - 2; i += 2) d.getUint16(i, Endian.little),
+      ];
       final entry = _Entry(
         String.fromCharCodes(units),
         type,
@@ -94,7 +127,9 @@ final class OleFile {
       }
     }
 
-    final miniStream = root == null ? Uint8List(0) : chain(root.start, size: root.size);
+    final miniStream = root == null
+        ? Uint8List(0)
+        : chain(root.start, size: root.size);
     final miniFatBytes = miniFatCount == 0 ? Uint8List(0) : chain(firstMiniFat);
     final miniFat = Uint32List(miniFatBytes.length ~/ 4);
     final mf = ByteData.sublistView(miniFatBytes);
@@ -127,19 +162,24 @@ final class OleFile {
   Uint8List? stream(String name) {
     final e = _entries[name];
     if (e == null || e.type != 2) return null;
-    if (e.size > _bytes.length * 4) throw const DocNookFailure.corrupt(detail: 'ole: stream size');
+    if (e.size > _bytes.length * 4)
+      throw const DocNookFailure.corrupt(detail: 'ole: stream size');
     if (e.size < 4096) {
       final out = BytesBuilder(copy: false);
       var s = e.start;
       var guard = 0;
-      while (s < 0xFFFFFFFA && guard++ <= _miniFat.length && out.length < e.size) {
+      while (s < 0xFFFFFFFA &&
+          guard++ <= _miniFat.length &&
+          out.length < e.size) {
         final off = s * 64;
         if (off + 64 > _miniStream.length) break;
         out.add(Uint8List.sublistView(_miniStream, off, off + 64));
         s = s < _miniFat.length ? _miniFat[s] : 0xFFFFFFFE;
       }
       final data = out.toBytes();
-      return data.length > e.size ? Uint8List.sublistView(data, 0, e.size) : data;
+      return data.length > e.size
+          ? Uint8List.sublistView(data, 0, e.size)
+          : data;
     }
     return _chain(e.start, size: e.size);
   }
@@ -163,7 +203,8 @@ abstract final class LegacyText {
   static List<String> doc(Uint8List bytes) {
     final ole = OleFile.parse(bytes);
     final word = ole.stream('WordDocument');
-    if (word == null || word.length < 0x1A2) throw const DocNookFailure.corrupt(detail: 'doc: stream');
+    if (word == null || word.length < 0x1A2)
+      throw const DocNookFailure.corrupt(detail: 'doc: stream');
     final fib = ByteData.sublistView(word);
     final flags = fib.getUint16(0x0A, Endian.little);
     if (flags & 0x0100 != 0) throw const DocNookFailure.passwordRequired();
@@ -181,7 +222,13 @@ abstract final class LegacyText {
     return _splitParagraphs(text.toString());
   }
 
-  static void _readPieces(Uint8List word, Uint8List table, int fc, int lcb, StringBuffer out) {
+  static void _readPieces(
+    Uint8List word,
+    Uint8List table,
+    int fc,
+    int lcb,
+    StringBuffer out,
+  ) {
     final t = ByteData.sublistView(table);
     var pos = fc;
     final end = fc + lcb;
@@ -210,7 +257,11 @@ abstract final class LegacyText {
             }
           } else {
             final w = ByteData.sublistView(word);
-            for (var j = 0; j < count && fcValue + j * 2 + 1 < word.length; j++) {
+            for (
+              var j = 0;
+              j < count && fcValue + j * 2 + 1 < word.length;
+              j++
+            ) {
               out.writeCharCode(w.getUint16(fcValue + j * 2, Endian.little));
             }
           }
@@ -226,7 +277,8 @@ abstract final class LegacyText {
   static List<String> ppt(Uint8List bytes) {
     final ole = OleFile.parse(bytes);
     final stream = ole.stream('PowerPoint Document');
-    if (stream == null) throw const DocNookFailure.corrupt(detail: 'ppt: stream');
+    if (stream == null)
+      throw const DocNookFailure.corrupt(detail: 'ppt: stream');
     final out = <String>[];
     final d = ByteData.sublistView(stream);
     void walk(int start, int end, int depth) {
@@ -240,10 +292,17 @@ abstract final class LegacyText {
         if ((verInst & 0x0F) == 0x0F) {
           walk(body, body + len, depth + 1); // container
         } else if (type == 0x0FA0) {
-          final units = [for (var i = 0; i + 1 < len; i += 2) d.getUint16(body + i, Endian.little)];
+          final units = [
+            for (var i = 0; i + 1 < len; i += 2)
+              d.getUint16(body + i, Endian.little),
+          ];
           out.add(String.fromCharCodes(units));
         } else if (type == 0x0FA8) {
-          out.add(String.fromCharCodes([for (var i = 0; i < len; i++) _cp1252(stream[body + i])]));
+          out.add(
+            String.fromCharCodes([
+              for (var i = 0; i < len; i++) _cp1252(stream[body + i]),
+            ]),
+          );
         }
         pos = body + len;
       }
@@ -252,7 +311,8 @@ abstract final class LegacyText {
     walk(0, stream.length, 0);
     return [
       for (final t in out)
-        if (t.trim().isNotEmpty) t.replaceAll('\r', '\n').replaceAll('\u000B', '\n').trim(),
+        if (t.trim().isNotEmpty)
+          t.replaceAll('\r', '\n').replaceAll('\u000B', '\n').trim(),
     ];
   }
 
@@ -260,7 +320,8 @@ abstract final class LegacyText {
   static List<String> xls(Uint8List bytes) {
     final ole = OleFile.parse(bytes);
     final stream = ole.stream('Workbook') ?? ole.stream('Book');
-    if (stream == null) throw const DocNookFailure.corrupt(detail: 'xls: stream');
+    if (stream == null)
+      throw const DocNookFailure.corrupt(detail: 'xls: stream');
     final d = ByteData.sublistView(stream);
     final sst = <String>[];
     final cells = <int, Map<int, Map<int, String>>>{}; // sheet → row → col
@@ -282,31 +343,50 @@ abstract final class LegacyText {
             sheetNames.add(_xlString(stream, body + 8, n, wide));
           }
         case 0x00FC: // SST
-          final parts = <Uint8List>[Uint8List.sublistView(stream, body, body + len)];
+          final parts = <Uint8List>[
+            Uint8List.sublistView(stream, body, body + len),
+          ];
           var next = body + len;
-          while (next + 4 <= stream.length && d.getUint16(next, Endian.little) == 0x003C) {
+          while (next + 4 <= stream.length &&
+              d.getUint16(next, Endian.little) == 0x003C) {
             final l = d.getUint16(next + 2, Endian.little);
             parts.add(Uint8List.sublistView(stream, next + 4, next + 4 + l));
             next += 4 + l;
           }
           sst.addAll(_readSst(parts));
         case 0x0809: // BOF
-          if (len >= 4 && d.getUint16(body + 2, Endian.little) == 0x0010) sheet++;
+          if (len >= 4 && d.getUint16(body + 2, Endian.little) == 0x0010)
+            sheet++;
         case 0x00FD: // LABELSST
           if (sheet >= 0 && len >= 10) {
             final idx = d.getUint32(body + 6, Endian.little);
-            _put(cells, sheet, d.getUint16(body, Endian.little), d.getUint16(body + 2, Endian.little),
-                idx < sst.length ? sst[idx] : '');
+            _put(
+              cells,
+              sheet,
+              d.getUint16(body, Endian.little),
+              d.getUint16(body + 2, Endian.little),
+              idx < sst.length ? sst[idx] : '',
+            );
           }
         case 0x0203: // NUMBER
           if (sheet >= 0 && len >= 14) {
-            _put(cells, sheet, d.getUint16(body, Endian.little), d.getUint16(body + 2, Endian.little),
-                _num(d.getFloat64(body + 6, Endian.little)));
+            _put(
+              cells,
+              sheet,
+              d.getUint16(body, Endian.little),
+              d.getUint16(body + 2, Endian.little),
+              _num(d.getFloat64(body + 6, Endian.little)),
+            );
           }
         case 0x027E: // RK
           if (sheet >= 0 && len >= 10) {
-            _put(cells, sheet, d.getUint16(body, Endian.little), d.getUint16(body + 2, Endian.little),
-                _num(_rk(d.getUint32(body + 6, Endian.little))));
+            _put(
+              cells,
+              sheet,
+              d.getUint16(body, Endian.little),
+              d.getUint16(body + 2, Endian.little),
+              _num(_rk(d.getUint32(body + 6, Endian.little))),
+            );
           }
         case 0x00BD: // MULRK
           if (sheet >= 0 && len >= 6) {
@@ -314,20 +394,38 @@ abstract final class LegacyText {
             final first = d.getUint16(body + 2, Endian.little);
             final n = (len - 6) ~/ 6;
             for (var i = 0; i < n; i++) {
-              _put(cells, sheet, row, first + i, _num(_rk(d.getUint32(body + 4 + i * 6 + 2, Endian.little))));
+              _put(
+                cells,
+                sheet,
+                row,
+                first + i,
+                _num(_rk(d.getUint32(body + 4 + i * 6 + 2, Endian.little))),
+              );
             }
           }
         case 0x0204: // LABEL (BIFF5)
           if (sheet >= 0 && len >= 8) {
             final n = d.getUint16(body + 6, Endian.little);
             final wide = len > 8 + n && stream[body + 8] == 1;
-            _put(cells, sheet, d.getUint16(body, Endian.little), d.getUint16(body + 2, Endian.little),
-                _xlString(stream, body + (wide ? 9 : 8), n, wide));
+            _put(
+              cells,
+              sheet,
+              d.getUint16(body, Endian.little),
+              d.getUint16(body + 2, Endian.little),
+              _xlString(stream, body + (wide ? 9 : 8), n, wide),
+            );
           }
         case 0x0006: // FORMULA: cached number result only
-          if (sheet >= 0 && len >= 20 && d.getUint16(body + 12, Endian.little) != 0xFFFF) {
-            _put(cells, sheet, d.getUint16(body, Endian.little), d.getUint16(body + 2, Endian.little),
-                _num(d.getFloat64(body + 6, Endian.little)));
+          if (sheet >= 0 &&
+              len >= 20 &&
+              d.getUint16(body + 12, Endian.little) != 0xFFFF) {
+            _put(
+              cells,
+              sheet,
+              d.getUint16(body, Endian.little),
+              d.getUint16(body + 2, Endian.little),
+              _num(d.getFloat64(body + 6, Endian.little)),
+            );
           }
       }
       pos = body + len;
@@ -348,13 +446,20 @@ abstract final class LegacyText {
     return lines;
   }
 
-  static void _put(Map<int, Map<int, Map<int, String>>> cells, int sheet, int row, int col, String value) {
+  static void _put(
+    Map<int, Map<int, Map<int, String>>> cells,
+    int sheet,
+    int row,
+    int col,
+    String value,
+  ) {
     if (row > 65535 || col > 255) return;
     ((cells[sheet] ??= {})[row] ??= {})[col] = value;
   }
 
-  static String _num(double v) =>
-      v == v.roundToDouble() && v.abs() < 1e15 ? v.toInt().toString() : v.toStringAsPrecision(10).replaceFirst(RegExp(r'\.?0+$'), '');
+  static String _num(double v) => v == v.roundToDouble() && v.abs() < 1e15
+      ? v.toInt().toString()
+      : v.toStringAsPrecision(10).replaceFirst(RegExp(r'\.?0+$'), '');
 
   static double _rk(int rk) {
     double value;
@@ -370,9 +475,14 @@ abstract final class LegacyText {
   static String _xlString(Uint8List b, int start, int n, bool wide) {
     if (wide) {
       final d = ByteData.sublistView(b);
-      return String.fromCharCodes([for (var i = 0; i < n && start + i * 2 + 1 < b.length; i++) d.getUint16(start + i * 2, Endian.little)]);
+      return String.fromCharCodes([
+        for (var i = 0; i < n && start + i * 2 + 1 < b.length; i++)
+          d.getUint16(start + i * 2, Endian.little),
+      ]);
     }
-    return String.fromCharCodes([for (var i = 0; i < n && start + i < b.length; i++) _cp1252(b[start + i])]);
+    return String.fromCharCodes([
+      for (var i = 0; i < n && start + i < b.length; i++) _cp1252(b[start + i]),
+    ]);
   }
 
   /// Reads the shared string table, honouring strings split across
@@ -429,7 +539,8 @@ abstract final class LegacyText {
     final out = StringBuffer();
     for (var i = 0x600; i < word.length; i++) {
       final b = word[i];
-      if (b == 0x0D || b == 0x09 || (b >= 0x20 && b < 0x7F) || b >= 0xA0) out.writeCharCode(_cp1252(b));
+      if (b == 0x0D || b == 0x09 || (b >= 0x20 && b < 0x7F) || b >= 0xA0)
+        out.writeCharCode(_cp1252(b));
     }
     return out.toString();
   }
@@ -444,8 +555,7 @@ abstract final class LegacyText {
         .replaceAll('\u000C', '\r')
         .replaceAll(RegExp('[\u0000-\u0008\u000E-\u001F]'), '');
     return [
-      for (final p in cleaned.split('\r'))
-        p.replaceAll(RegExp(r'\t+$'), ''),
+      for (final p in cleaned.split('\r')) p.replaceAll(RegExp(r'\t+$'), ''),
     ];
   }
 

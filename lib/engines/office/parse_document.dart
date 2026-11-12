@@ -30,10 +30,19 @@ DocModel parseToDocModel(ParseRequest request, JobContext context) {
     DocFormat.docx || DocFormat.dotx => DocxParser.parseFile(request.path),
     DocFormat.odt => OdtParser.parseFile(request.path),
     DocFormat.rtf => RtfParser.parse(File(request.path).readAsBytesSync()),
-    DocFormat.doc => _paragraphs(LegacyText.doc(File(request.path).readAsBytesSync())),
-    DocFormat.ppt => _paragraphs(LegacyText.ppt(File(request.path).readAsBytesSync()), gap: true),
-    DocFormat.xls => _paragraphs(LegacyText.xls(File(request.path).readAsBytesSync())),
-    DocFormat.markdown => markdownToDocModel(decodeText(File(request.path).readAsBytesSync())),
+    DocFormat.doc => _paragraphs(
+      LegacyText.doc(File(request.path).readAsBytesSync()),
+    ),
+    DocFormat.ppt => _paragraphs(
+      LegacyText.ppt(File(request.path).readAsBytesSync()),
+      gap: true,
+    ),
+    DocFormat.xls => _paragraphs(
+      LegacyText.xls(File(request.path).readAsBytesSync()),
+    ),
+    DocFormat.markdown => markdownToDocModel(
+      decodeText(File(request.path).readAsBytesSync()),
+    ),
     DocFormat.epub => EpubParser.parseFile(request.path).toDocModel(),
     _ => throw const DocNookFailure.unsupported(),
   };
@@ -46,7 +55,9 @@ DocModel _paragraphs(List<String> lines, {bool gap = false}) => DocModel(
     DocSection(
       blocks: [
         for (final line in lines)
-          Paragraph([TextRun(line)], style: ParagraphStyle(spaceAfter: gap ? 10 : 4)),
+          Paragraph([
+            TextRun(line),
+          ], style: ParagraphStyle(spaceAfter: gap ? 10 : 4)),
       ],
     ),
   ],
@@ -56,13 +67,26 @@ DocModel _paragraphs(List<String> lines, {bool gap = false}) => DocModel(
 /// Windows-1252 when the bytes are not valid UTF-8.
 String decodeText(Uint8List bytes) {
   if (bytes.length >= 2 && bytes[0] == 0xFF && bytes[1] == 0xFE) {
-    return String.fromCharCodes(Uint16List.sublistView(Uint8List.fromList(bytes.sublist(2, bytes.length - bytes.length % 2))));
+    return String.fromCharCodes(
+      Uint16List.sublistView(
+        Uint8List.fromList(bytes.sublist(2, bytes.length - bytes.length % 2)),
+      ),
+    );
   }
   if (bytes.length >= 2 && bytes[0] == 0xFE && bytes[1] == 0xFF) {
-    final units = <int>[for (var i = 2; i + 1 < bytes.length; i += 2) bytes[i] << 8 | bytes[i + 1]];
+    final units = <int>[
+      for (var i = 2; i + 1 < bytes.length; i += 2)
+        bytes[i] << 8 | bytes[i + 1],
+    ];
     return String.fromCharCodes(units);
   }
-  final start = bytes.length >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF ? 3 : 0;
+  final start =
+      bytes.length >= 3 &&
+          bytes[0] == 0xEF &&
+          bytes[1] == 0xBB &&
+          bytes[2] == 0xBF
+      ? 3
+      : 0;
   try {
     return utf8.decode(Uint8List.sublistView(bytes, start));
   } on FormatException {
@@ -72,7 +96,10 @@ String decodeText(Uint8List bytes) {
 
 /// GitHub-flavoured Markdown → DocModel through the shared HTML converter.
 DocModel markdownToDocModel(String source) {
-  final document = md.Document(extensionSet: md.ExtensionSet.gitHubFlavored, encodeHtml: false);
+  final document = md.Document(
+    extensionSet: md.ExtensionSet.gitHubFlavored,
+    encodeHtml: false,
+  );
   final nodes = document.parse(source.replaceAll('\r\n', '\n'));
   HtmlNode convert(md.Node node) => switch (node) {
     md.Element(:final tag, :final attributes, :final children) => HtmlElement(
@@ -109,7 +136,9 @@ List<IndexChunk> docModelChunks(DocModel model) {
 /// Same as [parseToDocModel] without a job context (tests, quick reads).
 DocModel parseToDocModelSync(String path) {
   final name = path.replaceAll(String.fromCharCode(92), '/').split('/').last;
-  final ext = name.contains('.') ? name.substring(name.lastIndexOf('.') + 1).toLowerCase() : '';
+  final ext = name.contains('.')
+      ? name.substring(name.lastIndexOf('.') + 1).toLowerCase()
+      : '';
   final format = switch (ext) {
     'docx' => DocFormat.docx,
     'odt' => DocFormat.odt,

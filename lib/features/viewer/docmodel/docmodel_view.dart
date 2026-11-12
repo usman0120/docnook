@@ -19,7 +19,11 @@ final class DocRenderStyle {
     required this.activeHighlight,
     this.textScale = 1,
     this.baseFontSize = 11,
+    this.lineSpacing = 1,
   });
+
+  /// Reader-chosen multiplier on line height (EPUB line spacing).
+  final double lineSpacing;
 
   final Color ink;
   final Color inkMuted;
@@ -35,7 +39,8 @@ final class DocRenderStyle {
   /// The document's most common body size, mapped to DocNook's 15 px body.
   final double baseFontSize;
 
-  double px(double? points) => ((points ?? baseFontSize) / baseFontSize) * 15 * textScale;
+  double px(double? points) =>
+      ((points ?? baseFontSize) / baseFontSize) * 15 * textScale;
 
   bool get dark => page.computeLuminance() < 0.4;
 
@@ -52,7 +57,8 @@ final class DocRenderStyle {
     if (argb == null) return null;
     final color = Color(argb);
     // Very light fills on a dark page become a faint tint instead of a glare.
-    if (dark && color.computeLuminance() > 0.6) return color.withValues(alpha: 0.12);
+    if (dark && color.computeLuminance() > 0.6)
+      return color.withValues(alpha: 0.12);
     return color;
   }
 
@@ -70,13 +76,19 @@ final class DocRenderStyle {
       if (block is! Paragraph || block.headingLevel > 0) continue;
       for (final inline in block.inlines) {
         if (inline is TextRun && inline.style.fontSize != null) {
-          counts.update(inline.style.fontSize!, (n) => n + inline.text.length, ifAbsent: () => inline.text.length);
+          counts.update(
+            inline.style.fontSize!,
+            (n) => n + inline.text.length,
+            ifAbsent: () => inline.text.length,
+          );
         }
       }
       if (++seen > 400) break;
     }
     if (counts.isEmpty) return 11;
-    final best = counts.entries.reduce((a, b) => a.value >= b.value ? a : b).key;
+    final best = counts.entries
+        .reduce((a, b) => a.value >= b.value ? a : b)
+        .key;
     return best.clamp(7, 24).toDouble();
   }
 }
@@ -132,14 +144,19 @@ class DocBlockView extends StatelessWidget {
         },
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final width = math.min(constraints.maxWidth, block.width * 1.4 * style.textScale);
+            final width = math.min(
+              constraints.maxWidth,
+              block.width * 1.4 * style.textScale,
+            );
             return Image.memory(
               image.bytes,
               width: width,
               height: width * block.height / math.max(block.width, 1),
               fit: BoxFit.contain,
               gaplessPlayback: true,
-              cacheWidth: (width * MediaQuery.devicePixelRatioOf(context)).round().clamp(1, 2400),
+              cacheWidth: (width * MediaQuery.devicePixelRatioOf(context))
+                  .round()
+                  .clamp(1, 2400),
               errorBuilder: (_, _, _) => const SizedBox.shrink(),
             );
           },
@@ -148,8 +165,14 @@ class DocBlockView extends StatelessWidget {
     );
   }
 
-  Widget _paragraph(BuildContext context, Paragraph p) =>
-      ParagraphView(paragraph: p, doc: doc, style: style, matches: matches, activeMatch: activeMatch, onLink: onLink);
+  Widget _paragraph(BuildContext context, Paragraph p) => ParagraphView(
+    paragraph: p,
+    doc: doc,
+    style: style,
+    matches: matches,
+    activeMatch: activeMatch,
+    onLink: onLink,
+  );
 }
 
 /// One paragraph: headings, list markers, indents, spacing, rich runs.
@@ -194,11 +217,17 @@ class ParagraphView extends StatelessWidget {
       return TextStyle(
         fontFamily: family,
         fontSize: rs.position == VerticalPosition.baseline ? size : size * 0.7,
-        height: ps.lineHeight == null ? 1.45 : (ps.lineHeight! * 1.2).clamp(1.1, 2.6),
+        height:
+            (ps.lineHeight == null
+                ? 1.45
+                : (ps.lineHeight! * 1.2).clamp(1.1, 2.6)) *
+            style.lineSpacing,
         fontWeight: rs.bold || level > 0 ? FontWeight.w600 : FontWeight.w400,
         fontStyle: rs.italic ? FontStyle.italic : FontStyle.normal,
         color: rs.link != null ? style.link : style.text(rs.color),
-        backgroundColor: rs.highlight == null ? null : style.fill(rs.highlight)?.withValues(alpha: 0.45),
+        backgroundColor: rs.highlight == null
+            ? null
+            : style.fill(rs.highlight)?.withValues(alpha: 0.45),
         decoration: TextDecoration.combine([
           if (rs.underline || rs.link != null) TextDecoration.underline,
           if (rs.strike) TextDecoration.lineThrough,
@@ -230,7 +259,12 @@ class ParagraphView extends StatelessWidget {
             spans.add(
               WidgetSpan(
                 alignment: PlaceholderAlignment.middle,
-                child: Image.memory(image.bytes, width: w, height: w * height / math.max(width, 1), fit: BoxFit.contain),
+                child: Image.memory(
+                  image.bytes,
+                  width: w,
+                  height: w * height / math.max(width, 1),
+                  fit: BoxFit.contain,
+                ),
               ),
             );
           }
@@ -254,23 +288,41 @@ class ParagraphView extends StatelessWidget {
 
     Widget body = rich;
     if (list != null) {
-      final markerStyle = base(
-        p.inlines.whereType<TextRun>().firstOrNull?.style ?? RunStyle.plain,
-      ).copyWith(fontWeight: FontWeight.w400, decoration: TextDecoration.none, backgroundColor: null);
+      final markerStyle =
+          base(
+            p.inlines.whereType<TextRun>().firstOrNull?.style ?? RunStyle.plain,
+          ).copyWith(
+            fontWeight: FontWeight.w400,
+            decoration: TextDecoration.none,
+            backgroundColor: null,
+          );
       body = Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: list.marker.length > 3 ? 14.0 + list.marker.length * 7 * scale : 26 * scale,
-            child: Text(list.marker, textScaler: TextScaler.noScaling, style: markerStyle),
+            width: list.marker.length > 3
+                ? 14.0 + list.marker.length * 7 * scale
+                : 26 * scale,
+            child: Text(
+              list.marker,
+              textScaler: TextScaler.noScaling,
+              style: markerStyle,
+            ),
           ),
           Expanded(child: rich),
         ],
       );
     }
 
-    final indent = (list != null ? (list.level + 1) * 14.0 : ps.indentStart * 0.8).clamp(0, 140) * scale;
-    final firstLine = list == null && ps.firstLine > 0 ? math.min(ps.firstLine * 0.8, 48.0) : 0.0;
+    final indent =
+        (list != null ? (list.level + 1) * 14.0 : ps.indentStart * 0.8).clamp(
+          0,
+          140,
+        ) *
+        scale;
+    final firstLine = list == null && ps.firstLine > 0
+        ? math.min(ps.firstLine * 0.8, 48.0)
+        : 0.0;
     Widget result = Padding(
       padding: EdgeInsetsDirectional.only(
         start: indent.toDouble(),
@@ -279,7 +331,10 @@ class ParagraphView extends StatelessWidget {
         bottom: math.max(ps.spaceAfter, level > 0 ? 4 : 6) * scale,
       ),
       child: firstLine > 0
-          ? Padding(padding: EdgeInsetsDirectional.only(start: firstLine), child: body)
+          ? Padding(
+              padding: EdgeInsetsDirectional.only(start: firstLine),
+              child: body,
+            )
           : body,
     );
     if (ps.background != null) {
@@ -290,8 +345,14 @@ class ParagraphView extends StatelessWidget {
   }
 
   /// Splits [text] around search matches so they can be highlighted.
-  List<InlineSpan> _withMatches(String text, int offset, TextStyle ts, GestureRecognizer? recognizer) {
-    if (matches.isEmpty || text.isEmpty) return [TextSpan(text: text, style: ts, recognizer: recognizer)];
+  List<InlineSpan> _withMatches(
+    String text,
+    int offset,
+    TextStyle ts,
+    GestureRecognizer? recognizer,
+  ) {
+    if (matches.isEmpty || text.isEmpty)
+      return [TextSpan(text: text, style: ts, recognizer: recognizer)];
     final spans = <InlineSpan>[];
     var cursor = 0;
     final end = offset + text.length;
@@ -299,18 +360,37 @@ class ParagraphView extends StatelessWidget {
       if (m.end <= offset || m.start >= end) continue;
       final s = math.max(m.start - offset, cursor);
       final e = math.min(m.end - offset, text.length);
-      if (s > cursor) spans.add(TextSpan(text: text.substring(cursor, s), style: ts, recognizer: recognizer));
-      final active = activeMatch != null && activeMatch!.block == m.block && activeMatch!.start == m.start;
+      if (s > cursor)
+        spans.add(
+          TextSpan(
+            text: text.substring(cursor, s),
+            style: ts,
+            recognizer: recognizer,
+          ),
+        );
+      final active =
+          activeMatch != null &&
+          activeMatch!.block == m.block &&
+          activeMatch!.start == m.start;
       spans.add(
         TextSpan(
           text: text.substring(s, e),
-          style: ts.copyWith(backgroundColor: active ? style.activeHighlight : style.highlight),
+          style: ts.copyWith(
+            backgroundColor: active ? style.activeHighlight : style.highlight,
+          ),
           recognizer: recognizer,
         ),
       );
       cursor = e;
     }
-    if (cursor < text.length) spans.add(TextSpan(text: text.substring(cursor), style: ts, recognizer: recognizer));
+    if (cursor < text.length)
+      spans.add(
+        TextSpan(
+          text: text.substring(cursor),
+          style: ts,
+          recognizer: recognizer,
+        ),
+      );
     return spans;
   }
 }
@@ -326,7 +406,14 @@ class _PageBreakView extends StatelessWidget {
       children: [
         Expanded(child: Container(height: 1, color: style.hairline)),
         const SizedBox(width: Space.x2),
-        Container(width: 4, height: 4, decoration: BoxDecoration(color: style.hairline, shape: BoxShape.circle)),
+        Container(
+          width: 4,
+          height: 4,
+          decoration: BoxDecoration(
+            color: style.hairline,
+            shape: BoxShape.circle,
+          ),
+        ),
         const SizedBox(width: Space.x2),
         Expanded(child: Container(height: 1, color: style.hairline)),
       ],
@@ -338,7 +425,11 @@ class _PageBreakView extends StatelessWidget {
 /// document's proportions; merged cells span columns, and vertically merged
 /// cells hide the border between them.
 class _TableView extends StatelessWidget {
-  const _TableView({required this.table, required this.doc, required this.style});
+  const _TableView({
+    required this.table,
+    required this.doc,
+    required this.style,
+  });
 
   final TableBlock table;
   final DocModel doc;
@@ -349,10 +440,17 @@ class _TableView extends StatelessWidget {
     final columns = math.max(table.columnCount, 1);
     final widths = List<double>.generate(
       columns,
-      (i) => i < table.columnWidths.length && table.columnWidths[i] > 1 ? table.columnWidths[i] : 72,
+      (i) => i < table.columnWidths.length && table.columnWidths[i] > 1
+          ? table.columnWidths[i]
+          : 72,
     );
     final total = widths.fold<double>(0, (a, b) => a + b);
-    final border = BorderSide(color: table.bordered ? style.inkMuted.withValues(alpha: 0.45) : Colors.transparent, width: 0.8);
+    final border = BorderSide(
+      color: table.bordered
+          ? style.inkMuted.withValues(alpha: 0.45)
+          : Colors.transparent,
+      width: 0.8,
+    );
     final inner = DocRenderStyle(
       ink: style.ink,
       inkMuted: style.inkMuted,
@@ -383,7 +481,9 @@ class _TableView extends StatelessWidget {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        for (final (cell, col) in _cellsWithColumns(this.table.rows[r]))
+                        for (final (cell, col) in _cellsWithColumns(
+                          this.table.rows[r],
+                        ))
                           SizedBox(
                             width: _span(widths, col, cell.colSpan) * scale,
                             child: DecoratedBox(
@@ -393,16 +493,27 @@ class _TableView extends StatelessWidget {
                                   left: border,
                                   right: border,
                                   top: cell.covered ? BorderSide.none : border,
-                                  bottom: cell.rowSpan > 1 || _coveredBelow(r, col) ? BorderSide.none : border,
+                                  bottom:
+                                      cell.rowSpan > 1 || _coveredBelow(r, col)
+                                      ? BorderSide.none
+                                      : border,
                                 ),
                               ),
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 4,
+                                ),
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
                                   children: [
                                     for (final b in cell.blocks)
-                                      DocBlockView(block: b, doc: doc, style: inner),
+                                      DocBlockView(
+                                        block: b,
+                                        doc: doc,
+                                        style: inner,
+                                      ),
                                   ],
                                 ),
                               ),
@@ -416,7 +527,10 @@ class _TableView extends StatelessWidget {
           ),
         );
         if (width <= constraints.maxWidth) return table;
-        return SingleChildScrollView(scrollDirection: Axis.horizontal, child: table);
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: table,
+        );
       },
     );
   }
@@ -450,7 +564,12 @@ class _TableView extends StatelessWidget {
 
 /// A slide drawn at its real proportions, scaled to the available width.
 class SlideView extends StatelessWidget {
-  const SlideView({required this.slide, required this.doc, required this.style, super.key});
+  const SlideView({
+    required this.slide,
+    required this.doc,
+    required this.style,
+    super.key,
+  });
 
   final SlideFrame slide;
   final DocModel doc;
@@ -505,8 +624,19 @@ class SlideView extends StatelessWidget {
     switch (item) {
       case SlideImage(:final imageId):
         final image = doc.images[imageId];
-        return image == null ? const SizedBox.shrink() : Image.memory(image.bytes, fit: BoxFit.fill, gaplessPlayback: true);
-      case SlideShape(:final kind, :final fill, :final stroke, :final strokeWidth):
+        return image == null
+            ? const SizedBox.shrink()
+            : Image.memory(
+                image.bytes,
+                fit: BoxFit.fill,
+                gaplessPlayback: true,
+              );
+      case SlideShape(
+        :final kind,
+        :final fill,
+        :final stroke,
+        :final strokeWidth,
+      ):
         return CustomPaint(
           painter: _ShapePainter(
             kind,
@@ -515,7 +645,12 @@ class SlideView extends StatelessWidget {
             strokeWidth * k,
           ),
         );
-      case SlideText(:final paragraphs, :final fill, :final stroke, :final anchor):
+      case SlideText(
+        :final paragraphs,
+        :final fill,
+        :final stroke,
+        :final anchor,
+      ):
         // Slide text sizes are in points on a fixed canvas: scale with it.
         final textStyle = DocRenderStyle(
           ink: s.ink,
@@ -531,29 +666,41 @@ class SlideView extends StatelessWidget {
         return DecoratedBox(
           decoration: BoxDecoration(
             color: fill == null ? null : Color(fill),
-            border: stroke == null ? null : Border.all(color: Color(stroke), width: math.max(k, 0.5)),
+            border: stroke == null
+                ? null
+                : Border.all(color: Color(stroke), width: math.max(k, 0.5)),
           ),
           child: ClipRect(
             child: Padding(
               padding: EdgeInsets.all(7 * k),
-              child: Column(
-                mainAxisAlignment: switch (anchor) {
-                  SlideAnchor.top => MainAxisAlignment.start,
-                  SlideAnchor.middle => MainAxisAlignment.center,
-                  SlideAnchor.bottom => MainAxisAlignment.end,
+              // Like PowerPoint's "shrink text on overflow": the whole frame
+              // scales down to fit its box instead of spilling out.
+              child: Align(
+                alignment: switch (anchor) {
+                  SlideAnchor.top => Alignment.topLeft,
+                  SlideAnchor.middle => Alignment.centerLeft,
+                  SlideAnchor.bottom => Alignment.bottomLeft,
                 },
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  for (final p in paragraphs)
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.topLeft,
-                      child: SizedBox(
-                        width: math.max(item.width * k - 14 * k, 1),
-                        child: ParagraphView(paragraph: p, doc: doc, style: textStyle, selectable: false),
-                      ),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.topLeft,
+                  child: SizedBox(
+                    width: math.max(item.width * k - 14 * k, 1),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (final p in paragraphs)
+                          ParagraphView(
+                            paragraph: p,
+                            doc: doc,
+                            style: textStyle,
+                            selectable: false,
+                          ),
+                      ],
                     ),
-                ],
+                  ),
+                ),
               ),
             ),
           ),
@@ -578,7 +725,13 @@ class _ShapePainter extends CustomPainter {
         case SlideShapeKind.rectangle:
           canvas.drawRect(rect, paint);
         case SlideShapeKind.roundedRectangle:
-          canvas.drawRRect(RRect.fromRectAndRadius(rect, Radius.circular(size.shortestSide * 0.16)), paint);
+          canvas.drawRRect(
+            RRect.fromRectAndRadius(
+              rect,
+              Radius.circular(size.shortestSide * 0.16),
+            ),
+            paint,
+          );
         case SlideShapeKind.ellipse:
           canvas.drawOval(rect, paint);
         case SlideShapeKind.line:
@@ -586,7 +739,8 @@ class _ShapePainter extends CustomPainter {
       }
     }
 
-    if (fill != null && kind != SlideShapeKind.line) draw(Paint()..color = fill!);
+    if (fill != null && kind != SlideShapeKind.line)
+      draw(Paint()..color = fill!);
     if (stroke != null) {
       draw(
         Paint()
@@ -599,6 +753,8 @@ class _ShapePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_ShapePainter old) =>
-      old.kind != kind || old.fill != fill || old.stroke != stroke || old.strokeWidth != strokeWidth;
+      old.kind != kind ||
+      old.fill != fill ||
+      old.stroke != stroke ||
+      old.strokeWidth != strokeWidth;
 }
-

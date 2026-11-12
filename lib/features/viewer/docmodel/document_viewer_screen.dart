@@ -25,15 +25,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// S15 (and the shared reflow viewer for ODT, RTF, legacy .doc, Markdown):
 /// a DocModel reflowed to the screen width (FR-READ-03, FR-READ-07).
 class DocumentViewerScreen extends ConsumerStatefulWidget {
-  const DocumentViewerScreen({required this.document, this.banner, super.key});
+  const DocumentViewerScreen({
+    required this.document,
+    this.banner,
+    this.extraActions = const [],
+    super.key,
+  });
 
   final OpenedDocument document;
+
+  /// Extra overflow actions (Markdown's "Source" toggle).
+  final List<(String, IconData, FutureOr<void> Function())> extraActions;
 
   /// Shown above the text, e.g. the legacy-format notice.
   final String? banner;
 
   @override
-  ConsumerState<DocumentViewerScreen> createState() => _DocumentViewerScreenState();
+  ConsumerState<DocumentViewerScreen> createState() =>
+      _DocumentViewerScreenState();
 }
 
 class _DocumentViewerScreenState extends ConsumerState<DocumentViewerScreen> {
@@ -103,12 +112,17 @@ class _DocumentViewerScreenState extends ConsumerState<DocumentViewerScreen> {
       _baseSize = DocRenderStyle.detectBaseSize(value);
       final saved = await _repo.position(_docId);
       final prefs = await _repo.viewPrefs(_docId);
-      _textScale = ((prefs['textScale'] as num?)?.toDouble() ?? 1).clamp(0.7, 2.2);
+      _textScale = ((prefs['textScale'] as num?)?.toDouble() ?? 1).clamp(
+        0.7,
+        2.2,
+      );
       _bannerDismissed = prefs['bannerSeen'] == true;
       setState(() => _parsed = result);
       final block = saved?.block;
       if (block != null && block > 0) {
-        WidgetsBinding.instance.addPostFrameCallback((_) => unawaited(_scrollToBlock(block)));
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) => unawaited(_scrollToBlock(block)),
+        );
       }
       unawaited(_indexIfNeeded(value));
     } else {
@@ -124,7 +138,8 @@ class _DocumentViewerScreenState extends ConsumerState<DocumentViewerScreen> {
 
   void _onScroll() {
     // Track the first visible block for resume and the progress bar.
-    for (final entry in _keys.entries.toList()..sort((a, b) => a.key.compareTo(b.key))) {
+    for (final entry
+        in _keys.entries.toList()..sort((a, b) => a.key.compareTo(b.key))) {
       final box = entry.value.currentContext?.findRenderObject() as RenderBox?;
       if (box == null || !box.attached) continue;
       final y = box.localToGlobal(Offset.zero).dy;
@@ -134,7 +149,10 @@ class _DocumentViewerScreenState extends ConsumerState<DocumentViewerScreen> {
       }
     }
     _saveTimer?.cancel();
-    _saveTimer = Timer(const Duration(milliseconds: 800), () => unawaited(_save()));
+    _saveTimer = Timer(
+      const Duration(milliseconds: 800),
+      () => unawaited(_save()),
+    );
   }
 
   Future<void> _save() async {
@@ -155,11 +173,17 @@ class _DocumentViewerScreenState extends ConsumerState<DocumentViewerScreen> {
       final key = _keys[index];
       final context = key?.currentContext;
       if (context != null) {
-        await Scrollable.ensureVisible(context, duration: Duration.zero, alignment: 0.05);
+        await Scrollable.ensureVisible(
+          context,
+          duration: Duration.zero,
+          alignment: 0.05,
+        );
         return;
       }
       final measured = _heights.values;
-      final average = measured.isEmpty ? 60.0 : measured.reduce((a, b) => a + b) / measured.length;
+      final average = measured.isEmpty
+          ? 60.0
+          : measured.reduce((a, b) => a + b) / measured.length;
       var offset = 0.0;
       for (var i = 0; i < index; i++) {
         offset += _heights[i] ?? average;
@@ -180,7 +204,9 @@ class _DocumentViewerScreenState extends ConsumerState<DocumentViewerScreen> {
       });
       return;
     }
-    _blockText ??= [for (final b in _blocks) b is Paragraph ? b.plainText : _deepText(b)];
+    _blockText ??= [
+      for (final b in _blocks) b is Paragraph ? b.plainText : _deepText(b),
+    ];
     final found = <BlockMatch>[];
     for (var i = 0; i < _blockText!.length && found.length < 2000; i++) {
       final hay = _blockText![i].toLowerCase();
@@ -197,7 +223,11 @@ class _DocumentViewerScreenState extends ConsumerState<DocumentViewerScreen> {
     if (found.isNotEmpty) unawaited(_scrollToBlock(found.first.block));
   }
 
-  static String _deepText(Block b) => DocModel(sections: [DocSection(blocks: [b])]).plainText();
+  static String _deepText(Block b) => DocModel(
+    sections: [
+      DocSection(blocks: [b]),
+    ],
+  ).plainText();
 
   void _step(int delta) {
     if (_matches.isEmpty) return;
@@ -218,8 +248,16 @@ class _DocumentViewerScreenState extends ConsumerState<DocumentViewerScreen> {
         final c = context.colors;
         if (outline.isEmpty) {
           return Padding(
-            padding: const EdgeInsets.fromLTRB(Space.screen, Space.x4, Space.screen, Space.x8),
-            child: Text(l.docNoOutline, style: DocNookText.body.copyWith(color: c.inkMuted)),
+            padding: const EdgeInsets.fromLTRB(
+              Space.screen,
+              Space.x4,
+              Space.screen,
+              Space.x8,
+            ),
+            child: Text(
+              l.docNoOutline,
+              style: DocNookText.body.copyWith(color: c.inkMuted),
+            ),
           );
         }
         return ListView.builder(
@@ -244,8 +282,13 @@ class _DocumentViewerScreenState extends ConsumerState<DocumentViewerScreen> {
                     alignment: AlignmentDirectional.centerStart,
                     child: Text(
                       e.title,
-                      style: (e.level == 1 ? DocNookText.bodyStrong : DocNookText.body)
-                          .copyWith(color: e.level == 1 ? c.ink : c.inkMuted),
+                      style:
+                          (e.level == 1
+                                  ? DocNookText.bodyStrong
+                                  : DocNookText.body)
+                              .copyWith(
+                                color: e.level == 1 ? c.ink : c.inkMuted,
+                              ),
                     ),
                   ),
                 ),
@@ -269,7 +312,9 @@ class _DocumentViewerScreenState extends ConsumerState<DocumentViewerScreen> {
     if (parsed case Err(:final failure)) {
       return CantOpenScreen(
         failure: failure,
-        onOpenWith: () => unawaited(platform.openWith(doc.request.uri, mime: doc.format.mime)),
+        onOpenWith: () => unawaited(
+          platform.openWith(doc.request.uri, mime: doc.format.mime),
+        ),
       );
     }
     final model = parsed?.valueOrNull;
@@ -289,8 +334,14 @@ class _DocumentViewerScreenState extends ConsumerState<DocumentViewerScreen> {
     for (final m in _matches) {
       (matchesByBlock[m.block] ??= []).add(m);
     }
-    final activeMatch = _active >= 0 && _active < _matches.length ? _matches[_active] : null;
-    final banner = widget.banner ?? (model?.simplified == true && !_bannerDismissed ? l.docSimplifiedBanner : null);
+    final activeMatch = _active >= 0 && _active < _matches.length
+        ? _matches[_active]
+        : null;
+    final banner =
+        widget.banner ??
+        (model?.simplified == true && !_bannerDismissed
+            ? l.docSimplifiedBanner
+            : null);
 
     return Scaffold(
       backgroundColor: c.surface,
@@ -332,11 +383,36 @@ class _DocumentViewerScreenState extends ConsumerState<DocumentViewerScreen> {
               ),
               ViewerOverflowMenu(
                 items: [
-                  if (model != null) (l.pdfOutline, PhosphorIconsRegular.listBullets, () => _showOutline(model)),
-                  (l.docTextLarger, PhosphorIconsRegular.textAa, () => _setScale(_textScale * 1.15)),
-                  (l.docTextSmaller, PhosphorIconsRegular.textAa, () => _setScale(_textScale / 1.15)),
-                  (l.actionShare, PhosphorIconsRegular.shareNetwork, () => platform.share([doc.path], mime: doc.format.mime)),
-                  (l.actionOpenWith, PhosphorIconsRegular.arrowSquareOut, () => platform.openWith(doc.request.uri, mime: doc.format.mime)),
+                  ...widget.extraActions,
+                  if (model != null)
+                    (
+                      l.pdfOutline,
+                      PhosphorIconsRegular.listBullets,
+                      () => _showOutline(model),
+                    ),
+                  (
+                    l.docTextLarger,
+                    PhosphorIconsRegular.textAa,
+                    () => _setScale(_textScale * 1.15),
+                  ),
+                  (
+                    l.docTextSmaller,
+                    PhosphorIconsRegular.textAa,
+                    () => _setScale(_textScale / 1.15),
+                  ),
+                  (
+                    l.actionShare,
+                    PhosphorIconsRegular.shareNetwork,
+                    () => platform.share([doc.path], mime: doc.format.mime),
+                  ),
+                  (
+                    l.actionOpenWith,
+                    PhosphorIconsRegular.arrowSquareOut,
+                    () => platform.openWith(
+                      doc.request.uri,
+                      mime: doc.format.mime,
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -358,8 +434,12 @@ class _DocumentViewerScreenState extends ConsumerState<DocumentViewerScreen> {
                     onScaleStart: (_) => _scaleAtGestureStart = _textScale,
                     onScaleUpdate: (d) {
                       if (d.pointerCount < 2) return;
-                      final next = (_scaleAtGestureStart * d.scale).clamp(0.7, 2.2);
-                      if ((next - _textScale).abs() > 0.02) setState(() => _textScale = next);
+                      final next = (_scaleAtGestureStart * d.scale).clamp(
+                        0.7,
+                        2.2,
+                      );
+                      if ((next - _textScale).abs() > 0.02)
+                        setState(() => _textScale = next);
                     },
                     onScaleEnd: (_) => unawaited(_save()),
                     onTap: () => setState(() => _chrome = !_chrome),
@@ -444,17 +524,35 @@ class _Banner extends StatelessWidget {
         color: c.surfaceSunken,
         border: Border(bottom: BorderSide(color: c.hairline)),
       ),
-      padding: const EdgeInsets.fromLTRB(Space.screen, Space.x2, Space.x1, Space.x2),
+      padding: const EdgeInsets.fromLTRB(
+        Space.screen,
+        Space.x2,
+        Space.x1,
+        Space.x2,
+      ),
       child: Row(
         children: [
-          Icon(PhosphorIconsRegular.info, size: Sizes.iconSmall, color: c.inkMuted),
+          Icon(
+            PhosphorIconsRegular.info,
+            size: Sizes.iconSmall,
+            color: c.inkMuted,
+          ),
           const SizedBox(width: Space.x2),
-          Expanded(child: Text(text, style: DocNookText.caption.copyWith(color: c.ink))),
+          Expanded(
+            child: Text(
+              text,
+              style: DocNookText.caption.copyWith(color: c.ink),
+            ),
+          ),
           if (onClose != null)
-            IconAction(icon: PhosphorIconsRegular.x, label: l.actionClose, color: c.inkMuted, onPressed: onClose),
+            IconAction(
+              icon: PhosphorIconsRegular.x,
+              label: l.actionClose,
+              color: c.inkMuted,
+              onPressed: onClose,
+            ),
         ],
       ),
     );
   }
 }
-

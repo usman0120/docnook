@@ -139,3 +139,30 @@ last publish date and manifest permissions (CLAUDE.md rule 3).
 - All bottom sheets open on the root navigator so they cover the tab bar and Scan.
 - DocNook launcher icon: paper sheet with folded corner, ink lines, one gold line,
   on the primary ink-blue (adaptive + legacy PNGs).
+
+## 2026-11-12 — Phase 4: Office and other viewers
+
+- **Packages added:** `two_dimensional_scrollables` 0.5.6 (Flutter team, BSD-3; the
+  sheet grid with pinned headers and merged cells) and `markdown` 7.3.1 (Dart team,
+  BSD-3; parsing only). No manifest permissions.
+- **Not added (unmaintained):** `re_highlight`/`flutter_highlight` (last releases
+  2024/2021) and `epubx` (2023). Replaced with small in-house code: a line-based
+  highlighter (`engines/text/highlighter.dart`) and an EPUB reader that goes
+  container → OPF → spine → XHTML → DocModel. `markdown_widget` and
+  `flutter_widget_from_html_core` are not needed: Markdown and EPUB go through one
+  HTML→DocModel converter and the same renderer as Word.
+- XHTML from EPUBs: a plain `<!DOCTYPE html>` is stripped and HTML named entities
+  become numeric before parsing; any DOCTYPE with an internal subset is still
+  rejected (no entity expansion).
+- Legacy .doc/.xls/.ppt: own compound-file reader; .doc text via the piece table,
+  .xls via BIFF8 records (SST, LABELSST, NUMBER, RK, MULRK, cached formula numbers),
+  .ppt via TextChars/TextBytes atoms. Shown with a "limited preview" banner.
+  Encrypted .doc files report "password-protected".
+- Fixtures (`tool/make_fixtures.py`, independent libraries: python-pptx, openpyxl,
+  odfpy, xlwt): PPTX, XLSX, XLS, ODT, ODS, RTF, MD, CSV, EPUB. **Still needed:** real
+  .doc and .ppt files saved by Microsoft Office (no generator on this PC).
+- Slide text that overflows its box shrinks to fit (as PowerPoint's autofit),
+  found by the new render test (`test/widget/docmodel_render_test.dart`), which
+  lays out every fixture at phone width in both themes at 1× and 2× text.
+- Large text files are indexed by line offset in an isolate and read 200 lines at a
+  time; a 20 MB log indexes in well under 8 s on the build PC.

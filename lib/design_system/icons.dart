@@ -5,7 +5,10 @@
 import 'package:flutter/widgets.dart';
 
 abstract final class PhosphorIconsRegular {
+  static const arrowClockwise = IconData(0xe036, fontFamily: 'PhosphorRegular');
   static const arrowLeft = IconData(0xe058, fontFamily: 'PhosphorRegular');
+  static const arrowLineDown = IconData(0xe05c, fontFamily: 'PhosphorRegular');
+  static const arrowLineUp = IconData(0xe066, fontFamily: 'PhosphorRegular');
   static const arrowSquareOut = IconData(0xe5de, fontFamily: 'PhosphorRegular');
   static const arrowsHorizontal = IconData(
     0xeb06,
@@ -16,7 +19,9 @@ abstract final class PhosphorIconsRegular {
     0xe0a0,
     fontFamily: 'PhosphorRegular',
   );
+  static const arrowsOut = IconData(0xe0a2, fontFamily: 'PhosphorRegular');
   static const arrowsVertical = IconData(0xeb04, fontFamily: 'PhosphorRegular');
+  static const article = IconData(0xe0a8, fontFamily: 'PhosphorRegular');
   static const bookOpen = IconData(0xe0e6, fontFamily: 'PhosphorRegular');
   static const bookmarkSimple = IconData(0xe0ea, fontFamily: 'PhosphorRegular');
   static const caretDown = IconData(0xe136, fontFamily: 'PhosphorRegular');
@@ -27,15 +32,18 @@ abstract final class PhosphorIconsRegular {
     0xe1a0,
     fontFamily: 'PhosphorRegular',
   );
+  static const code = IconData(0xe1bc, fontFamily: 'PhosphorRegular');
   static const copy = IconData(0xe1ca, fontFamily: 'PhosphorRegular');
   static const dotsThreeVertical = IconData(
     0xe208,
     fontFamily: 'PhosphorRegular',
   );
   static const drop = IconData(0xe210, fontFamily: 'PhosphorRegular');
+  static const export = IconData(0xeaf0, fontFamily: 'PhosphorRegular');
   static const eye = IconData(0xe220, fontFamily: 'PhosphorRegular');
   static const eyeSlash = IconData(0xe224, fontFamily: 'PhosphorRegular');
   static const fileDoc = IconData(0xeb1e, fontFamily: 'PhosphorRegular');
+  static const filePdf = IconData(0xe702, fontFamily: 'PhosphorRegular');
   static const filePpt = IconData(0xeb20, fontFamily: 'PhosphorRegular');
   static const fileText = IconData(0xe23a, fontFamily: 'PhosphorRegular');
   static const fileTxt = IconData(0xeb35, fontFamily: 'PhosphorRegular');
@@ -73,6 +81,7 @@ abstract final class PhosphorIconsRegular {
     fontFamily: 'PhosphorRegular',
   );
   static const moon = IconData(0xe330, fontFamily: 'PhosphorRegular');
+  static const note = IconData(0xe348, fontFamily: 'PhosphorRegular');
   static const pencilSimple = IconData(0xe3b4, fontFamily: 'PhosphorRegular');
   static const plus = IconData(0xe3d4, fontFamily: 'PhosphorRegular');
   static const rectangle = IconData(0xe3f0, fontFamily: 'PhosphorRegular');
@@ -88,6 +97,7 @@ abstract final class PhosphorIconsRegular {
   static const sun = IconData(0xe472, fontFamily: 'PhosphorRegular');
   static const table = IconData(0xe476, fontFamily: 'PhosphorRegular');
   static const textAa = IconData(0xe6ee, fontFamily: 'PhosphorRegular');
+  static const textAlignLeft = IconData(0xe484, fontFamily: 'PhosphorRegular');
   static const textT = IconData(0xe48a, fontFamily: 'PhosphorRegular');
   static const textbox = IconData(0xeb0a, fontFamily: 'PhosphorRegular');
   static const trash = IconData(0xe4a6, fontFamily: 'PhosphorRegular');

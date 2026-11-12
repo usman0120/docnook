@@ -10,7 +10,15 @@ import 'package:docnook/design_system/components/states.dart';
 import 'package:docnook/design_system/icons.dart';
 import 'package:docnook/domain/entities/doc_type.dart';
 import 'package:docnook/features/viewer/application/open_document.dart';
+import 'package:docnook/features/viewer/archive/archive_screen.dart';
+import 'package:docnook/features/viewer/docmodel/document_viewer_screen.dart';
+import 'package:docnook/features/viewer/epub/epub_reader_screen.dart';
+import 'package:docnook/features/viewer/image/image_viewer_screen.dart';
 import 'package:docnook/features/viewer/pdf/pdf_viewer_screen.dart';
+import 'package:docnook/features/viewer/sheet/sheet_viewer_screen.dart';
+import 'package:docnook/features/viewer/slides/slides_viewer_screen.dart';
+import 'package:docnook/features/viewer/text/markdown_viewer.dart';
+import 'package:docnook/features/viewer/text/text_viewer_screen.dart';
 import 'package:docnook/features/viewer/presentation/cant_open_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -106,9 +114,33 @@ class _ViewerHostState extends ConsumerState<ViewerHost> {
       );
     }
 
-    final viewer = switch (doc.format.docType) {
-      DocType.pdf => PdfViewerScreen(document: doc),
-      _ => null,
+    final Widget? viewer = switch (doc.format) {
+      DocFormat.pdf => PdfViewerScreen(document: doc),
+      DocFormat.docx ||
+      DocFormat.dotx ||
+      DocFormat.odt ||
+      DocFormat.rtf => DocumentViewerScreen(document: doc),
+      DocFormat.doc || DocFormat.xls || DocFormat.ppt => DocumentViewerScreen(
+        document: doc,
+        banner: l.docLegacyBanner,
+      ),
+      DocFormat.xlsx ||
+      DocFormat.xlsm ||
+      DocFormat.ods ||
+      DocFormat.csv ||
+      DocFormat.tsv => SheetViewerScreen(document: doc),
+      DocFormat.pptx => SlidesViewerScreen(document: doc),
+      DocFormat.markdown => MarkdownViewer(document: doc),
+      DocFormat.plainText || DocFormat.code => TextViewerScreen(document: doc),
+      DocFormat.epub => EpubReaderScreen(document: doc),
+      DocFormat.jpeg ||
+      DocFormat.png ||
+      DocFormat.webp ||
+      DocFormat.gif ||
+      DocFormat.bmp ||
+      DocFormat.heic => ImageViewerScreen(document: doc),
+      DocFormat.zip => ArchiveScreen(document: doc),
+      DocFormat.unknown => null,
     };
     if (viewer != null) {
       return PopScope(

@@ -1090,6 +1090,228 @@ abstract class AppLocalizations {
   /// **'Limited preview: old Office files show their text only.'**
   String get docLegacyBanner;
 
+  /// No description provided for @sheetFitWidth.
+  ///
+  /// In en, this message translates to:
+  /// **'Fit to width'**
+  String get sheetFitWidth;
+
+  /// No description provided for @sheetActualSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Actual size'**
+  String get sheetActualSize;
+
+  /// No description provided for @sheetTruncated.
+  ///
+  /// In en, this message translates to:
+  /// **'This sheet is very large; DocNook shows the first 1,000,000 cells.'**
+  String get sheetTruncated;
+
+  /// No description provided for @sheetEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'This sheet is empty'**
+  String get sheetEmpty;
+
+  /// No description provided for @sheetFormula.
+  ///
+  /// In en, this message translates to:
+  /// **'Formula'**
+  String get sheetFormula;
+
+  /// No description provided for @sheetFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Format'**
+  String get sheetFormat;
+
+  /// No description provided for @slidesOutline.
+  ///
+  /// In en, this message translates to:
+  /// **'Outline'**
+  String get slidesOutline;
+
+  /// No description provided for @slidesSlides.
+  ///
+  /// In en, this message translates to:
+  /// **'Slides'**
+  String get slidesSlides;
+
+  /// No description provided for @slidesNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Speaker notes'**
+  String get slidesNotes;
+
+  /// No description provided for @slideOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} / {total}'**
+  String slideOf(int n, int total);
+
+  /// No description provided for @slidesBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Simplified slides — animations, charts and some shapes are not shown.'**
+  String get slidesBanner;
+
+  /// No description provided for @textWrap.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrap lines'**
+  String get textWrap;
+
+  /// No description provided for @textNoWrap.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t wrap lines'**
+  String get textNoWrap;
+
+  /// No description provided for @textLineNumbers.
+  ///
+  /// In en, this message translates to:
+  /// **'Line numbers'**
+  String get textLineNumbers;
+
+  /// No description provided for @textJumpEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Jump to end'**
+  String get textJumpEnd;
+
+  /// No description provided for @textJumpStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Jump to start'**
+  String get textJumpStart;
+
+  /// No description provided for @mdRendered.
+  ///
+  /// In en, this message translates to:
+  /// **'Formatted'**
+  String get mdRendered;
+
+  /// No description provided for @mdSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get mdSource;
+
+  /// No description provided for @imageRotate.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotate'**
+  String get imageRotate;
+
+  /// No description provided for @imageMakePdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Make PDF'**
+  String get imageMakePdf;
+
+  /// No description provided for @imageExtractText.
+  ///
+  /// In en, this message translates to:
+  /// **'Extract text'**
+  String get imageExtractText;
+
+  /// No description provided for @imageOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} of {total}'**
+  String imageOf(int n, int total);
+
+  /// No description provided for @zipEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 item} other{{n} items}}'**
+  String zipEntries(int n);
+
+  /// No description provided for @zipExtract.
+  ///
+  /// In en, this message translates to:
+  /// **'Extract to DocNook folder'**
+  String get zipExtract;
+
+  /// No description provided for @zipExtracted.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{Extracted 1 file} other{Extracted {n} files}} to Documents/DocNook/Extracted'**
+  String zipExtracted(int n);
+
+  /// No description provided for @zipEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'This archive is empty'**
+  String get zipEmpty;
+
+  /// No description provided for @zipUnsafe.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped {n, plural, =1{1 item} other{{n} items}} with unsafe names'**
+  String zipUnsafe(int n);
+
+  /// No description provided for @zipFolderUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Up one folder'**
+  String get zipFolderUp;
+
+  /// No description provided for @epubChapters.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapters'**
+  String get epubChapters;
+
+  /// No description provided for @epubTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading theme'**
+  String get epubTheme;
+
+  /// No description provided for @epubThemePaper.
+  ///
+  /// In en, this message translates to:
+  /// **'Paper'**
+  String get epubThemePaper;
+
+  /// No description provided for @epubThemeWhite.
+  ///
+  /// In en, this message translates to:
+  /// **'White'**
+  String get epubThemeWhite;
+
+  /// No description provided for @epubThemeNight.
+  ///
+  /// In en, this message translates to:
+  /// **'Night'**
+  String get epubThemeNight;
+
+  /// No description provided for @epubLineSpacing.
+  ///
+  /// In en, this message translates to:
+  /// **'Line spacing'**
+  String get epubLineSpacing;
+
+  /// No description provided for @epubChapterProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapter {n} of {total}'**
+  String epubChapterProgress(int n, int total);
+
+  /// No description provided for @epubNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next chapter'**
+  String get epubNext;
+
+  /// No description provided for @epubPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous chapter'**
+  String get epubPrevious;
+
   /// No description provided for @notAvailableYet.
   ///
   /// In en, this message translates to:

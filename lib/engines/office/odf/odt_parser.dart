@@ -21,7 +21,9 @@ abstract final class OdtParser {
 /// ODF lengths ("2.5cm", "12pt", "0.4in", "10mm") → points.
 double? odfLength(String? value) {
   if (value == null) return null;
-  final m = RegExp(r'^(-?[\d.]+)\s*(cm|mm|in|pt|pc|px)?$').firstMatch(value.trim());
+  final m = RegExp(
+    r'^(-?[\d.]+)\s*(cm|mm|in|pt|pc|px)?$',
+  ).firstMatch(value.trim());
   if (m == null) return null;
   final n = double.tryParse(m.group(1)!);
   if (n == null) return null;
@@ -61,7 +63,8 @@ final class _OdtReader {
 
   DocModel read() {
     final content = _zip.text('content.xml');
-    if (content == null) throw const DocNookFailure.corrupt(detail: 'odt: no content');
+    if (content == null)
+      throw const DocNookFailure.corrupt(detail: 'odt: no content');
     final stylesXml = _zip.text('styles.xml');
     if (stylesXml != null) _readStyles(XmlPull(stylesXml), 'styles');
     _readStyles(XmlPull(content), 'automatic-styles');
@@ -70,7 +73,10 @@ final class _OdtReader {
     final body = _pull.find('text');
     final blocks = <Block>[];
     if (body != null) _pull.children(body, (child) => _block(child, blocks, 0));
-    return DocModel(sections: [DocSection(blocks: blocks)], images: _images);
+    return DocModel(
+      sections: [DocSection(blocks: blocks)],
+      images: _images,
+    );
   }
 
   void _readStyles(XmlPull pull, String container) {
@@ -89,9 +95,11 @@ final class _OdtReader {
             final underline = prop.attr('style:text-underline-style');
             final strike = prop.attr('style:text-line-through-style');
             final position = prop.attr('style:text-position') ?? '';
-            final font = prop.attr('style:font-name') ?? prop.attr('fo:font-family');
+            final font =
+                prop.attr('style:font-name') ?? prop.attr('fo:font-family');
             s.run = RunStyle(
-              bold: weight == 'bold' || (int.tryParse(weight ?? '') ?? 0) >= 600,
+              bold:
+                  weight == 'bold' || (int.tryParse(weight ?? '') ?? 0) >= 600,
               italic: fontStyle == 'italic' || fontStyle == 'oblique',
               underline: underline != null && underline != 'none',
               strike: strike != null && strike != 'none',
@@ -116,10 +124,18 @@ final class _OdtReader {
                   'justify' => TextAlignment.justify,
                   _ => TextAlignment.start,
                 },
-                indentStart: (odfLength(prop.attr('fo:margin-left')) ?? 0).clamp(0, 300).toDouble(),
-                firstLine: (odfLength(prop.attr('fo:text-indent')) ?? 0).clamp(-100, 100).toDouble(),
-                spaceBefore: (odfLength(prop.attr('fo:margin-top')) ?? 0).clamp(0, 100).toDouble(),
-                spaceAfter: (odfLength(prop.attr('fo:margin-bottom')) ?? 0).clamp(0, 100).toDouble(),
+                indentStart: (odfLength(prop.attr('fo:margin-left')) ?? 0)
+                    .clamp(0, 300)
+                    .toDouble(),
+                firstLine: (odfLength(prop.attr('fo:text-indent')) ?? 0)
+                    .clamp(-100, 100)
+                    .toDouble(),
+                spaceBefore: (odfLength(prop.attr('fo:margin-top')) ?? 0)
+                    .clamp(0, 100)
+                    .toDouble(),
+                spaceAfter: (odfLength(prop.attr('fo:margin-bottom')) ?? 0)
+                    .clamp(0, 100)
+                    .toDouble(),
                 background: odfColor(prop.attr('fo:background-color')),
               );
           case 'table-cell-properties':
@@ -165,7 +181,12 @@ final class _OdtReader {
     return name == null ? null : _styles[name];
   }
 
-  void _block(XmlStartElementEvent e, List<Block> out, int listLevel, [String? marker]) {
+  void _block(
+    XmlStartElementEvent e,
+    List<Block> out,
+    int listLevel, [
+    String? marker,
+  ]) {
     switch (e.localName) {
       case 'p' || 'h':
         final styleName = e.attr('text:style-name');
@@ -173,20 +194,32 @@ final class _OdtReader {
         if (style?.pageBreakBefore ?? false) out.add(const PageBreak());
         final inlines = <Inline>[];
         _inlines(e, inlines, _run(styleName, RunStyle.plain));
-        final level = e.localName == 'h' ? (int.tryParse(e.attr('text:outline-level') ?? '') ?? 1).clamp(1, 6) : 0;
+        final level = e.localName == 'h'
+            ? (int.tryParse(e.attr('text:outline-level') ?? '') ?? 1).clamp(
+                1,
+                6,
+              )
+            : 0;
         out.add(
           Paragraph(
             _merge(inlines),
             style: style?.para ?? ParagraphStyle.plain,
             headingLevel: level,
-            list: marker == null ? null : ListInfo(level: listLevel, marker: marker, ordered: marker != '•'),
+            list: marker == null
+                ? null
+                : ListInfo(
+                    level: listLevel,
+                    marker: marker,
+                    ordered: marker != '•',
+                  ),
           ),
         );
         if (style?.pageBreakAfter ?? false) out.add(const PageBreak());
       case 'list':
         var n = 0;
         _pull.children(e, (item) {
-          if (item.localName != 'list-item' && item.localName != 'list-header') return;
+          if (item.localName != 'list-item' && item.localName != 'list-header')
+            return;
           n++;
           var first = true;
           _pull.children(item, (child) {
@@ -195,7 +228,12 @@ final class _OdtReader {
             } else {
               // Numbering style details are not resolved: bullets are shown,
               // which is honest for "Basic" fidelity.
-              _block(child, out, listLevel, first ? (item.localName == 'list-header' ? '' : '•') : '');
+              _block(
+                child,
+                out,
+                listLevel,
+                first ? (item.localName == 'list-header' ? '' : '•') : '',
+              );
               first = false;
             }
           });
@@ -203,7 +241,11 @@ final class _OdtReader {
         assert(n >= 0, 'items');
       case 'table':
         out.add(_table(e));
-      case 'section' || 'index-body' || 'table-of-content' || 'alphabetical-index' || 'illustration-index':
+      case 'section' ||
+          'index-body' ||
+          'table-of-content' ||
+          'alphabetical-index' ||
+          'illustration-index':
         _pull.children(e, (child) => _block(child, out, listLevel));
       case 'soft-page-break':
         break;
@@ -211,7 +253,8 @@ final class _OdtReader {
         final inlines = <Inline>[];
         _frame(e, inlines);
         for (final i in inlines) {
-          if (i is InlineImage) out.add(ImageBlock(i.imageId, width: i.width, height: i.height));
+          if (i is InlineImage)
+            out.add(ImageBlock(i.imageId, width: i.width, height: i.height));
         }
     }
   }
@@ -227,7 +270,16 @@ final class _OdtReader {
             final href = child.attr('xlink:href');
             _inlines(child, out, style.copyWith(link: href));
           case 's':
-            out.add(TextRun(' ' * (int.tryParse(child.attr('text:c') ?? '') ?? 1).clamp(1, 40), style));
+            out.add(
+              TextRun(
+                ' ' *
+                    (int.tryParse(child.attr('text:c') ?? '') ?? 1).clamp(
+                      1,
+                      40,
+                    ),
+                style,
+              ),
+            );
           case 'tab':
             out.add(TextRun('\t', style));
           case 'line-break':
@@ -237,16 +289,26 @@ final class _OdtReader {
           case 'note':
             _pull.children(child, (n) {
               if (n.localName == 'note-citation') {
-                out.add(TextRun(_pull.text(n), style.copyWith(position: VerticalPosition.superscript)));
+                out.add(
+                  TextRun(
+                    _pull.text(n),
+                    style.copyWith(position: VerticalPosition.superscript),
+                  ),
+                );
               }
             });
-          case 'bookmark' || 'bookmark-start' || 'bookmark-end' || 'soft-page-break' || 'annotation':
+          case 'bookmark' ||
+              'bookmark-start' ||
+              'bookmark-end' ||
+              'soft-page-break' ||
+              'annotation':
             break;
           default:
             _inlines(child, out, style);
         }
       },
-      onText: (text) => out.add(TextRun(text.replaceAll(RegExp(r'\s+'), ' '), style)),
+      onText: (text) =>
+          out.add(TextRun(text.replaceAll(RegExp(r'\s+'), ' '), style)),
     );
   }
 
@@ -287,12 +349,24 @@ final class _OdtReader {
         if (cell.localName != 'table-cell') return;
         final blocks = <Block>[];
         _pull.children(cell, (child) => _block(child, blocks, 0));
-        final span = (int.tryParse(cell.attr('table:number-columns-spanned') ?? '') ?? 1).clamp(1, 60);
-        final rowSpan = (int.tryParse(cell.attr('table:number-rows-spanned') ?? '') ?? 1).clamp(1, 1000);
-        final repeat = (int.tryParse(cell.attr('table:number-columns-repeated') ?? '') ?? 1).clamp(1, 60);
+        final span =
+            (int.tryParse(cell.attr('table:number-columns-spanned') ?? '') ?? 1)
+                .clamp(1, 60);
+        final rowSpan =
+            (int.tryParse(cell.attr('table:number-rows-spanned') ?? '') ?? 1)
+                .clamp(1, 1000);
+        final repeat =
+            (int.tryParse(cell.attr('table:number-columns-repeated') ?? '') ??
+                    1)
+                .clamp(1, 60);
         for (var i = 0; i < repeat; i++) {
           cells.add(
-            TableCell(blocks, colSpan: span, rowSpan: rowSpan, fill: _styles[cell.attr('table:style-name')]?.cellFill),
+            TableCell(
+              blocks,
+              colSpan: span,
+              rowSpan: rowSpan,
+              fill: _styles[cell.attr('table:style-name')]?.cellFill,
+            ),
           );
         }
       });
@@ -313,7 +387,12 @@ final class _OdtReader {
     _pull.children(e, (child) {
       switch (child.localName) {
         case 'table-column':
-          final repeat = (int.tryParse(child.attr('table:number-columns-repeated') ?? '') ?? 1).clamp(1, 60);
+          final repeat =
+              (int.tryParse(
+                        child.attr('table:number-columns-repeated') ?? '',
+                      ) ??
+                      1)
+                  .clamp(1, 60);
           for (var i = 0; i < repeat; i++) {
             widths.add(72);
           }

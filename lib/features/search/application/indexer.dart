@@ -4,9 +4,13 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:docnook/app/providers.dart';
+import 'package:docnook/data/files/file_type_detector.dart';
 import 'package:docnook/data/repositories/search_repository.dart';
 import 'package:docnook/domain/entities/doc_type.dart';
 import 'package:docnook/domain/entities/document_info.dart';
+import 'package:docnook/engines/jobs/job_runner.dart';
+import 'package:docnook/engines/office/parse_document.dart';
+import 'package:docnook/engines/office/pptx/pptx_parser.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pdfrx/pdfrx.dart';
 
@@ -95,7 +99,7 @@ class Indexer {
       while (!_disposed) {
         if (_pauses > 0) return;
         final batch = await _search.pending(
-          types: const ['pdf', 'text', 'markdown'],
+          types: const ['pdf', 'text', 'markdown', 'word', 'epub', 'slides'],
           limit: 10,
         );
         if (batch.isEmpty) return;
@@ -122,8 +126,11 @@ class Indexer {
     try {
       final chunks = switch (doc.type) {
         DocType.pdf => await _pdfChunks(path),
-        DocType.text ||
-        DocType.markdown => await Isolate.run(() => _readTextChunks(path)),
+        DocType.text => await Isolate.run(() => _readTextChunks(path)),
+        DocType.markdown ||
+        DocType.word ||
+        DocType.epub ||
+        DocType.slides => await _docChunks(path, doc.name),
         _ => null,
       };
       if (chunks == null) {
@@ -137,6 +144,24 @@ class Indexer {
       // Password-protected or damaged files stay searchable by name only.
       await _search.markFailed(doc.id);
     }
+  }
+
+  /// Office, EPUB and Markdown text, parsed in a background job.
+  Future<List<IndexChunk>> _docChunks(String path, String name) async {
+    final format = await Isolate.run(
+      () => FileTypeDetector.detectFile(path, name: name),
+    );
+    final result = await _ref
+        .read(jobRunnerProvider)
+        .run(
+          _parseForIndex,
+          ParseRequest(path, format),
+          timeout: const Duration(seconds: 90),
+        )
+        .result;
+    final chunks = result.valueOrNull;
+    if (chunks == null) throw StateError('parse failed');
+    return chunks;
   }
 
   Future<List<IndexChunk>?> _pdfChunks(String path) async {
@@ -167,4 +192,11 @@ class Indexer {
 /// Indexing stopped because a document was opened; nothing is saved.
 final class _Interrupted implements Exception {
   const _Interrupted();
+}
+
+List<IndexChunk> _parseForIndex(ParseRequest request, JobContext context) {
+  final model = request.format == DocFormat.pptx
+      ? PptxParser.parseFile(request.path)
+      : parseToDocModel(request, context);
+  return docModelChunks(model);
 }

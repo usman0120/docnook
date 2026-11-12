@@ -112,7 +112,9 @@ final class _RtfReader {
 
   /// Right after `{`: `{\*\dest` and known destinations are skipped whole.
   void _checkDestination() {
-    if (_pos + 1 < _bytes.length && _bytes[_pos] == 0x5C && _bytes[_pos + 1] == 0x2A) {
+    if (_pos + 1 < _bytes.length &&
+        _bytes[_pos] == 0x5C &&
+        _bytes[_pos + 1] == 0x2A) {
       _flushText();
       _state.skip = true;
       return;
@@ -179,7 +181,9 @@ final class _RtfReader {
   int? _readNumber() {
     final start = _pos;
     if (_pos < _bytes.length && _bytes[_pos] == 0x2D) _pos++;
-    while (_pos < _bytes.length && _bytes[_pos] >= 0x30 && _bytes[_pos] <= 0x39) {
+    while (_pos < _bytes.length &&
+        _bytes[_pos] >= 0x30 &&
+        _bytes[_pos] <= 0x39) {
       _pos++;
     }
     if (_pos == start) return null;
@@ -198,9 +202,13 @@ final class _RtfReader {
           if (!_state.skip) _text.writeCharCode(c);
         case 0x27: // \'hh
           if (_pos + 2 <= _bytes.length) {
-            final hex = int.tryParse(ascii.decode(_bytes.sublist(_pos, _pos + 2), allowInvalid: true), radix: 16);
+            final hex = int.tryParse(
+              ascii.decode(_bytes.sublist(_pos, _pos + 2), allowInvalid: true),
+              radix: 16,
+            );
             _pos += 2;
-            if (hex != null && !_state.skip) _text.writeCharCode(_decodeByte(hex));
+            if (hex != null && !_state.skip)
+              _text.writeCharCode(_decodeByte(hex));
           }
         case 0x7E: // non-breaking space
           if (!_state.skip) _text.write(' ');
@@ -252,7 +260,12 @@ final class _RtfReader {
       case 'fs':
         _style(() => _state.size = param == null ? null : param / 2);
       case 'cf':
-        _style(() => _state.color = param != null && param > 0 && param < _colors.length ? _colors[param] : null);
+        _style(
+          () => _state.color =
+              param != null && param > 0 && param < _colors.length
+              ? _colors[param]
+              : null,
+        );
       case 'plain':
         _style(() {
           _state
@@ -359,7 +372,10 @@ final class _RtfReader {
   void _endParagraph({required bool force}) {
     _flushText();
     if (_runs.isEmpty && !force) return;
-    final paragraph = Paragraph(_runs, style: ParagraphStyle(align: _state.align, spaceAfter: 4));
+    final paragraph = Paragraph(
+      _runs,
+      style: ParagraphStyle(align: _state.align, spaceAfter: 4),
+    );
     _runs = <Inline>[];
     if (_inTable) {
       (_cellBlocks ??= []).add(paragraph);

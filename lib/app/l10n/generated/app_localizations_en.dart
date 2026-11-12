@@ -553,6 +553,149 @@ class AppLocalizationsEn extends AppLocalizations {
       'Limited preview: old Office files show their text only.';
 
   @override
+  String get sheetFitWidth => 'Fit to width';
+
+  @override
+  String get sheetActualSize => 'Actual size';
+
+  @override
+  String get sheetTruncated =>
+      'This sheet is very large; DocNook shows the first 1,000,000 cells.';
+
+  @override
+  String get sheetEmpty => 'This sheet is empty';
+
+  @override
+  String get sheetFormula => 'Formula';
+
+  @override
+  String get sheetFormat => 'Format';
+
+  @override
+  String get slidesOutline => 'Outline';
+
+  @override
+  String get slidesSlides => 'Slides';
+
+  @override
+  String get slidesNotes => 'Speaker notes';
+
+  @override
+  String slideOf(int n, int total) {
+    return '$n / $total';
+  }
+
+  @override
+  String get slidesBanner =>
+      'Simplified slides — animations, charts and some shapes are not shown.';
+
+  @override
+  String get textWrap => 'Wrap lines';
+
+  @override
+  String get textNoWrap => 'Don\'t wrap lines';
+
+  @override
+  String get textLineNumbers => 'Line numbers';
+
+  @override
+  String get textJumpEnd => 'Jump to end';
+
+  @override
+  String get textJumpStart => 'Jump to start';
+
+  @override
+  String get mdRendered => 'Formatted';
+
+  @override
+  String get mdSource => 'Source';
+
+  @override
+  String get imageRotate => 'Rotate';
+
+  @override
+  String get imageMakePdf => 'Make PDF';
+
+  @override
+  String get imageExtractText => 'Extract text';
+
+  @override
+  String imageOf(int n, int total) {
+    return '$n of $total';
+  }
+
+  @override
+  String zipEntries(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n items',
+      one: '1 item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get zipExtract => 'Extract to DocNook folder';
+
+  @override
+  String zipExtracted(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Extracted $n files',
+      one: 'Extracted 1 file',
+    );
+    return '$_temp0 to Documents/DocNook/Extracted';
+  }
+
+  @override
+  String get zipEmpty => 'This archive is empty';
+
+  @override
+  String zipUnsafe(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n items',
+      one: '1 item',
+    );
+    return 'Skipped $_temp0 with unsafe names';
+  }
+
+  @override
+  String get zipFolderUp => 'Up one folder';
+
+  @override
+  String get epubChapters => 'Chapters';
+
+  @override
+  String get epubTheme => 'Reading theme';
+
+  @override
+  String get epubThemePaper => 'Paper';
+
+  @override
+  String get epubThemeWhite => 'White';
+
+  @override
+  String get epubThemeNight => 'Night';
+
+  @override
+  String get epubLineSpacing => 'Line spacing';
+
+  @override
+  String epubChapterProgress(int n, int total) {
+    return 'Chapter $n of $total';
+  }
+
+  @override
+  String get epubNext => 'Next chapter';
+
+  @override
+  String get epubPrevious => 'Previous chapter';
+
+  @override
   String get notAvailableYet => 'This tool arrives in a later build';
 
   @override

@@ -1,7 +1,8 @@
 import 'package:docnook/core/failures.dart';
 import 'package:docnook/domain/docmodel/doc_model.dart';
 import 'package:docnook/engines/archive/safe_zip.dart';
-import 'package:docnook/engines/office/docx/docx_styles.dart' show Units, classifyFont, parseHexColor;
+import 'package:docnook/engines/office/docx/docx_styles.dart'
+    show Units, classifyFont, parseHexColor;
 import 'package:docnook/engines/office/xml_events.dart';
 
 /// Reads .pptx into a [DocModel] of [SlideFrame]s (Basic fidelity): slide
@@ -47,7 +48,8 @@ final class _PptxReader {
 
   DocModel read() {
     final presentation = _zip.text('ppt/presentation.xml');
-    if (presentation == null) throw const DocNookFailure.corrupt(detail: 'pptx: presentation');
+    if (presentation == null)
+      throw const DocNookFailure.corrupt(detail: 'pptx: presentation');
     final rels = _rels('ppt/_rels/presentation.xml.rels', 'ppt/');
     _readTheme();
 
@@ -78,8 +80,13 @@ final class _PptxReader {
       final frame = _slide(path);
       if (frame != null) slides.add(frame);
     }
-    if (slides.isEmpty) throw const DocNookFailure.corrupt(detail: 'pptx: no slides');
-    return DocModel(sections: [DocSection(blocks: slides)], images: _images, simplified: true);
+    if (slides.isEmpty)
+      throw const DocNookFailure.corrupt(detail: 'pptx: no slides');
+    return DocModel(
+      sections: [DocSection(blocks: slides)],
+      images: _images,
+      simplified: true,
+    );
   }
 
   void _readTheme() {
@@ -90,8 +97,12 @@ final class _PptxReader {
     if (scheme == null) return;
     pull.children(scheme, (slot) {
       pull.children(slot, (c) {
-        final value = c.attr('val') == null ? null : parseHexColor(c.attr('val'));
-        final sys = c.attr('lastClr') == null ? null : parseHexColor(c.attr('lastClr'));
+        final value = c.attr('val') == null
+            ? null
+            : parseHexColor(c.attr('val'));
+        final sys = c.attr('lastClr') == null
+            ? null
+            : parseHexColor(c.attr('lastClr'));
         final color = value ?? sys;
         if (color != null) _theme[slot.localName] = color;
       });
@@ -110,7 +121,8 @@ final class _PptxReader {
       if (e is! XmlStartElementEvent || e.localName != 'Relationship') continue;
       final id = e.attr('Id');
       final target = e.attr('Target');
-      if (id == null || target == null || e.attr('TargetMode') == 'External') continue;
+      if (id == null || target == null || e.attr('TargetMode') == 'External')
+        continue;
       out[id] = _resolve(dir, target);
     }
     return out;
@@ -129,7 +141,8 @@ final class _PptxReader {
     return parts.join('/');
   }
 
-  static String _dirOf(String path) => path.substring(0, path.lastIndexOf('/') + 1);
+  static String _dirOf(String path) =>
+      path.substring(0, path.lastIndexOf('/') + 1);
   static String _relsOf(String path) =>
       '${_dirOf(path)}_rels/${path.substring(path.lastIndexOf('/') + 1)}.rels';
 
@@ -151,9 +164,19 @@ final class _PptxReader {
           case 'ph':
             key = '${e.attr('type') ?? 'body'}:${e.attr('idx') ?? ''}';
           case 'off':
-            box = _Placeholder(Units.emu(e.attr('x')), Units.emu(e.attr('y')), box?.w ?? 0, box?.h ?? 0);
+            box = _Placeholder(
+              Units.emu(e.attr('x')),
+              Units.emu(e.attr('y')),
+              box?.w ?? 0,
+              box?.h ?? 0,
+            );
           case 'ext':
-            box = _Placeholder(box?.x ?? 0, box?.y ?? 0, Units.emu(e.attr('cx')), Units.emu(e.attr('cy')));
+            box = _Placeholder(
+              box?.x ?? 0,
+              box?.y ?? 0,
+              Units.emu(e.attr('cx')),
+              Units.emu(e.attr('cy')),
+            );
           case 'txBody':
             break;
           default:
@@ -174,10 +197,19 @@ final class _PptxReader {
     final xml = _zip.text(path);
     if (xml == null) return null;
     final rels = _rels(_relsOf(path), _dirOf(path));
-    final layoutPath = rels.values.where((p) => p.contains('slideLayout')).firstOrNull;
-    final layoutRels = layoutPath == null ? const <String, String>{} : _rels(_relsOf(layoutPath), _dirOf(layoutPath));
-    final masterPath = layoutRels.values.where((p) => p.contains('slideMaster')).firstOrNull;
-    final inherited = {..._placeholders(masterPath), ..._placeholders(layoutPath)};
+    final layoutPath = rels.values
+        .where((p) => p.contains('slideLayout'))
+        .firstOrNull;
+    final layoutRels = layoutPath == null
+        ? const <String, String>{}
+        : _rels(_relsOf(layoutPath), _dirOf(layoutPath));
+    final masterPath = layoutRels.values
+        .where((p) => p.contains('slideMaster'))
+        .firstOrNull;
+    final inherited = {
+      ..._placeholders(masterPath),
+      ..._placeholders(layoutPath),
+    };
 
     final items = <SlideItem>[];
     int? background;
@@ -196,7 +228,10 @@ final class _PptxReader {
       switch (node.localName) {
         case 'sp':
           final item = _shape(pull, node, inherited, ox, oy, scale);
-          if (item case SlideText(:final isTitle, :final paragraphs) when isTitle) {
+          if (item case SlideText(
+            :final isTitle,
+            :final paragraphs,
+          ) when isTitle) {
             title ??= paragraphs.map((p) => p.plainText).join(' ').trim();
           }
           if (item != null) items.add(item);
@@ -204,7 +239,15 @@ final class _PptxReader {
           final pic = _picture(pull, node, rels, ox, oy, scale);
           if (pic != null) items.add(pic);
         case 'cxnSp':
-          final line = _shape(pull, node, inherited, ox, oy, scale, forceLine: true);
+          final line = _shape(
+            pull,
+            node,
+            inherited,
+            ox,
+            oy,
+            scale,
+            forceLine: true,
+          );
           if (line != null) items.add(line);
         case 'grpSp':
           // grpSpPr comes first and sets the transform for the members:
@@ -247,7 +290,8 @@ final class _PptxReader {
         if (c.localName == 'bg') {
           pull.children(c, (bgPr) {
             pull.children(bgPr, (fill) {
-              if (fill.localName == 'solidFill') background = _color(pull, fill);
+              if (fill.localName == 'solidFill')
+                background = _color(pull, fill);
             });
           });
         } else if (c.localName == 'spTree') {
@@ -347,7 +391,9 @@ final class _PptxReader {
               case 'noFill':
                 noFill = true;
               case 'ln':
-                strokeWidth = (Units.emu(p.attr('w')) * scale).clamp(0.5, 12).toDouble();
+                strokeWidth = (Units.emu(p.attr('w')) * scale)
+                    .clamp(0.5, 12)
+                    .toDouble();
                 pull.children(p, (l) {
                   if (l.localName == 'solidFill') stroke = _color(pull, l);
                 });
@@ -379,7 +425,10 @@ final class _PptxReader {
       }
     }
     if (x == null || w == null || h == null) return null;
-    final rx = ox + x! * scale, ry = oy + (y ?? 0) * scale, rw = w! * scale, rh = h! * scale;
+    final rx = ox + x! * scale,
+        ry = oy + (y ?? 0) * scale,
+        rw = w! * scale,
+        rh = h! * scale;
 
     final hasText = paragraphs.any((p) => !p.isEmpty);
     if (hasText) {
@@ -401,7 +450,10 @@ final class _PptxReader {
       'line' || 'straightConnector1' => SlideShapeKind.line,
       _ => SlideShapeKind.rectangle,
     };
-    if ((noFill || fill == null) && stroke == null && kind != SlideShapeKind.line) return null;
+    if ((noFill || fill == null) &&
+        stroke == null &&
+        kind != SlideShapeKind.line)
+      return null;
     return SlideShape(
       rx,
       ry,
@@ -435,9 +487,13 @@ final class _PptxReader {
         italic: rPr.attr('i') == '1',
         underline: (rPr.attr('u') ?? 'none') != 'none',
         strike: (rPr.attr('strike') ?? 'noStrike') != 'noStrike',
-        fontSize: size == null ? (defaultSize ?? (isTitle ? 36 : 18)) : size / 100,
+        fontSize: size == null
+            ? (defaultSize ?? (isTitle ? 36 : 18))
+            : size / 100,
         color: color,
-        font: font == null || font!.startsWith('+') ? null : classifyFont(font!),
+        font: font == null || font!.startsWith('+')
+            ? null
+            : classifyFont(font!),
       );
     }
 
@@ -464,7 +520,10 @@ final class _PptxReader {
             }
           });
         case 'r':
-          var style = RunStyle(fontSize: defaultSize ?? (isTitle ? 36 : 18), bold: isTitle);
+          var style = RunStyle(
+            fontSize: defaultSize ?? (isTitle ? 36 : 18),
+            bold: isTitle,
+          );
           var text = '';
           pull.children(c, (rc) {
             if (rc.localName == 'rPr') style = readRunProps(rc);
@@ -475,7 +534,10 @@ final class _PptxReader {
           runs.add(TextRun('\n', RunStyle(fontSize: defaultSize ?? 18)));
         case 'fld':
           pull.children(c, (rc) {
-            if (rc.localName == 't') runs.add(TextRun(pull.text(rc), RunStyle(fontSize: defaultSize ?? 18)));
+            if (rc.localName == 't')
+              runs.add(
+                TextRun(pull.text(rc), RunStyle(fontSize: defaultSize ?? 18)),
+              );
           });
       }
     });
@@ -525,7 +587,10 @@ final class _PptxReader {
     final path = rid == null ? null : rels[rid];
     if (path == null || x == null || w == null || h == null) return null;
     final lower = path.toLowerCase();
-    if (!(lower.endsWith('.png') || lower.endsWith('.jpg') || lower.endsWith('.jpeg') || lower.endsWith('.gif'))) {
+    if (!(lower.endsWith('.png') ||
+        lower.endsWith('.jpg') ||
+        lower.endsWith('.jpeg') ||
+        lower.endsWith('.gif'))) {
       return null;
     }
     if (!_images.containsKey(path)) {
@@ -536,7 +601,12 @@ final class _PptxReader {
       _imageBytes += bytes.length;
       _images[path] = DocImage(bytes);
     }
-    return SlideImage(ox + x! * scale, oy + (y ?? 0) * scale, w! * scale, h! * scale, imageId: path);
+    return SlideImage(
+      ox + x! * scale,
+      oy + (y ?? 0) * scale,
+      w! * scale,
+      h! * scale,
+      imageId: path,
+    );
   }
 }
-

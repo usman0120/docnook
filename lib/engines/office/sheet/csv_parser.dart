@@ -8,12 +8,26 @@ import 'package:docnook/engines/office/parse_document.dart' show decodeText;
 /// doubled quotes, line breaks inside quotes). The delimiter is detected
 /// from the first lines when not given (comma, semicolon, tab, pipe).
 abstract final class CsvParser {
-  static Workbook parseFile(String path, {String? delimiter, int maxCells = 1000000}) {
+  static Workbook parseFile(
+    String path, {
+    String? delimiter,
+    int maxCells = 1000000,
+  }) {
     final name = path.split(RegExp(r'[/\\]')).last;
-    return parse(File(path).readAsBytesSync(), name: name, delimiter: delimiter, maxCells: maxCells);
+    return parse(
+      File(path).readAsBytesSync(),
+      name: name,
+      delimiter: delimiter,
+      maxCells: maxCells,
+    );
   }
 
-  static Workbook parse(Uint8List bytes, {String name = 'Sheet1', String? delimiter, int maxCells = 1000000}) {
+  static Workbook parse(
+    Uint8List bytes, {
+    String name = 'Sheet1',
+    String? delimiter,
+    int maxCells = 1000000,
+  }) {
     final text = decodeText(bytes);
     final sep = delimiter ?? detectDelimiter(text);
     final rows = <SheetRow>[];
@@ -47,7 +61,14 @@ abstract final class CsvParser {
     void endRow() {
       endField();
       if (cols.isNotEmpty) {
-        rows.add(SheetRow(r, Int32List.fromList(cols), List.of(values), Int32List(cols.length)));
+        rows.add(
+          SheetRow(
+            r,
+            Int32List.fromList(cols),
+            List.of(values),
+            Int32List(cols.length),
+          ),
+        );
       }
       cols.clear();
       values.clear();
@@ -78,7 +99,8 @@ abstract final class CsvParser {
         endField();
       } else if (c == 0x0A || c == 0x0D) {
         endRow();
-        if (c == 0x0D && i + 1 < text.length && text.codeUnitAt(i + 1) == 0x0A) i++;
+        if (c == 0x0D && i + 1 < text.length && text.codeUnitAt(i + 1) == 0x0A)
+          i++;
         if (cells >= maxCells) {
           truncated = true;
           break;
@@ -88,7 +110,8 @@ abstract final class CsvParser {
       }
       i++;
     }
-    if (!truncated && (field.isNotEmpty || cols.isNotEmpty || fieldWasQuoted)) endRow();
+    if (!truncated && (field.isNotEmpty || cols.isNotEmpty || fieldWasQuoted))
+      endRow();
 
     final sheet = Sheet(
       name: name,
@@ -97,13 +120,21 @@ abstract final class CsvParser {
       colCount: maxCol,
       frozenRows: rows.isNotEmpty && _looksLikeHeader(rows.first) ? 1 : 0,
     );
-    return Workbook(sheets: [sheet], styles: const [CellStyle.none], truncated: truncated);
+    return Workbook(
+      sheets: [sheet],
+      styles: const [CellStyle.none],
+      truncated: truncated,
+    );
   }
 
   /// The separator that splits the first lines most consistently.
   static String detectDelimiter(String text) {
     final sample = text.length > 8192 ? text.substring(0, 8192) : text;
-    final lines = sample.split(RegExp(r'\r?\n')).where((l) => l.trim().isNotEmpty).take(10).toList();
+    final lines = sample
+        .split(RegExp(r'\r?\n'))
+        .where((l) => l.trim().isNotEmpty)
+        .take(10)
+        .toList();
     if (lines.isEmpty) return ',';
     var best = ',';
     var bestScore = 0;
@@ -144,5 +175,6 @@ abstract final class CsvParser {
   }
 
   static bool _looksLikeHeader(SheetRow row) =>
-      row.length > 1 && row.values.every((v) => v is String && v.trim().isNotEmpty);
+      row.length > 1 &&
+      row.values.every((v) => v is String && v.trim().isNotEmpty);
 }

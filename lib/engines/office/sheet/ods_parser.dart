@@ -13,7 +13,8 @@ abstract final class OdsParser {
     final zip = SafeZip.open(path);
     try {
       final content = zip.text('content.xml');
-      if (content == null) throw const DocNookFailure.corrupt(detail: 'ods: content');
+      if (content == null)
+        throw const DocNookFailure.corrupt(detail: 'ods: content');
       return _read(content, maxCells);
     } finally {
       zip.close();
@@ -23,7 +24,8 @@ abstract final class OdsParser {
   static Workbook _read(String content, int maxCells) {
     final pull = XmlPull(content);
     final spreadsheet = pull.find('spreadsheet');
-    if (spreadsheet == null) throw const DocNookFailure.corrupt(detail: 'ods: body');
+    if (spreadsheet == null)
+      throw const DocNookFailure.corrupt(detail: 'ods: body');
 
     // Styles: index 0 plain, 1 percent, 2 currency, 3 date.
     const styles = [
@@ -46,14 +48,19 @@ abstract final class OdsParser {
       var maxCol = 0;
 
       void readRow(XmlStartElementEvent row) {
-        final repeat = (int.tryParse(row.attr('table:number-rows-repeated') ?? '') ?? 1);
+        final repeat =
+            (int.tryParse(row.attr('table:number-rows-repeated') ?? '') ?? 1);
         final cols = <int>[];
         final values = <Object?>[];
         final styleIds = <int>[];
         var c = 0;
         pull.children(row, (cell) {
-          if (cell.localName != 'table-cell' && cell.localName != 'covered-table-cell') return;
-          final colRepeat = (int.tryParse(cell.attr('table:number-columns-repeated') ?? '') ?? 1);
+          if (cell.localName != 'table-cell' &&
+              cell.localName != 'covered-table-cell')
+            return;
+          final colRepeat =
+              (int.tryParse(cell.attr('table:number-columns-repeated') ?? '') ??
+              1);
           final type = cell.attr('office:value-type');
           Object? value;
           var style = 0;
@@ -80,8 +87,11 @@ abstract final class OdsParser {
             }
           });
           value ??= text.isEmpty ? null : text.toString();
-          final spanC = int.tryParse(cell.attr('table:number-columns-spanned') ?? '') ?? 1;
-          final spanR = int.tryParse(cell.attr('table:number-rows-spanned') ?? '') ?? 1;
+          final spanC =
+              int.tryParse(cell.attr('table:number-columns-spanned') ?? '') ??
+              1;
+          final spanR =
+              int.tryParse(cell.attr('table:number-rows-spanned') ?? '') ?? 1;
           if ((spanC > 1 || spanR > 1) && merges.length < 20000) {
             merges.add(CellRange(r, c, r + spanR - 1, c + spanC - 1));
           }
@@ -101,7 +111,14 @@ abstract final class OdsParser {
         if (cols.isNotEmpty) {
           final n = repeat.clamp(1, 1000);
           for (var k = 0; k < n; k++) {
-            rows.add(SheetRow(r + k, Int32List.fromList(cols), List.of(values), Int32List.fromList(styleIds)));
+            rows.add(
+              SheetRow(
+                r + k,
+                Int32List.fromList(cols),
+                List.of(values),
+                Int32List.fromList(styleIds),
+              ),
+            );
           }
         }
         r += repeat.clamp(1, 1048576);
@@ -130,14 +147,17 @@ abstract final class OdsParser {
       );
     });
 
-    if (sheets.isEmpty) throw const DocNookFailure.corrupt(detail: 'ods: no tables');
+    if (sheets.isEmpty)
+      throw const DocNookFailure.corrupt(detail: 'ods: no tables');
     return Workbook(sheets: sheets, styles: styles, truncated: truncated);
   }
 
   /// "2026-03-15" or "2026-03-15T10:30:00" → Excel serial.
   static double? _serial(String? iso) {
     if (iso == null) return null;
-    final t = DateTime.tryParse(iso.length == 10 ? '${iso}T00:00:00Z' : '${iso}Z');
+    final t = DateTime.tryParse(
+      iso.length == 10 ? '${iso}T00:00:00Z' : '${iso}Z',
+    );
     if (t == null) return null;
     return t.difference(DateTime.utc(1899, 12, 30)).inMilliseconds / 86400000;
   }

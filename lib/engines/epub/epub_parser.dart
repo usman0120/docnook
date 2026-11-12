@@ -13,7 +13,12 @@ final class EpubChapter {
 
 /// A parsed EPUB: chapters in reading order sharing one image table.
 final class EpubBook {
-  const EpubBook({required this.title, required this.chapters, required this.images, this.author});
+  const EpubBook({
+    required this.title,
+    required this.chapters,
+    required this.images,
+    this.author,
+  });
 
   final String title;
   final String? author;
@@ -46,17 +51,24 @@ abstract final class EpubParser {
       final enc = zip.text('META-INF/encryption.xml') ?? '';
       // Font obfuscation is harmless; anything else is DRM.
       if (RegExp('EncryptedData').allMatches(enc).length >
-          RegExp('obfuscation|font', caseSensitive: false).allMatches(enc).length) {
+          RegExp(
+            'obfuscation|font',
+            caseSensitive: false,
+          ).allMatches(enc).length) {
         throw const DocNookFailure.unsupported(detail: 'epub: drm');
       }
     }
     final container = zip.text('META-INF/container.xml');
-    if (container == null) throw const DocNookFailure.corrupt(detail: 'epub: container');
+    if (container == null)
+      throw const DocNookFailure.corrupt(detail: 'epub: container');
     final rootfile = XmlPull(container).find('rootfile')?.attr('full-path');
-    if (rootfile == null) throw const DocNookFailure.corrupt(detail: 'epub: rootfile');
+    if (rootfile == null)
+      throw const DocNookFailure.corrupt(detail: 'epub: rootfile');
     final opf = zip.text(rootfile);
     if (opf == null) throw const DocNookFailure.corrupt(detail: 'epub: opf');
-    final base = rootfile.contains('/') ? rootfile.substring(0, rootfile.lastIndexOf('/') + 1) : '';
+    final base = rootfile.contains('/')
+        ? rootfile.substring(0, rootfile.lastIndexOf('/') + 1)
+        : '';
 
     final manifest = <String, ({String href, String type, String props})>{};
     final spine = <String>[];
@@ -66,13 +78,16 @@ abstract final class EpubParser {
     String? ncxId;
     final pull = XmlPull(opf);
     final package = pull.find('package');
-    if (package == null) throw const DocNookFailure.corrupt(detail: 'epub: package');
+    if (package == null)
+      throw const DocNookFailure.corrupt(detail: 'epub: package');
     pull.children(package, (section) {
       switch (section.localName) {
         case 'metadata':
           pull.children(section, (m) {
-            if (m.localName == 'title' && title.isEmpty) title = pull.text(m).trim();
-            if (m.localName == 'creator' && author == null) author = pull.text(m).trim();
+            if (m.localName == 'title' && title.isEmpty)
+              title = pull.text(m).trim();
+            if (m.localName == 'creator' && author == null)
+              author = pull.text(m).trim();
           });
         case 'manifest':
           pull.children(section, (item) {
@@ -80,7 +95,11 @@ abstract final class EpubParser {
             final href = item.attr('href');
             if (id == null || href == null) return;
             final props = item.attr('properties') ?? '';
-            manifest[id] = (href: _resolve(base, Uri.decodeFull(href)), type: item.attr('media-type') ?? '', props: props);
+            manifest[id] = (
+              href: _resolve(base, Uri.decodeFull(href)),
+              type: item.attr('media-type') ?? '',
+              props: props,
+            );
             if (props.contains('nav')) navHref = manifest[id]!.href;
           });
         case 'spine':
@@ -92,19 +111,28 @@ abstract final class EpubParser {
       }
     });
 
-    final titles = _tocTitles(zip, navHref, ncxId == null ? null : manifest[ncxId]?.href);
+    final titles = _tocTitles(
+      zip,
+      navHref,
+      ncxId == null ? null : manifest[ncxId]?.href,
+    );
     final images = <String, DocImage>{};
     var imageBytes = 0;
 
     final chapters = <EpubChapter>[];
     for (final id in spine) {
       final item = manifest[id];
-      if (item == null || !(item.type.contains('html') || item.href.endsWith('.xhtml') || item.href.endsWith('.html'))) {
+      if (item == null ||
+          !(item.type.contains('html') ||
+              item.href.endsWith('.xhtml') ||
+              item.href.endsWith('.html'))) {
         continue;
       }
       final xhtml = zip.text(item.href);
       if (xhtml == null) continue;
-      final dir = item.href.contains('/') ? item.href.substring(0, item.href.lastIndexOf('/') + 1) : '';
+      final dir = item.href.contains('/')
+          ? item.href.substring(0, item.href.lastIndexOf('/') + 1)
+          : '';
       List<HtmlNode> nodes;
       try {
         nodes = parseXhtmlBody(xhtml);
@@ -131,11 +159,20 @@ abstract final class EpubParser {
           .map((p) => p.plainText.trim())
           .firstOrNull;
       chapters.add(
-        EpubChapter(titles[item.href] ?? heading ?? 'Section ${chapters.length + 1}', blocks),
+        EpubChapter(
+          titles[item.href] ?? heading ?? 'Section ${chapters.length + 1}',
+          blocks,
+        ),
       );
     }
-    if (chapters.isEmpty) throw const DocNookFailure.corrupt(detail: 'epub: no chapters');
-    return EpubBook(title: title.isEmpty ? 'Book' : title, author: author, chapters: chapters, images: images);
+    if (chapters.isEmpty)
+      throw const DocNookFailure.corrupt(detail: 'epub: no chapters');
+    return EpubBook(
+      title: title.isEmpty ? 'Book' : title,
+      author: author,
+      chapters: chapters,
+      images: images,
+    );
   }
 
   /// Chapter titles by file, from the EPUB 3 nav or the EPUB 2 NCX.
@@ -143,10 +180,15 @@ abstract final class EpubParser {
     final titles = <String, String>{};
     if (nav != null) {
       final xml = zip.text(nav);
-      final dir = nav.contains('/') ? nav.substring(0, nav.lastIndexOf('/') + 1) : '';
+      final dir = nav.contains('/')
+          ? nav.substring(0, nav.lastIndexOf('/') + 1)
+          : '';
       if (xml != null) {
         try {
-          for (final m in RegExp(r'<a[^>]*href="([^"#]+)[^"]*"[^>]*>(.*?)</a>', dotAll: true).allMatches(xml)) {
+          for (final m in RegExp(
+            r'<a[^>]*href="([^"#]+)[^"]*"[^>]*>(.*?)</a>',
+            dotAll: true,
+          ).allMatches(xml)) {
             final file = _resolve(dir, Uri.decodeFull(m.group(1)!));
             final text = m.group(2)!.replaceAll(RegExp('<[^>]+>'), '').trim();
             if (text.isNotEmpty) titles.putIfAbsent(file, () => text);
@@ -158,11 +200,18 @@ abstract final class EpubParser {
     }
     if (titles.isEmpty && ncx != null) {
       final xml = zip.text(ncx);
-      final dir = ncx.contains('/') ? ncx.substring(0, ncx.lastIndexOf('/') + 1) : '';
+      final dir = ncx.contains('/')
+          ? ncx.substring(0, ncx.lastIndexOf('/') + 1)
+          : '';
       if (xml != null) {
-        for (final m in RegExp(r'<navLabel>\s*<text>(.*?)</text>\s*</navLabel>\s*<content src="([^"#]+)', dotAll: true)
-            .allMatches(xml)) {
-          titles.putIfAbsent(_resolve(dir, Uri.decodeFull(m.group(2)!)), () => m.group(1)!.trim());
+        for (final m in RegExp(
+          r'<navLabel>\s*<text>(.*?)</text>\s*</navLabel>\s*<content src="([^"#]+)',
+          dotAll: true,
+        ).allMatches(xml)) {
+          titles.putIfAbsent(
+            _resolve(dir, Uri.decodeFull(m.group(2)!)),
+            () => m.group(1)!.trim(),
+          );
         }
       }
     }
