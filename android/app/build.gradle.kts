@@ -78,3 +78,8 @@ android {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // FileProvider for sharing outputs and "Open with another app".
+    implementation("androidx.core:core-ktx:1.16.0")
+}

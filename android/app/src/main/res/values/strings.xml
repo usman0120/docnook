@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shortcut_scan">Scan</string>
+    <string name="shortcut_merge">Merge PDFs</string>
+    <string name="shortcut_recent">Recent</string>
+</resources>

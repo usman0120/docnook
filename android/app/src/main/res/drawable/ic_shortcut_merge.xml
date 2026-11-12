@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Launcher shortcut icon: ink line drawing on paper. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp" android:height="48dp"
+    android:viewportWidth="48" android:viewportHeight="48">
+    <path android:fillColor="#F7F5F0" android:pathData="M24,24m-24,0a24,24 0,1 1,48 0a24,24 0,1 1,-48 0"/>
+    <path android:strokeColor="#1F3A4D" android:strokeWidth="2.2" android:strokeLineCap="round"
+        android:strokeLineJoin="round" android:fillColor="#00000000" android:pathData="M17,14h11l5,5v13a1,1 0,0 1,-1 1H17a1,1 0,0 1,-1 -1V15a1,1 0,0 1,1 -1z M13,18v17a1,1 0,0 0,1 1h13"/>
+</vector>
