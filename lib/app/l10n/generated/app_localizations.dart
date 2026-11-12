@@ -1060,6 +1060,36 @@ abstract class AppLocalizations {
   /// **'No'**
   String get no;
 
+  /// No description provided for @docNoOutline.
+  ///
+  /// In en, this message translates to:
+  /// **'This document has no headings to list.'**
+  String get docNoOutline;
+
+  /// No description provided for @docSimplifiedBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Simplified layout — some formatting may differ from the original.'**
+  String get docSimplifiedBanner;
+
+  /// No description provided for @docTextLarger.
+  ///
+  /// In en, this message translates to:
+  /// **'Larger text'**
+  String get docTextLarger;
+
+  /// No description provided for @docTextSmaller.
+  ///
+  /// In en, this message translates to:
+  /// **'Smaller text'**
+  String get docTextSmaller;
+
+  /// No description provided for @docLegacyBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Limited preview: old Office files show their text only.'**
+  String get docLegacyBanner;
+
   /// No description provided for @notAvailableYet.
   ///
   /// In en, this message translates to:

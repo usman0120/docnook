@@ -208,7 +208,8 @@ abstract final class XlsxParser {
     if (rgb != null) {
       final value = int.tryParse(rgb, radix: 16);
       if (value == null) return null;
-      return rgb.length <= 6 ? 0xFF000000 | value : value;
+      // Excel ignores the alpha byte (openpyxl writes 00); colours are opaque.
+      return 0xFF000000 | (value & 0xFFFFFF);
     }
     final theme = event.intAttr('theme');
     if (theme != null && theme >= 0 && theme < _themeColors.length) {

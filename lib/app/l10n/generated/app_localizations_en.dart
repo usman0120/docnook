@@ -536,6 +536,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get no => 'No';
 
   @override
+  String get docNoOutline => 'This document has no headings to list.';
+
+  @override
+  String get docSimplifiedBanner =>
+      'Simplified layout — some formatting may differ from the original.';
+
+  @override
+  String get docTextLarger => 'Larger text';
+
+  @override
+  String get docTextSmaller => 'Smaller text';
+
+  @override
+  String get docLegacyBanner =>
+      'Limited preview: old Office files show their text only.';
+
+  @override
   String get notAvailableYet => 'This tool arrives in a later build';
 
   @override
