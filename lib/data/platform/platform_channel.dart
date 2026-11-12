@@ -183,6 +183,45 @@ class PlatformChannel {
       ((await _call<List<Object?>>('persistedTrees')).valueOrNull ?? const [])
           .cast<String>();
 
+  /// Whether DocNook may list documents across shared storage.
+  Future<bool> hasStorageAccess() async =>
+      (await _call<bool>('hasStorageAccess')).valueOrNull ?? false;
+
+  /// Android 7–10 runtime prompt. Returns whether it was granted.
+  Future<bool> requestLegacyStorage() async =>
+      (await _call<bool>('requestLegacyStorage')).valueOrNull ?? false;
+
+  /// Absolute path of shared storage, e.g. /storage/emulated/0.
+  Future<String?> storageRoot() async =>
+      (await _call<String?>('storageRoot')).valueOrNull;
+
+  /// Every file under a granted folder tree.
+  Future<Result<List<TreeEntry>>> listTree(String treeUri) async {
+    final result = await _call<List<Object?>>('listTree', {'uri': treeUri});
+    return result.map(
+      (list) => [
+        for (final e in list) TreeEntry.fromMap(e! as Map<Object?, Object?>),
+      ],
+    );
+  }
+
+  Future<String?> treeName(String treeUri) async =>
+      (await _call<String?>('treeName', {'uri': treeUri})).valueOrNull;
+
+  Future<void> releaseTree(String treeUri) =>
+      _call<void>('releaseTree', {'uri': treeUri});
+
+  Future<bool> deleteDocument(String pathOrUri) async =>
+      (await _call<bool>('deleteDocument', {'uri': pathOrUri})).valueOrNull ??
+      false;
+
+  /// Returns the new path or URI, or null when renaming failed.
+  Future<String?> renameDocument(String pathOrUri, String name) async =>
+      (await _call<String?>('renameDocument', {
+        'uri': pathOrUri,
+        'name': name,
+      })).valueOrNull;
+
   Future<bool> hasAllFilesAccess() async =>
       (await _call<bool>('hasAllFilesAccess')).valueOrNull ?? false;
 
@@ -199,4 +238,31 @@ class PlatformChannel {
 
   Future<bool> openTtsSettings() async =>
       (await _call<bool>('openTtsSettings')).valueOrNull ?? false;
+}
+
+/// A file inside a granted folder tree.
+final class TreeEntry {
+  const TreeEntry({
+    required this.uri,
+    required this.name,
+    this.mime,
+    this.size,
+    this.modified,
+  });
+
+  factory TreeEntry.fromMap(Map<Object?, Object?> map) => TreeEntry(
+    uri: map['uri']! as String,
+    name: map['name']! as String,
+    mime: map['mime'] as String?,
+    size: (map['size'] as num?)?.toInt(),
+    modified: (map['modified'] as num?)?.toInt(),
+  );
+
+  final String uri;
+  final String name;
+  final String? mime;
+  final int? size;
+
+  /// Milliseconds since epoch.
+  final int? modified;
 }

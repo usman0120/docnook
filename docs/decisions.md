@@ -119,3 +119,23 @@ last publish date and manifest permissions (CLAUDE.md rule 3).
   and the engine was also pushing file URIs as routes.
 - Viewer toolbars sit above and below the document (not floating over it), so the
   first and last page are never hidden under a bar.
+
+## 2026-11-12 — Phase 3: library and search
+
+- Discovery walks shared storage in an isolate (skips `Android/`, hidden folders,
+  caches, trash, empty files; code files other than JSON/XML are not listed) and
+  any SAF folders the user adds (walked in Kotlin through DocumentsContract).
+  Results are saved in 500-row batches with `INSERT … ON CONFLICT(uri)`; files that
+  disappear are marked missing, never deleted from the database.
+- Indexing runs on the main isolate for PDFs (PDFium is already native and async)
+  and in an isolate for text files; it pauses while any document is open, and a
+  document interrupted mid-way is not saved half-indexed. Password PDFs are never
+  indexed (no password is stored). Files reached only through a content URI are
+  indexed from their opened copy when the viewer closes.
+- Search input is turned into quoted FTS5 prefix terms, so punctuation can never
+  break the query.
+- Deleting uses a plain delete after a confirm dialog. The Android 11+ system trash
+  needs a per-file system confirmation through MediaStore; deferred to Phase 9.
+- All bottom sheets open on the root navigator so they cover the tab bar and Scan.
+- DocNook launcher icon: paper sheet with folded corner, ink lines, one gold line,
+  on the primary ink-blue (adaptive + legacy PNGs).

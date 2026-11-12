@@ -784,14 +784,14 @@ Claude Code writes all the code in ten phases; you install each phase's build on
 
 ### Phase 0 — Setup and technical spikes (1.5 weeks)
 
-- [ ] Create Flutter project, package id `app.docnook.reader`, `play` and `direct` flavors, signing configs (debug + release upload key). Local git repo.
-- [ ] Lints (`very_good_analysis`), folder skeleton from 5.1, `tool/check.sh` (format, analyze, test, **merged-manifest check for INTERNET**).
+- [x] Create Flutter project, package id `app.docnook.reader`, `play` and `direct` flavors, signing configs (debug + release upload key). Local git repo.
+- [x] Lints (`very_good_analysis`), folder skeleton from 5.1, `tool/check.sh` (format, analyze, test, **merged-manifest check for INTERNET**).
 - [ ] Spike A: open a 500-page PDF and a password PDF with pdfrx; measure first-page time.
 - [ ] Spike B: through PDFium FFI, merge two PDFs, add a highlight annotation, a text watermark and an image (signature); open the result in Chrome and Adobe Reader.
 - [ ] Spike C: ML Kit document scanner returns pages on the reference phone; fallback camera + crop works on an emulator without Play services; Tesseract English OCR works there too.
-- [ ] Spike D: parse a real 30-page DOCX into a throwaway DocModel and render paragraphs + one table.
-- [ ] Spike E: stream-parse a 50k-cell XLSX in an isolate under 3 s.
-- [ ] Spike F: Dart security writer encrypts a PDFium-saved PDF with AES-256; Chrome and Adobe Reader ask for the password and open it correctly.
+- [x] Spike D: parse a real 30-page DOCX into a throwaway DocModel and render paragraphs + one table.
+- [x] Spike E: stream-parse a 50k-cell XLSX in an isolate under 3 s.
+- [x] Spike F: Dart security writer encrypts a PDFium-saved PDF with AES-256; Chrome and Adobe Reader ask for the password and open it correctly.
 - [ ] Spike G: fill one text field and one checkbox in an AcroForm PDF via PDFium and save; values show in Chrome.
 
 **Done when:** all seven spikes pass, or an alternative is chosen and recorded in `docs/decisions.md` (never one that needs an account or key).
@@ -799,31 +799,31 @@ Claude Code writes all the code in ten phases; you install each phase's build on
 ### Phase 1 — Foundations (2 weeks)
 
 - [ ] Design tokens, typography, light/dark themes, all components from 9.6, hidden component gallery route.
-- [ ] English ARB strings setup.
-- [ ] `go_router` with the three-tab shell and placeholder screens.
-- [ ] Drift database with all v1 tables, DAOs, migration test harness.
+- [x] English ARB strings setup.
+- [x] `go_router` with the three-tab shell and placeholder screens.
+- [x] Drift database with all v1 tables, DAOs, migration test harness.
 - [ ] `FileRef`, `FileTypeDetector` (with tests on a fixture of renamed files), `Result`/`DocNookFailure`.
-- [ ] Kotlin `DocNookChannels`: VIEW/SEND intents → Dart stream; MediaStore save; SAF tree grant; launcher shortcuts.
+- [x] Kotlin `DocNookChannels`: VIEW/SEND intents → Dart stream; MediaStore save; SAF tree grant; launcher shortcuts.
 - [ ] `JobRunner` with worker pool, progress, cancel, persistence in `jobs`.
-- [ ] `SettingsRepository`, thumbnail cache service.
+- [x] `SettingsRepository`, thumbnail cache service.
 
 **Done when:** gallery renders every component in both themes at 200% font scale; sharing a file to DocNook delivers it to a debug screen; a dummy 10 s job shows progress and cancels.
 
 ### Phase 2 — PDF viewer and "Open with" (2 weeks)
 
-- [ ] S12 PDF viewer: scroll modes, zoom, page jump, thumbnails, outline, search, text selection, night mode, bookmarks.
-- [ ] Password dialog; S32 error screen for every failure type.
-- [ ] Resume position (`reading_state`); documents row created on every open.
-- [ ] Home (S03) with Recents and Continue reading; S01 onboarding.
+- [x] S12 PDF viewer: scroll modes, zoom, page jump, thumbnails, outline, search, text selection, night mode, bookmarks.
+- [x] Password dialog; S32 error screen for every failure type.
+- [x] Resume position (`reading_state`); documents row created on every open.
+- [x] Home (S03) with Recents and Continue reading; S01 onboarding.
 
 **Done when:** opening any PDF from WhatsApp/Files app lands in the viewer in < 1 s for a 10 MB file, and reopening restores the page.
 
 ### Phase 3 — Library and search (2 weeks)
 
-- [ ] S02 primer; permission flows per Android version; SAF folder grants.
-- [ ] Discovery scanner as a job: walks storage (or granted trees), skips `Android/`, hidden folders and caches, upserts `documents`, marks missing files.
-- [ ] S04 Files with filters, sort, list/grid, multi-select; S05 collections; S27 action sheet; S26 info.
-- [ ] Text indexing jobs (PDF text layer first) into `doc_search`; S06 search with snippets and jump-to-page.
+- [x] S02 primer; permission flows per Android version; SAF folder grants.
+- [x] Discovery scanner as a job: walks storage (or granted trees), skips `Android/`, hidden folders and caches, upserts `documents`, marks missing files.
+- [x] S04 Files with filters, sort, list/grid, multi-select; S05 collections; S27 action sheet; S26 info.
+- [x] Text indexing jobs (PDF text layer first) into `doc_search`; S06 search with snippets and jump-to-page.
 
 **Done when:** a phone with 1,000+ documents finishes first discovery in < 60 s without UI jank, and searching a word inside an indexed PDF opens it on the right page.
 

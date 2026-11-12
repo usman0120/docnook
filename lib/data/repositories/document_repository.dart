@@ -17,25 +17,26 @@ class DocumentRepository {
       ? null
       : DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true).toLocal();
 
-  static DocumentInfo _map(DocumentRow row, {double? progress}) => DocumentInfo(
-    id: row.id,
-    uri: row.uri,
-    name: row.displayName,
-    type: DocType.values.asNameMap()[row.docType] ?? DocType.other,
-    source: DocSource.values.asNameMap()[row.source] ?? DocSource.picked,
-    extension: row.extension,
-    mime: row.mime,
-    sizeBytes: row.sizeBytes,
-    modifiedAt: _time(row.modifiedAt),
-    lastOpenedAt: _time(row.lastOpenedAt),
-    pageCount: row.pageCount,
-    progress: progress,
-    starred: row.isStarred,
-    encrypted: row.isEncrypted,
-    missing: row.isMissing,
-    indexed: row.indexState == 'done',
-    thumbKey: row.thumbKey,
-  );
+  static DocumentInfo mapRow(DocumentRow row, {double? progress}) =>
+      DocumentInfo(
+        id: row.id,
+        uri: row.uri,
+        name: row.displayName,
+        type: DocType.values.asNameMap()[row.docType] ?? DocType.other,
+        source: DocSource.values.asNameMap()[row.source] ?? DocSource.picked,
+        extension: row.extension,
+        mime: row.mime,
+        sizeBytes: row.sizeBytes,
+        modifiedAt: _time(row.modifiedAt),
+        lastOpenedAt: _time(row.lastOpenedAt),
+        pageCount: row.pageCount,
+        progress: progress,
+        starred: row.isStarred,
+        encrypted: row.isEncrypted,
+        missing: row.isMissing,
+        indexed: row.indexState == 'done',
+        thumbKey: row.thumbKey,
+      );
 
   /// Creates or refreshes the row for [uri] and returns its id.
   Future<int> upsert({
@@ -134,14 +135,14 @@ class DocumentRepository {
     final row = await (_db.select(
       _db.documents,
     )..where((d) => d.id.equals(id))).getSingleOrNull();
-    return row == null ? null : _map(row);
+    return row == null ? null : mapRow(row);
   }
 
   Future<DocumentInfo?> byUri(String uri) async {
     final row = await (_db.select(
       _db.documents,
     )..where((d) => d.uri.equals(uri))).getSingleOrNull();
-    return row == null ? null : _map(row);
+    return row == null ? null : mapRow(row);
   }
 
   /// Recently opened documents, newest first, with reading progress.
@@ -159,7 +160,7 @@ class DocumentRepository {
     return query.watch().map(
       (rows) => [
         for (final row in rows)
-          _map(
+          mapRow(
             row.readTable(_db.documents),
             progress: row.readTableOrNull(_db.readingStates)?.progress,
           ),

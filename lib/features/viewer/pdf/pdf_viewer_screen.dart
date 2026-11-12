@@ -10,6 +10,7 @@ import 'package:docnook/design_system/components/states.dart';
 import 'package:docnook/design_system/icons.dart';
 import 'package:docnook/design_system/tokens.dart';
 import 'package:docnook/domain/entities/document_info.dart';
+import 'package:docnook/features/search/application/indexer.dart';
 import 'package:docnook/features/viewer/application/open_document.dart';
 import 'package:docnook/features/viewer/pdf/pdf_panels.dart';
 import 'package:docnook/features/viewer/presentation/cant_open_screen.dart';
@@ -63,9 +64,13 @@ class _PdfViewerScreenState extends ConsumerState<PdfViewerScreen> {
   Timer? _saveTimer;
   bool _starred = false;
 
+  late final Indexer _indexer = ref.read(indexerProvider);
+  late final void Function() _endIndexPause;
+
   @override
   void initState() {
     super.initState();
+    _endIndexPause = _indexer.pause();
     unawaited(_restore());
   }
 
@@ -105,12 +110,25 @@ class _PdfViewerScreenState extends ConsumerState<PdfViewerScreen> {
   void dispose() {
     _saveTimer?.cancel();
     unawaited(_savePosition());
+    unawaited(_indexAfterClose());
     _searcher
       ..removeListener(_onSearchChanged)
       ..dispose();
     _searchField.dispose();
     _searchFocus.dispose();
     super.dispose();
+  }
+
+  /// Indexes this document from its readable copy once reading ends (the
+  /// background indexer cannot read content URIs on its own).
+  Future<void> _indexAfterClose() async {
+    final indexer = _indexer;
+    final repo = _repo;
+    final path = widget.document.path;
+    _endIndexPause();
+    final info = await repo.byId(_docId);
+    if (info == null || info.indexed || info.encrypted) return;
+    await indexer.indexDocument(info, localPath: path);
   }
 
   void _onSearchChanged() {

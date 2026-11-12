@@ -23,6 +23,10 @@ abstract final class PhosphorIconsRegular {
   static const caretRight = IconData(0xe13a, fontFamily: 'PhosphorRegular');
   static const caretUp = IconData(0xe13c, fontFamily: 'PhosphorRegular');
   static const circle = IconData(0xe18a, fontFamily: 'PhosphorRegular');
+  static const clockCounterClockwise = IconData(
+    0xe1a0,
+    fontFamily: 'PhosphorRegular',
+  );
   static const copy = IconData(0xe1ca, fontFamily: 'PhosphorRegular');
   static const dotsThreeVertical = IconData(
     0xe208,
@@ -37,8 +41,16 @@ abstract final class PhosphorIconsRegular {
   static const fileTxt = IconData(0xeb35, fontFamily: 'PhosphorRegular');
   static const fileXls = IconData(0xeb22, fontFamily: 'PhosphorRegular');
   static const folder = IconData(0xe24a, fontFamily: 'PhosphorRegular');
+  static const folderMinus = IconData(0xe254, fontFamily: 'PhosphorRegular');
   static const folderOpen = IconData(0xe256, fontFamily: 'PhosphorRegular');
+  static const folderPlus = IconData(0xe258, fontFamily: 'PhosphorRegular');
+  static const folderSimple = IconData(0xe25a, fontFamily: 'PhosphorRegular');
+  static const folderSimpleStar = IconData(
+    0xec2e,
+    fontFamily: 'PhosphorRegular',
+  );
   static const gear = IconData(0xe270, fontFamily: 'PhosphorRegular');
+  static const hardDrives = IconData(0xe2a0, fontFamily: 'PhosphorRegular');
   static const hash = IconData(0xe2a2, fontFamily: 'PhosphorRegular');
   static const highlighterCircle = IconData(
     0xe632,
@@ -51,6 +63,7 @@ abstract final class PhosphorIconsRegular {
   );
   static const image = IconData(0xe2ca, fontFamily: 'PhosphorRegular');
   static const images = IconData(0xe836, fontFamily: 'PhosphorRegular');
+  static const info = IconData(0xe2ce, fontFamily: 'PhosphorRegular');
   static const listBullets = IconData(0xe2f2, fontFamily: 'PhosphorRegular');
   static const listNumbers = IconData(0xe2f6, fontFamily: 'PhosphorRegular');
   static const lockSimple = IconData(0xe308, fontFamily: 'PhosphorRegular');
@@ -60,12 +73,15 @@ abstract final class PhosphorIconsRegular {
     fontFamily: 'PhosphorRegular',
   );
   static const moon = IconData(0xe330, fontFamily: 'PhosphorRegular');
+  static const pencilSimple = IconData(0xe3b4, fontFamily: 'PhosphorRegular');
+  static const plus = IconData(0xe3d4, fontFamily: 'PhosphorRegular');
   static const rectangle = IconData(0xe3f0, fontFamily: 'PhosphorRegular');
   static const scan = IconData(0xebb6, fontFamily: 'PhosphorRegular');
   static const scissors = IconData(0xeae0, fontFamily: 'PhosphorRegular');
   static const shareNetwork = IconData(0xe408, fontFamily: 'PhosphorRegular');
   static const shieldCheck = IconData(0xe40c, fontFamily: 'PhosphorRegular');
   static const signature = IconData(0xebac, fontFamily: 'PhosphorRegular');
+  static const sortAscending = IconData(0xe444, fontFamily: 'PhosphorRegular');
   static const squaresFour = IconData(0xe464, fontFamily: 'PhosphorRegular');
   static const stack = IconData(0xe466, fontFamily: 'PhosphorRegular');
   static const star = IconData(0xe46a, fontFamily: 'PhosphorRegular');

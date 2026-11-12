@@ -243,6 +243,337 @@ class AppLocalizationsEn extends AppLocalizations {
   String get toolExtractTextDesc => 'Copy text from a photo';
 
   @override
+  String get filterAll => 'All';
+
+  @override
+  String get filterPdf => 'PDF';
+
+  @override
+  String get filterWord => 'Word';
+
+  @override
+  String get filterSheets => 'Sheets';
+
+  @override
+  String get filterSlides => 'Slides';
+
+  @override
+  String get filterImages => 'Images';
+
+  @override
+  String get filterText => 'Text';
+
+  @override
+  String get filterEbooks => 'E-books';
+
+  @override
+  String get filterArchives => 'Archives';
+
+  @override
+  String get filterStarred => 'Starred';
+
+  @override
+  String get segmentDocuments => 'Documents';
+
+  @override
+  String get segmentCollections => 'Collections';
+
+  @override
+  String get segmentFolders => 'Folders';
+
+  @override
+  String get sortBy => 'Sort by';
+
+  @override
+  String get sortRecent => 'Recent';
+
+  @override
+  String get sortName => 'Name';
+
+  @override
+  String get sortModified => 'Date modified';
+
+  @override
+  String get sortSize => 'Size';
+
+  @override
+  String get sortType => 'Type';
+
+  @override
+  String get viewList => 'List view';
+
+  @override
+  String get viewGrid => 'Grid view';
+
+  @override
+  String findingDocuments(int count) {
+    return 'Finding documents… $count found';
+  }
+
+  @override
+  String documentsCount(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n documents',
+      one: '1 document',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String filterEmpty(String type) {
+    return 'No $type files yet';
+  }
+
+  @override
+  String get starredEmpty =>
+      'Nothing starred yet. Star a document to keep it here.';
+
+  @override
+  String get permissionCardTitle => 'Let DocNook list your documents';
+
+  @override
+  String get permissionCardBody =>
+      'Without access, Files shows only documents you open here.';
+
+  @override
+  String get primerTitle => 'Find the documents already on your phone';
+
+  @override
+  String get primerBody =>
+      'DocNook can list your PDFs, Office files and e-books so you can open them from one place. It only reads them on your phone; nothing is uploaded.';
+
+  @override
+  String get primerAllow => 'Allow access';
+
+  @override
+  String get primerFolders => 'Choose folders instead';
+
+  @override
+  String get primerNotNow => 'Not now';
+
+  @override
+  String get primerSettingsHint =>
+      'On the next screen, turn on access for DocNook, then come back.';
+
+  @override
+  String selectedCount(int n) {
+    return '$n selected';
+  }
+
+  @override
+  String get actionSelectAllItems => 'Select all';
+
+  @override
+  String get actionDeselect => 'Cancel selection';
+
+  @override
+  String get actionAddToCollection => 'Add to collection';
+
+  @override
+  String get actionDelete => 'Delete';
+
+  @override
+  String get actionRename => 'Rename';
+
+  @override
+  String get actionDuplicate => 'Duplicate';
+
+  @override
+  String get actionMerge => 'Merge';
+
+  @override
+  String get actionConvert => 'Convert';
+
+  @override
+  String get actionMoveToVault => 'Move to Vault';
+
+  @override
+  String get actionRemoveFromRecents => 'Remove from Recent';
+
+  @override
+  String get actionRemoveFromCollection => 'Remove from collection';
+
+  @override
+  String deleteTitle(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n files',
+      one: 'this file',
+    );
+    return 'Delete $_temp0?';
+  }
+
+  @override
+  String get deleteBody =>
+      'The file is removed from your phone. This can\'t be undone.';
+
+  @override
+  String deleted(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n files deleted',
+      one: 'File deleted',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteFailed =>
+      'DocNook couldn\'t delete this file. It may belong to another app.';
+
+  @override
+  String get renameTitle => 'Rename';
+
+  @override
+  String get renameLabel => 'Name';
+
+  @override
+  String get renameFailed =>
+      'Couldn\'t rename. A file with that name may already exist.';
+
+  @override
+  String get renamed => 'Renamed';
+
+  @override
+  String get starredDone => 'Starred';
+
+  @override
+  String get unstarredDone => 'Star removed';
+
+  @override
+  String addedToCollection(String name) {
+    return 'Added to $name';
+  }
+
+  @override
+  String get newCollection => 'New collection';
+
+  @override
+  String get collectionName => 'Collection name';
+
+  @override
+  String get collectionCreate => 'Create';
+
+  @override
+  String get collectionsEmptyTitle => 'No collections yet';
+
+  @override
+  String get collectionsEmptyBody =>
+      'Group documents without moving them. A file can be in several collections.';
+
+  @override
+  String get collectionEmpty => 'This collection is empty';
+
+  @override
+  String get collectionEmptyBody =>
+      'Add documents from Files with long-press, then Add to collection.';
+
+  @override
+  String get renameCollection => 'Rename collection';
+
+  @override
+  String get deleteCollection => 'Delete collection';
+
+  @override
+  String get deleteCollectionBody =>
+      'The documents stay on your phone; only the collection is removed.';
+
+  @override
+  String get foldersDocNook => 'DocNook folder';
+
+  @override
+  String get foldersDocNookBody =>
+      'Documents/DocNook — everything DocNook creates';
+
+  @override
+  String get foldersAllStorage => 'All of your phone\'s storage';
+
+  @override
+  String get foldersGranted => 'Folders you added';
+
+  @override
+  String get foldersAdd => 'Add a folder';
+
+  @override
+  String get foldersRemove => 'Remove folder';
+
+  @override
+  String get foldersEmpty =>
+      'Add a folder so DocNook can list the documents in it.';
+
+  @override
+  String get infoType => 'Type';
+
+  @override
+  String get infoSize => 'Size';
+
+  @override
+  String get infoPages => 'Pages';
+
+  @override
+  String get infoModified => 'Modified';
+
+  @override
+  String get infoLastOpened => 'Last opened';
+
+  @override
+  String get infoLocation => 'Location';
+
+  @override
+  String get infoCollections => 'Collections';
+
+  @override
+  String get infoIndexed => 'Indexed for search';
+
+  @override
+  String get yes => 'Yes';
+
+  @override
+  String get no => 'No';
+
+  @override
+  String get notAvailableYet => 'This tool arrives in a later build';
+
+  @override
+  String get searchNames => 'Names';
+
+  @override
+  String get searchInside => 'Inside documents';
+
+  @override
+  String get searchRecent => 'Recent searches';
+
+  @override
+  String get searchClearRecent => 'Clear';
+
+  @override
+  String searchEmptyTitle(String term) {
+    return 'No matches for “$term”';
+  }
+
+  @override
+  String get searchEmptyHint =>
+      'Documents that haven\'t been indexed yet are only searched by name.';
+
+  @override
+  String get searchStartHint =>
+      'Search file names and the text inside your documents.';
+
+  @override
+  String searchPageHit(int page) {
+    return 'Page $page';
+  }
+
+  @override
+  String searchPartHit(int part) {
+    return 'Part $part';
+  }
+
+  @override
   String get filesEmptyTitle => 'No documents yet';
 
   @override

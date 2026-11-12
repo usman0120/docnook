@@ -562,6 +562,564 @@ abstract class AppLocalizations {
   /// **'Copy text from a photo'**
   String get toolExtractTextDesc;
 
+  /// No description provided for @filterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get filterAll;
+
+  /// No description provided for @filterPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF'**
+  String get filterPdf;
+
+  /// No description provided for @filterWord.
+  ///
+  /// In en, this message translates to:
+  /// **'Word'**
+  String get filterWord;
+
+  /// No description provided for @filterSheets.
+  ///
+  /// In en, this message translates to:
+  /// **'Sheets'**
+  String get filterSheets;
+
+  /// No description provided for @filterSlides.
+  ///
+  /// In en, this message translates to:
+  /// **'Slides'**
+  String get filterSlides;
+
+  /// No description provided for @filterImages.
+  ///
+  /// In en, this message translates to:
+  /// **'Images'**
+  String get filterImages;
+
+  /// No description provided for @filterText.
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get filterText;
+
+  /// No description provided for @filterEbooks.
+  ///
+  /// In en, this message translates to:
+  /// **'E-books'**
+  String get filterEbooks;
+
+  /// No description provided for @filterArchives.
+  ///
+  /// In en, this message translates to:
+  /// **'Archives'**
+  String get filterArchives;
+
+  /// No description provided for @filterStarred.
+  ///
+  /// In en, this message translates to:
+  /// **'Starred'**
+  String get filterStarred;
+
+  /// No description provided for @segmentDocuments.
+  ///
+  /// In en, this message translates to:
+  /// **'Documents'**
+  String get segmentDocuments;
+
+  /// No description provided for @segmentCollections.
+  ///
+  /// In en, this message translates to:
+  /// **'Collections'**
+  String get segmentCollections;
+
+  /// No description provided for @segmentFolders.
+  ///
+  /// In en, this message translates to:
+  /// **'Folders'**
+  String get segmentFolders;
+
+  /// No description provided for @sortBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort by'**
+  String get sortBy;
+
+  /// No description provided for @sortRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get sortRecent;
+
+  /// No description provided for @sortName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get sortName;
+
+  /// No description provided for @sortModified.
+  ///
+  /// In en, this message translates to:
+  /// **'Date modified'**
+  String get sortModified;
+
+  /// No description provided for @sortSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get sortSize;
+
+  /// No description provided for @sortType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get sortType;
+
+  /// No description provided for @viewList.
+  ///
+  /// In en, this message translates to:
+  /// **'List view'**
+  String get viewList;
+
+  /// No description provided for @viewGrid.
+  ///
+  /// In en, this message translates to:
+  /// **'Grid view'**
+  String get viewGrid;
+
+  /// No description provided for @findingDocuments.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding documents… {count} found'**
+  String findingDocuments(int count);
+
+  /// No description provided for @documentsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 document} other{{n} documents}}'**
+  String documentsCount(int n);
+
+  /// No description provided for @filterEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No {type} files yet'**
+  String filterEmpty(String type);
+
+  /// No description provided for @starredEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing starred yet. Star a document to keep it here.'**
+  String get starredEmpty;
+
+  /// No description provided for @permissionCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Let DocNook list your documents'**
+  String get permissionCardTitle;
+
+  /// No description provided for @permissionCardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Without access, Files shows only documents you open here.'**
+  String get permissionCardBody;
+
+  /// No description provided for @primerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Find the documents already on your phone'**
+  String get primerTitle;
+
+  /// No description provided for @primerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'DocNook can list your PDFs, Office files and e-books so you can open them from one place. It only reads them on your phone; nothing is uploaded.'**
+  String get primerBody;
+
+  /// No description provided for @primerAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow access'**
+  String get primerAllow;
+
+  /// No description provided for @primerFolders.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose folders instead'**
+  String get primerFolders;
+
+  /// No description provided for @primerNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get primerNotNow;
+
+  /// No description provided for @primerSettingsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'On the next screen, turn on access for DocNook, then come back.'**
+  String get primerSettingsHint;
+
+  /// No description provided for @selectedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} selected'**
+  String selectedCount(int n);
+
+  /// No description provided for @actionSelectAllItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get actionSelectAllItems;
+
+  /// No description provided for @actionDeselect.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel selection'**
+  String get actionDeselect;
+
+  /// No description provided for @actionAddToCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to collection'**
+  String get actionAddToCollection;
+
+  /// No description provided for @actionDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get actionDelete;
+
+  /// No description provided for @actionRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get actionRename;
+
+  /// No description provided for @actionDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'Duplicate'**
+  String get actionDuplicate;
+
+  /// No description provided for @actionMerge.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge'**
+  String get actionMerge;
+
+  /// No description provided for @actionConvert.
+  ///
+  /// In en, this message translates to:
+  /// **'Convert'**
+  String get actionConvert;
+
+  /// No description provided for @actionMoveToVault.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to Vault'**
+  String get actionMoveToVault;
+
+  /// No description provided for @actionRemoveFromRecents.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from Recent'**
+  String get actionRemoveFromRecents;
+
+  /// No description provided for @actionRemoveFromCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from collection'**
+  String get actionRemoveFromCollection;
+
+  /// No description provided for @deleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {n, plural, =1{this file} other{{n} files}}?'**
+  String deleteTitle(int n);
+
+  /// No description provided for @deleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The file is removed from your phone. This can\'t be undone.'**
+  String get deleteBody;
+
+  /// No description provided for @deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{File deleted} other{{n} files deleted}}'**
+  String deleted(int n);
+
+  /// No description provided for @deleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'DocNook couldn\'t delete this file. It may belong to another app.'**
+  String get deleteFailed;
+
+  /// No description provided for @renameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get renameTitle;
+
+  /// No description provided for @renameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get renameLabel;
+
+  /// No description provided for @renameFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t rename. A file with that name may already exist.'**
+  String get renameFailed;
+
+  /// No description provided for @renamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Renamed'**
+  String get renamed;
+
+  /// No description provided for @starredDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Starred'**
+  String get starredDone;
+
+  /// No description provided for @unstarredDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Star removed'**
+  String get unstarredDone;
+
+  /// No description provided for @addedToCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to {name}'**
+  String addedToCollection(String name);
+
+  /// No description provided for @newCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'New collection'**
+  String get newCollection;
+
+  /// No description provided for @collectionName.
+  ///
+  /// In en, this message translates to:
+  /// **'Collection name'**
+  String get collectionName;
+
+  /// No description provided for @collectionCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get collectionCreate;
+
+  /// No description provided for @collectionsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No collections yet'**
+  String get collectionsEmptyTitle;
+
+  /// No description provided for @collectionsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Group documents without moving them. A file can be in several collections.'**
+  String get collectionsEmptyBody;
+
+  /// No description provided for @collectionEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'This collection is empty'**
+  String get collectionEmpty;
+
+  /// No description provided for @collectionEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add documents from Files with long-press, then Add to collection.'**
+  String get collectionEmptyBody;
+
+  /// No description provided for @renameCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename collection'**
+  String get renameCollection;
+
+  /// No description provided for @deleteCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete collection'**
+  String get deleteCollection;
+
+  /// No description provided for @deleteCollectionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The documents stay on your phone; only the collection is removed.'**
+  String get deleteCollectionBody;
+
+  /// No description provided for @foldersDocNook.
+  ///
+  /// In en, this message translates to:
+  /// **'DocNook folder'**
+  String get foldersDocNook;
+
+  /// No description provided for @foldersDocNookBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Documents/DocNook — everything DocNook creates'**
+  String get foldersDocNookBody;
+
+  /// No description provided for @foldersAllStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'All of your phone\'s storage'**
+  String get foldersAllStorage;
+
+  /// No description provided for @foldersGranted.
+  ///
+  /// In en, this message translates to:
+  /// **'Folders you added'**
+  String get foldersGranted;
+
+  /// No description provided for @foldersAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a folder'**
+  String get foldersAdd;
+
+  /// No description provided for @foldersRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove folder'**
+  String get foldersRemove;
+
+  /// No description provided for @foldersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a folder so DocNook can list the documents in it.'**
+  String get foldersEmpty;
+
+  /// No description provided for @infoType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get infoType;
+
+  /// No description provided for @infoSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get infoSize;
+
+  /// No description provided for @infoPages.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages'**
+  String get infoPages;
+
+  /// No description provided for @infoModified.
+  ///
+  /// In en, this message translates to:
+  /// **'Modified'**
+  String get infoModified;
+
+  /// No description provided for @infoLastOpened.
+  ///
+  /// In en, this message translates to:
+  /// **'Last opened'**
+  String get infoLastOpened;
+
+  /// No description provided for @infoLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get infoLocation;
+
+  /// No description provided for @infoCollections.
+  ///
+  /// In en, this message translates to:
+  /// **'Collections'**
+  String get infoCollections;
+
+  /// No description provided for @infoIndexed.
+  ///
+  /// In en, this message translates to:
+  /// **'Indexed for search'**
+  String get infoIndexed;
+
+  /// No description provided for @yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yes;
+
+  /// No description provided for @no.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get no;
+
+  /// No description provided for @notAvailableYet.
+  ///
+  /// In en, this message translates to:
+  /// **'This tool arrives in a later build'**
+  String get notAvailableYet;
+
+  /// No description provided for @searchNames.
+  ///
+  /// In en, this message translates to:
+  /// **'Names'**
+  String get searchNames;
+
+  /// No description provided for @searchInside.
+  ///
+  /// In en, this message translates to:
+  /// **'Inside documents'**
+  String get searchInside;
+
+  /// No description provided for @searchRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent searches'**
+  String get searchRecent;
+
+  /// No description provided for @searchClearRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get searchClearRecent;
+
+  /// No description provided for @searchEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No matches for “{term}”'**
+  String searchEmptyTitle(String term);
+
+  /// No description provided for @searchEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Documents that haven\'t been indexed yet are only searched by name.'**
+  String get searchEmptyHint;
+
+  /// No description provided for @searchStartHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search file names and the text inside your documents.'**
+  String get searchStartHint;
+
+  /// No description provided for @searchPageHit.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page}'**
+  String searchPageHit(int page);
+
+  /// No description provided for @searchPartHit.
+  ///
+  /// In en, this message translates to:
+  /// **'Part {part}'**
+  String searchPartHit(int part);
+
   /// No description provided for @filesEmptyTitle.
   ///
   /// In en, this message translates to:

@@ -12,6 +12,8 @@ Future<T?> showDocNookSheet<T>(
   bool expand = false,
 }) => showModalBottomSheet<T>(
   context: context,
+  // Above the shell's tab bar and Scan button.
+  useRootNavigator: true,
   isScrollControlled: true,
   useSafeArea: true,
   builder: (context) {

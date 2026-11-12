@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DocNook mark: a paper sheet with a folded corner, ink lines, and one
+     harvest-gold line. 108dp adaptive canvas; artwork inside the 66dp safe zone. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- sheet -->
+    <path android:fillColor="#F7F5F0"
+        android:pathData="M38,30h22l12,12v34a2,2 0,0 1,-2 2H38a2,2 0,0 1,-2 -2V32a2,2 0,0 1,2 -2z"/>
+    <!-- folded corner -->
+    <path android:fillColor="#D9D3C4"
+        android:pathData="M60,30v10a2,2 0,0 0,2 2h10z"/>
+    <!-- ink lines -->
+    <path android:fillColor="#1F3A4D" android:pathData="M42,50h24v3H42z"/>
+    <path android:fillColor="#1F3A4D" android:pathData="M42,57h24v3H42z"/>
+    <path android:fillColor="#1F3A4D" android:pathData="M42,64h16v3H42z"/>
+    <!-- gold accent -->
+    <path android:fillColor="#E0A84A" android:pathData="M42,42h12v3H42z"/>
+</vector>

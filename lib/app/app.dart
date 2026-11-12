@@ -7,6 +7,8 @@ import 'package:docnook/app/theme/app_theme.dart';
 import 'package:docnook/data/platform/platform_channel.dart';
 import 'package:docnook/data/repositories/settings_repository.dart';
 import 'package:docnook/domain/entities/document_info.dart';
+import 'package:docnook/features/library/application/library_controller.dart';
+import 'package:docnook/features/search/application/indexer.dart';
 import 'package:docnook/features/viewer/application/open_document.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +37,12 @@ class _DocNookAppState extends ConsumerState<DocNookApp> {
   void initState() {
     super.initState();
     _incoming = ref.read(platformProvider).incoming.listen(_onIncoming);
+    // Library refresh and text indexing start after the first frame, so
+    // they never delay opening the app (NFR-PERF-01).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(discoveryProvider);
+      ref.read(indexerProvider).kick();
+    });
   }
 
   void _onIncoming(IncomingEvent event) {

@@ -1,6 +1,8 @@
 import 'package:docnook/app/shell.dart';
 import 'package:docnook/features/home/presentation/home_screen.dart';
+import 'package:docnook/features/library/presentation/collection_screen.dart';
 import 'package:docnook/features/library/presentation/files_screen.dart';
+import 'package:docnook/features/search/presentation/search_screen.dart';
 import 'package:docnook/features/onboarding/presentation/onboarding_screen.dart';
 import 'package:docnook/features/settings/presentation/settings_screen.dart';
 import 'package:docnook/features/tools/presentation/tools_screen.dart';
@@ -45,6 +47,20 @@ GoRouter buildRouter({bool onboarded = true}) => GoRouter(
         final request = state.extra;
         if (request is! OpenRequest) return const _BadRoute();
         return ViewerHost(key: ValueKey(request), request: request);
+      },
+    ),
+    GoRoute(
+      path: '/search',
+      parentNavigatorKey: rootNavigatorKey,
+      builder: (_, _) => const SearchScreen(),
+    ),
+    GoRoute(
+      path: '/collection/:id',
+      parentNavigatorKey: rootNavigatorKey,
+      builder: (context, state) {
+        final id = int.tryParse(state.pathParameters['id'] ?? '');
+        if (id == null) return const _BadRoute();
+        return CollectionScreen(id: id, name: state.extra as String? ?? '');
       },
     ),
     GoRoute(

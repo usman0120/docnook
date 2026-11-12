@@ -3,20 +3,23 @@ import 'package:docnook/design_system/components/tab_bar.dart';
 import 'package:docnook/design_system/icons.dart';
 import 'package:docnook/design_system/tokens.dart';
 import 'package:docnook/design_system/typography.dart';
+import 'package:docnook/features/library/presentation/files_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 /// Three-tab shell (Home, Files, Tools) with the raised Scan button on Home
 /// and Files (BLUEPRINT 10).
-class AppShell extends StatelessWidget {
+class AppShell extends ConsumerWidget {
   const AppShell({required this.shell, super.key});
 
   final StatefulNavigationShell shell;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
-    final showScan = shell.currentIndex != 2;
+    final selecting = ref.watch(selectionActiveProvider);
+    final showScan = shell.currentIndex != 2 && !selecting;
 
     return Scaffold(
       body: shell,

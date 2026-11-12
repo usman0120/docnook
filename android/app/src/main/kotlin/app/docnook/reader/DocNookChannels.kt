@@ -4,16 +4,20 @@ import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.ContentValues
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
 import android.graphics.drawable.Icon
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.provider.Settings
 import android.view.WindowManager
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
@@ -177,6 +181,28 @@ class DocNookChannels(
                     .map { it.uri.toString() },
             )
             "hasAllFilesAccess" -> result.success(hasAllFilesAccess())
+            "hasStorageAccess" -> result.success(hasStorageAccess())
+            "requestLegacyStorage" -> requestLegacyStorage(result)
+            "storageRoot" -> {
+                @Suppress("DEPRECATION")
+                result.success(Environment.getExternalStorageDirectory().absolutePath)
+            }
+            "listTree" -> background(result) { listTree(call.argument<String>("uri")!!) }
+            "treeName" -> result.success(treeName(call.argument<String>("uri")!!))
+            "releaseTree" -> {
+                try {
+                    activity.contentResolver.releasePersistableUriPermission(
+                        Uri.parse(call.argument<String>("uri")!!),
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION,
+                    )
+                } catch (_: SecurityException) {
+                }
+                result.success(null)
+            }
+            "deleteDocument" -> background(result) { deleteDocument(call.argument<String>("uri")!!) }
+            "renameDocument" -> background(result) {
+                renameDocument(call.argument<String>("uri")!!, call.argument<String>("name")!!)
+            }
             "requestAllFilesAccess" -> result.success(requestAllFilesAccess())
             "setSecure" -> {
                 secure = call.argument<Boolean>("on") ?: false
@@ -429,6 +455,122 @@ class DocNookChannels(
         return true
     }
 
+    /** True when DocNook may list documents across shared storage. */
+    private fun hasStorageAccess(): Boolean =
+        if (Build.VERSION.SDK_INT >= 30) {
+            Environment.isExternalStorageManager()
+        } else {
+            ContextCompat.checkSelfPermission(activity, android.Manifest.permission.READ_EXTERNAL_STORAGE) ==
+                PackageManager.PERMISSION_GRANTED
+        }
+
+    private var pendingPermissionResult: MethodChannel.Result? = null
+
+    /** Android 7-10: the runtime READ_EXTERNAL_STORAGE prompt. */
+    private fun requestLegacyStorage(result: MethodChannel.Result) {
+        if (hasStorageAccess()) {
+            result.success(true)
+            return
+        }
+        pendingPermissionResult?.success(false)
+        pendingPermissionResult = result
+        ActivityCompat.requestPermissions(
+            activity,
+            arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE),
+            REQUEST_STORAGE,
+        )
+    }
+
+    fun onRequestPermissionsResult(requestCode: Int, grantResults: IntArray): Boolean {
+        if (requestCode != REQUEST_STORAGE) return false
+        val result = pendingPermissionResult ?: return true
+        pendingPermissionResult = null
+        result.success(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+        return true
+    }
+
+    private fun treeName(uriString: String): String? = try {
+        val tree = Uri.parse(uriString)
+        val doc = DocumentsContract.buildDocumentUriUsingTree(tree, DocumentsContract.getTreeDocumentId(tree))
+        activity.contentResolver.query(doc, arrayOf(DocumentsContract.Document.COLUMN_DISPLAY_NAME), null, null, null)
+            ?.use { c -> if (c.moveToFirst()) c.getString(0) else null }
+    } catch (_: Exception) {
+        null
+    }
+
+    /**
+     * Lists every file under a granted folder tree (SAF), skipping hidden
+     * names and Android/. Capped so a huge tree cannot exhaust memory.
+     */
+    private fun listTree(uriString: String): List<Map<String, Any?>> {
+        val tree = Uri.parse(uriString)
+        val resolver = activity.contentResolver
+        val out = ArrayList<Map<String, Any?>>()
+        val queue = ArrayDeque<String>()
+        queue.add(DocumentsContract.getTreeDocumentId(tree))
+        val columns = arrayOf(
+            DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+            DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+            DocumentsContract.Document.COLUMN_MIME_TYPE,
+            DocumentsContract.Document.COLUMN_SIZE,
+            DocumentsContract.Document.COLUMN_LAST_MODIFIED,
+        )
+        var visitedDirs = 0
+        while (queue.isNotEmpty() && out.size < 50000 && visitedDirs < 20000) {
+            val parent = queue.removeFirst()
+            visitedDirs++
+            val children = DocumentsContract.buildChildDocumentsUriUsingTree(tree, parent)
+            resolver.query(children, columns, null, null, null)?.use { c ->
+                while (c.moveToNext()) {
+                    val id = c.getString(0) ?: continue
+                    val name = c.getString(1) ?: continue
+                    if (name.startsWith(".")) continue
+                    val mime = c.getString(2)
+                    if (mime == DocumentsContract.Document.MIME_TYPE_DIR) {
+                        if (name != "Android") queue.add(id)
+                        continue
+                    }
+                    out.add(
+                        mapOf(
+                            "uri" to DocumentsContract.buildDocumentUriUsingTree(tree, id).toString(),
+                            "name" to name,
+                            "mime" to mime,
+                            "size" to (if (c.isNull(3)) null else c.getLong(3)),
+                            "modified" to (if (c.isNull(4)) null else c.getLong(4)),
+                        ),
+                    )
+                }
+            }
+        }
+        return out
+    }
+
+    /** Deletes a document given as a path or a document URI. */
+    private fun deleteDocument(target: String): Boolean {
+        if (!target.startsWith("content://")) return File(target).delete()
+        val uri = Uri.parse(target)
+        return try {
+            DocumentsContract.deleteDocument(activity.contentResolver, uri)
+        } catch (_: Exception) {
+            activity.contentResolver.delete(uri, null, null) > 0
+        }
+    }
+
+    /** Renames in place; returns the new path or URI, or null on failure. */
+    private fun renameDocument(target: String, name: String): String? {
+        if (!target.startsWith("content://")) {
+            val file = File(target)
+            val renamed = File(file.parentFile, name)
+            if (renamed.exists()) return null
+            return if (file.renameTo(renamed)) renamed.absolutePath else null
+        }
+        return try {
+            DocumentsContract.renameDocument(activity.contentResolver, Uri.parse(target), name)?.toString()
+        } catch (_: Exception) {
+            null
+        }
+    }
+
     private fun hasAllFilesAccess(): Boolean =
         if (Build.VERSION.SDK_INT >= 30) Environment.isExternalStorageManager() else false
 
@@ -478,6 +620,7 @@ class DocNookChannels(
     companion object {
         private const val REQUEST_TREE = 4107
         private const val REQUEST_FILES = 4108
+        private const val REQUEST_STORAGE = 4109
         const val EXTRA_SHORTCUT = "docnook.shortcut"
     }
 }

@@ -13,6 +13,8 @@ import 'package:docnook/design_system/tokens.dart';
 import 'package:docnook/design_system/typography.dart';
 import 'package:docnook/domain/entities/document_info.dart';
 import 'package:docnook/features/home/application/open_actions.dart';
+import 'package:docnook/features/library/presentation/access_primer.dart';
+import 'package:docnook/features/library/presentation/file_sheets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -57,7 +59,7 @@ class HomeScreen extends ConsumerWidget {
           child: SearchField(
             hint: l.searchHint,
             icon: PhosphorIconsRegular.magnifyingGlass,
-            onTap: later,
+            onTap: () => context.push('/search'),
           ),
         ),
         if (continuing.isNotEmpty) ...[
@@ -115,7 +117,7 @@ class HomeScreen extends ConsumerWidget {
                 primaryLabel: l.actionOpenFile,
                 onPrimary: open,
                 secondaryLabel: l.actionFindDocuments,
-                onSecondary: later,
+                onSecondary: () => unawaited(showAccessPrimer(context, ref)),
               ),
             ),
           )
@@ -150,6 +152,9 @@ class _RecentRow extends ConsumerWidget {
       starred: doc.starred,
       missing: doc.missing,
       onTap: () => unawaited(openDocument(context, doc)),
+      onMore: () =>
+          unawaited(showFileActions(context, ref, doc, inRecents: true)),
+      moreLabel: l.actionMore,
     );
   }
 }
