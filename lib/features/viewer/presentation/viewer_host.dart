@@ -7,6 +7,7 @@ import 'package:docnook/core/failures.dart';
 import 'package:docnook/core/result.dart';
 import 'package:docnook/design_system/components/buttons.dart';
 import 'package:docnook/design_system/components/states.dart';
+import 'package:docnook/design_system/icons.dart';
 import 'package:docnook/domain/entities/doc_type.dart';
 import 'package:docnook/features/viewer/application/open_document.dart';
 import 'package:docnook/features/viewer/pdf/pdf_viewer_screen.dart';
@@ -14,7 +15,6 @@ import 'package:docnook/features/viewer/presentation/cant_open_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Opens a document and shows the viewer for its real type. Handles the
 /// loading, too-large and error states shared by every viewer.

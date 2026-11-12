@@ -24,7 +24,6 @@ dependencies:
   path: ^1.9.1
   path_provider: ^2.1.6
   pdfrx: ^2.12.0
-  phosphor_flutter: ^2.1.0
   pointycastle: ^4.0.0
   xml: ^7.1.0
 
@@ -58,6 +57,17 @@ flutter:
       fonts:
         - asset: assets/fonts/SourceSerif4-SemiBold.ttf
           weight: 600
+    # Phosphor Icons (MIT). Only the glyphs in lib/design_system/icons.dart
+    # survive release builds (icon tree-shaking).
+    - family: PhosphorRegular
+      fonts:
+        - asset: assets/fonts/Phosphor-Regular.ttf
+    - family: PhosphorFill
+      fonts:
+        - asset: assets/fonts/Phosphor-Fill.ttf
+    - family: PhosphorBold
+      fonts:
+        - asset: assets/fonts/Phosphor-Bold.ttf
     - family: JetBrainsMono
       fonts:
         - asset: assets/fonts/JetBrainsMono-Regular.ttf

@@ -1,7 +1,8 @@
-import 'package:docnook/app/l10n/generated/app_localizations.dart';
 import 'package:docnook/app/shell.dart';
 import 'package:docnook/features/home/presentation/home_screen.dart';
 import 'package:docnook/features/library/presentation/files_screen.dart';
+import 'package:docnook/features/onboarding/presentation/onboarding_screen.dart';
+import 'package:docnook/features/settings/presentation/settings_screen.dart';
 import 'package:docnook/features/tools/presentation/tools_screen.dart';
 import 'package:docnook/features/viewer/application/open_document.dart';
 import 'package:docnook/features/viewer/presentation/viewer_host.dart';
@@ -10,9 +11,12 @@ import 'package:go_router/go_router.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 
-GoRouter buildRouter() => GoRouter(
+GoRouter buildRouter({bool onboarded = true}) => GoRouter(
   navigatorKey: rootNavigatorKey,
-  initialLocation: '/home',
+  initialLocation: onboarded ? '/home' : '/welcome',
+  // Any unknown location (stale deep link, file URI) goes Home instead of
+  // showing an error page.
+  errorBuilder: (_, _) => const _BadRoute(),
   routes: [
     StatefulShellRoute.indexedStack(
       builder: (context, state, shell) => AppShell(shell: shell),
@@ -44,11 +48,14 @@ GoRouter buildRouter() => GoRouter(
       },
     ),
     GoRoute(
+      path: '/welcome',
+      parentNavigatorKey: rootNavigatorKey,
+      builder: (_, _) => const OnboardingScreen(),
+    ),
+    GoRoute(
       path: '/settings',
       parentNavigatorKey: rootNavigatorKey,
-      builder: (context, _) => Scaffold(
-        appBar: AppBar(title: Text(AppLocalizations.of(context).settingsTitle)),
-      ),
+      builder: (_, _) => const SettingsScreen(),
     ),
   ],
 );

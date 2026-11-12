@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:docnook/app/l10n/generated/app_localizations.dart';
 import 'package:docnook/design_system/components/buttons.dart';
+import 'package:docnook/design_system/icons.dart';
 import 'package:docnook/design_system/tokens.dart';
 import 'package:docnook/design_system/typography.dart';
 import 'package:flutter/material.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Night viewers draw their chrome on near-black regardless of app theme.
-const _nightBar = Color(0xF21A1A19);
+const _nightBar = Color(0xFF1A1A19);
 const _nightInk = Color(0xFFECE9E2);
 const _nightMuted = Color(0xFFA8A398);
 
@@ -39,14 +39,11 @@ class ViewerTopBar extends StatelessWidget {
     final c = context.colors;
     final l = AppLocalizations.of(context);
     final ink = night ? _nightInk : c.ink;
-    return AnimatedPositioned(
-      duration: Motion.of(context, Motion.fast),
-      curve: Motion.curve,
-      left: 0,
-      right: 0,
-      top: visible ? 0 : -(MediaQuery.paddingOf(context).top + 64),
+    return _Collapsible(
+      visible: visible,
+      alignment: Alignment.bottomCenter,
       child: Material(
-        color: night ? _nightBar : c.paper.withValues(alpha: 0.97),
+        color: night ? _nightBar : c.paper,
         child: DecoratedBox(
           decoration: BoxDecoration(
             border: Border(
@@ -109,14 +106,11 @@ class ViewerBottomBar extends StatelessWidget {
     final c = context.colors;
     final ink = night ? _nightInk : c.ink;
     final muted = night ? _nightMuted : c.inkMuted;
-    return AnimatedPositioned(
-      duration: Motion.of(context, Motion.fast),
-      curve: Motion.curve,
-      left: 0,
-      right: 0,
-      bottom: visible ? 0 : -(MediaQuery.paddingOf(context).bottom + 80),
+    return _Collapsible(
+      visible: visible,
+      alignment: Alignment.topCenter,
       child: Material(
-        color: night ? _nightBar : c.paper.withValues(alpha: 0.97),
+        color: night ? _nightBar : c.paper,
         child: DecoratedBox(
           decoration: BoxDecoration(
             border: Border(
@@ -374,4 +368,30 @@ class PageThumbChip extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Folds a bar away to zero height so the document takes the space. Laid
+/// out in a Column (not floating over the page), so the first and last page
+/// are never hidden under a bar.
+class _Collapsible extends StatelessWidget {
+  const _Collapsible({
+    required this.visible,
+    required this.alignment,
+    required this.child,
+  });
+
+  final bool visible;
+  final Alignment alignment;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => ClipRect(
+    child: AnimatedAlign(
+      duration: Motion.of(context, Motion.fast),
+      curve: Motion.curve,
+      alignment: alignment,
+      heightFactor: visible ? 1 : 0,
+      child: child,
+    ),
+  );
 }

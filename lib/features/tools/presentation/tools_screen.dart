@@ -1,10 +1,10 @@
 import 'package:docnook/app/l10n/generated/app_localizations.dart';
 import 'package:docnook/design_system/components/layout.dart';
 import 'package:docnook/design_system/components/tool_tile.dart';
+import 'package:docnook/design_system/icons.dart';
 import 'package:docnook/design_system/tokens.dart';
 import 'package:docnook/domain/entities/doc_type.dart';
 import 'package:flutter/material.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// One entry of the Tools hub.
 final class ToolEntry {
@@ -234,7 +234,8 @@ class ToolsScreen extends StatelessWidget {
 
     // Wider tiles at large text sizes so two lines of description still fit.
     final scale = MediaQuery.textScalerOf(context).scale(1);
-    final extent = 132 + (scale - 1) * 70;
+    // Fits icon + title + two caption lines exactly; grows with text size.
+    final extent = 56 + 54 * scale;
 
     return CustomScrollView(
       slivers: [

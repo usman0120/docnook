@@ -55,6 +55,11 @@ Future<List<Override>> bootstrap() async {
   );
   final platform = PlatformChannel();
   final memory = await platform.totalMemoryMb();
+  final settings = SettingsRepository(db);
+  final onboarded = await settings.getBool(SettingsRepository.keyOnboarded);
+  if (await settings.getBool(SettingsRepository.keyBlockScreenshots)) {
+    await platform.setSecure(on: true);
+  }
   // Housekeeping never delays the first frame.
   Future<void>(() async {
     await paths.sweep();
@@ -64,8 +69,12 @@ Future<List<Override>> bootstrap() async {
     appPathsProvider.overrideWithValue(paths),
     databaseProvider.overrideWithValue(db),
     platformProvider.overrideWithValue(platform),
+    onboardedProvider.overrideWithValue(onboarded),
     jobRunnerProvider.overrideWithValue(
       JobRunner(workers: JobRunner.workersFor(memory)),
     ),
   ];
 }
+
+/// Whether onboarding was completed, read once at start.
+final onboardedProvider = Provider<bool>((ref) => true);

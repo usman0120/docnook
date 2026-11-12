@@ -7,6 +7,7 @@ import 'package:docnook/data/repositories/document_repository.dart';
 import 'package:docnook/data/repositories/settings_repository.dart';
 import 'package:docnook/design_system/components/buttons.dart';
 import 'package:docnook/design_system/components/states.dart';
+import 'package:docnook/design_system/icons.dart';
 import 'package:docnook/design_system/tokens.dart';
 import 'package:docnook/domain/entities/document_info.dart';
 import 'package:docnook/features/viewer/application/open_document.dart';
@@ -18,7 +19,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pdfrx/pdfrx.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Inverts page colours for night reading, then rotates hue by 180° so
 /// photos and coloured charts keep roughly their own hues (FR-READ-04).
@@ -291,83 +291,8 @@ class _PdfViewerScreenState extends ConsumerState<PdfViewerScreen> {
       value: _night ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       child: Scaffold(
         backgroundColor: background,
-        body: Stack(
+        body: Column(
           children: [
-            if (initialPage == null)
-              const LoadingState()
-            else
-              PdfViewer.file(
-                doc.path,
-                // Recreated when the layout mode changes so it lays out again.
-                key: ValueKey(_scroll),
-                controller: _controller,
-                initialPageNumber: initialPage,
-                passwordProvider: _providePassword,
-                params: PdfViewerParams(
-                  backgroundColor: background,
-                  margin: 8,
-                  maxScale: 8,
-                  minScale: 0.5,
-                  pageDropShadow: _night
-                      ? null
-                      : BoxShadow(
-                          color: c.ink.withValues(alpha: 0.10),
-                          blurRadius: 3,
-                          offset: const Offset(0, 1),
-                        ),
-                  pageImageColorFilter: _night ? _nightFilter : null,
-                  layoutPages: _scroll == PdfScrollMode.horizontal
-                      ? _horizontalLayout
-                      : null,
-                  panAxis: PanAxis.free,
-                  matchTextColor: c.accent.withValues(alpha: 0.30),
-                  activeMatchTextColor: c.accent.withValues(alpha: 0.60),
-                  pagePaintCallbacks: [_searcher.pageTextMatchPaintCallback],
-                  textSelectionParams: const PdfTextSelectionParams(),
-                  onViewerReady: _onReady,
-                  onPageChanged: _onPageChanged,
-                  onGeneralTap: (context, controller, details) {
-                    if (details.type == PdfViewerGeneralTapType.tap) {
-                      if (_searching) {
-                        FocusScope.of(context).unfocus();
-                      } else {
-                        _toggleChrome();
-                      }
-                      return true;
-                    }
-                    return false;
-                  },
-                  errorBannerBuilder:
-                      (context, error, stackTrace, documentRef) {
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          if (mounted && !_passwordCancelled)
-                            setState(() => _loadError = error);
-                        });
-                        return const SizedBox.shrink();
-                      },
-                  loadingBannerBuilder: (context, downloaded, total) =>
-                      const LoadingState(),
-                  viewerOverlayBuilder: (context, size, handleLinkTap) => [
-                    if (_pageCount > 1)
-                      PdfViewerScrollThumb(
-                        controller: _controller,
-                        orientation: _scroll == PdfScrollMode.horizontal
-                            ? ScrollbarOrientation.bottom
-                            : ScrollbarOrientation.right,
-                        thumbSize: const Size(44, 28),
-                        thumbBuilder:
-                            (context, thumbSize, pageNumber, controller) =>
-                                PageThumbChip(
-                                  label: l.pdfPageOf(
-                                    pageNumber ?? _page,
-                                    _pageCount,
-                                  ),
-                                  visible: _chrome,
-                                ),
-                      ),
-                  ],
-                ),
-              ),
             ViewerTopBar(
               visible: _chrome,
               title: doc.name,
@@ -435,6 +360,90 @@ class _PdfViewerScreenState extends ConsumerState<PdfViewerScreen> {
                   ],
                 ),
               ],
+            ),
+            Expanded(
+              child: initialPage == null
+                  ? const LoadingState()
+                  : PdfViewer.file(
+                      doc.path,
+                      // Recreated when the layout mode changes so it lays out again.
+                      key: ValueKey(_scroll),
+                      controller: _controller,
+                      initialPageNumber: initialPage,
+                      passwordProvider: _providePassword,
+                      params: PdfViewerParams(
+                        backgroundColor: background,
+                        margin: 8,
+                        maxScale: 8,
+                        minScale: 0.5,
+                        pageDropShadow: _night
+                            ? null
+                            : BoxShadow(
+                                color: c.ink.withValues(alpha: 0.10),
+                                blurRadius: 3,
+                                offset: const Offset(0, 1),
+                              ),
+                        pageImageColorFilter: _night ? _nightFilter : null,
+                        layoutPages: _scroll == PdfScrollMode.horizontal
+                            ? _horizontalLayout
+                            : null,
+                        panAxis: PanAxis.free,
+                        matchTextColor: c.accent.withValues(alpha: 0.30),
+                        activeMatchTextColor: c.accent.withValues(alpha: 0.60),
+                        pagePaintCallbacks: [
+                          _searcher.pageTextMatchPaintCallback,
+                        ],
+                        textSelectionParams: const PdfTextSelectionParams(),
+                        onViewerReady: _onReady,
+                        onPageChanged: _onPageChanged,
+                        onGeneralTap: (context, controller, details) {
+                          if (details.type == PdfViewerGeneralTapType.tap) {
+                            if (_searching) {
+                              FocusScope.of(context).unfocus();
+                            } else {
+                              _toggleChrome();
+                            }
+                            return true;
+                          }
+                          return false;
+                        },
+                        errorBannerBuilder:
+                            (context, error, stackTrace, documentRef) {
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                if (mounted && !_passwordCancelled)
+                                  setState(() => _loadError = error);
+                              });
+                              return const SizedBox.shrink();
+                            },
+                        loadingBannerBuilder: (context, downloaded, total) =>
+                            const LoadingState(),
+                        viewerOverlayBuilder: (context, size, handleLinkTap) =>
+                            [
+                              if (_pageCount > 1)
+                                PdfViewerScrollThumb(
+                                  controller: _controller,
+                                  orientation:
+                                      _scroll == PdfScrollMode.horizontal
+                                      ? ScrollbarOrientation.bottom
+                                      : ScrollbarOrientation.right,
+                                  thumbSize: const Size(44, 28),
+                                  thumbBuilder:
+                                      (
+                                        context,
+                                        thumbSize,
+                                        pageNumber,
+                                        controller,
+                                      ) => PageThumbChip(
+                                        label: l.pdfPageOf(
+                                          pageNumber ?? _page,
+                                          _pageCount,
+                                        ),
+                                        visible: _chrome,
+                                      ),
+                                ),
+                            ],
+                      ),
+                    ),
             ),
             ViewerBottomBar(
               visible: _chrome && !_searching,

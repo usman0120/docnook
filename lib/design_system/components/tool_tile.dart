@@ -45,7 +45,7 @@ class ToolTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(icon, size: Sizes.icon, color: tint ?? c.primary),
-                const SizedBox(height: Space.x3),
+                const SizedBox(height: Space.x2 + 2),
                 Text(
                   title,
                   maxLines: 2,

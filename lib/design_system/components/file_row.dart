@@ -1,8 +1,8 @@
+import 'package:docnook/design_system/icons.dart';
 import 'package:docnook/design_system/tokens.dart';
 import 'package:docnook/design_system/typography.dart';
 import 'package:docnook/domain/entities/doc_type.dart';
 import 'package:flutter/material.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Short format marks shown on badges. These are format names, not prose.
 String docTypeMark(DocType type) => switch (type) {

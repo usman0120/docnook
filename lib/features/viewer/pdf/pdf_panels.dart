@@ -6,12 +6,12 @@ import 'package:docnook/data/repositories/document_repository.dart';
 import 'package:docnook/design_system/components/buttons.dart';
 import 'package:docnook/design_system/components/layout.dart';
 import 'package:docnook/design_system/components/sheets.dart';
+import 'package:docnook/design_system/icons.dart';
 import 'package:docnook/design_system/tokens.dart';
 import 'package:docnook/design_system/typography.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pdfrx/pdfrx.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Asks for a page number; returns null when cancelled.
 Future<int?> askPageNumber(

@@ -96,3 +96,26 @@ last publish date and manifest permissions (CLAUDE.md rule 3).
 - A 30-page Word file made with python-docx (`test/fixtures/handbook_30p.docx`,
   generated, not personal) parses in ~45 ms on the build PC (warm), ~200 ms cold.
 - Not yet done: the Flutter renderer for DocModel (Phase 4).
+
+## 2026-11-12 — Icons: Phosphor bundled directly
+
+- `phosphor_flutter` 2.1.0 (last release May 2024) does not compile on Flutter
+  3.47: it extends `IconData`, which is now a final class. Replaced by the Phosphor
+  icon fonts themselves (MIT, `assets/fonts/Phosphor-*.ttf`) plus a generated
+  `lib/design_system/icons.dart` holding only the icons in use
+  (`python tool/gen_icons.py`). Same look; release builds tree-shake the fonts.
+
+## 2026-11-12 — First device build (Galaxy A06, Android 16)
+
+- Release APK (arm64, direct flavor): 28.2 MB, under the 35 MB target (NFR-SIZE-01).
+- Built APK requests no INTERNET / ACCESS_NETWORK_STATE (checked with aapt2).
+- "Open with" a 120-page PDF from cold start: ~1.1 s to the first page.
+- **Spike F confirmed on device:** a PDF encrypted by DocNook's AES-256 writer is
+  recognised by PDFium, a wrong password is rejected, the right one opens it.
+- **Spike A partly confirmed:** password PDFs and fast first page work; the 500-page
+  timing is still to measure.
+- Flutter's built-in deep linking is disabled in the manifest
+  (`flutter_deeplinking_enabled=false`): DocNook routes VIEW/SEND intents itself,
+  and the engine was also pushing file URIs as routes.
+- Viewer toolbars sit above and below the document (not floating over it), so the
+  first and last page are never hidden under a bar.

@@ -26,7 +26,9 @@ class DocNookApp extends ConsumerStatefulWidget {
 }
 
 class _DocNookAppState extends ConsumerState<DocNookApp> {
-  late final GoRouter _router = buildRouter();
+  late final GoRouter _router = buildRouter(
+    onboarded: ref.read(onboardedProvider),
+  );
   StreamSubscription<IncomingEvent>? _incoming;
 
   @override
@@ -111,5 +113,11 @@ void registerLicenses() {
       'Source Serif 4',
       'JetBrains Mono',
     ], text);
+  });
+  LicenseRegistry.addLicense(() async* {
+    final text = await rootBundle.loadString(
+      'assets/licenses/phosphor-MIT.txt',
+    );
+    yield LicenseEntryWithLineBreaks(const ['Phosphor Icons'], text);
   });
 }

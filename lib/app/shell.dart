@@ -1,10 +1,10 @@
 import 'package:docnook/app/l10n/generated/app_localizations.dart';
 import 'package:docnook/design_system/components/tab_bar.dart';
+import 'package:docnook/design_system/icons.dart';
 import 'package:docnook/design_system/tokens.dart';
 import 'package:docnook/design_system/typography.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Three-tab shell (Home, Files, Tools) with the raised Scan button on Home
 /// and Files (BLUEPRINT 10).

@@ -8,6 +8,7 @@ import 'package:docnook/design_system/components/file_row.dart';
 import 'package:docnook/design_system/components/layout.dart';
 import 'package:docnook/design_system/components/states.dart';
 import 'package:docnook/design_system/components/tool_tile.dart';
+import 'package:docnook/design_system/icons.dart';
 import 'package:docnook/design_system/tokens.dart';
 import 'package:docnook/design_system/typography.dart';
 import 'package:docnook/domain/entities/document_info.dart';
@@ -15,7 +16,6 @@ import 'package:docnook/features/home/application/open_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// S03 Home: search, Continue reading, quick actions, Recent.
 class HomeScreen extends ConsumerWidget {

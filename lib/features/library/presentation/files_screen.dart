@@ -1,8 +1,8 @@
 import 'package:docnook/app/l10n/generated/app_localizations.dart';
 import 'package:docnook/design_system/components/layout.dart';
 import 'package:docnook/design_system/components/states.dart';
+import 'package:docnook/design_system/icons.dart';
 import 'package:flutter/material.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// S04 Files. The library arrives in Phase 3; this build shows its empty
 /// state.

@@ -253,6 +253,117 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsTitle => 'Settings';
 
   @override
+  String get settingsAppearance => 'Appearance';
+
+  @override
+  String get settingsTheme => 'Theme';
+
+  @override
+  String get themeSystem => 'Same as phone';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get settingsReading => 'Reading';
+
+  @override
+  String get settingsPdfScroll => 'PDF page scrolling';
+
+  @override
+  String get settingsNightDefault => 'Open PDFs in night mode';
+
+  @override
+  String get settingsKeepScreenOn => 'Keep screen on while reading';
+
+  @override
+  String get settingsOutput => 'Output';
+
+  @override
+  String get settingsQuality => 'Default quality';
+
+  @override
+  String get qualitySmall => 'Small';
+
+  @override
+  String get qualityBalanced => 'Balanced';
+
+  @override
+  String get qualityBest => 'Best';
+
+  @override
+  String get settingsSaveLocation => 'Save location';
+
+  @override
+  String get settingsSaveLocationValue => 'Documents/DocNook';
+
+  @override
+  String get settingsLibrary => 'Library';
+
+  @override
+  String get settingsPrivacy => 'Privacy and security';
+
+  @override
+  String get settingsBlockScreenshots => 'Block screenshots';
+
+  @override
+  String get settingsBlockScreenshotsBody =>
+      'Hides DocNook in the recent apps list too';
+
+  @override
+  String get settingsStorage => 'Storage';
+
+  @override
+  String get settingsCache => 'Cached copies and thumbnails';
+
+  @override
+  String get settingsClearCache => 'Clear';
+
+  @override
+  String get settingsCacheCleared => 'Cache cleared';
+
+  @override
+  String get settingsAbout => 'About';
+
+  @override
+  String get settingsVersion => 'Version';
+
+  @override
+  String get settingsLicenses => 'Open-source licences';
+
+  @override
+  String get settingsPrivacyPromise => 'Privacy promise';
+
+  @override
+  String get onboardingTitle1 => 'Every document, one place';
+
+  @override
+  String get onboardingBody1 =>
+      'Read, scan, convert and combine — all on your phone.';
+
+  @override
+  String get onboardingTitle2 => 'No internet. No account.';
+
+  @override
+  String get onboardingBody2 =>
+      'Your files stay on your phone. DocNook has no internet permission, so nothing can be uploaded.';
+
+  @override
+  String get onboardingBadge => 'No internet permission';
+
+  @override
+  String get actionContinue => 'Continue';
+
+  @override
+  String get actionSkip => 'Skip';
+
+  @override
+  String get actionGetStarted => 'Get started';
+
+  @override
   String get openingFile => 'Opening…';
 
   @override

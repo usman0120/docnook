@@ -580,6 +580,222 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get settingsTitle;
 
+  /// No description provided for @settingsAppearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get settingsAppearance;
+
+  /// No description provided for @settingsTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get settingsTheme;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Same as phone'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
+  /// No description provided for @settingsReading.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading'**
+  String get settingsReading;
+
+  /// No description provided for @settingsPdfScroll.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF page scrolling'**
+  String get settingsPdfScroll;
+
+  /// No description provided for @settingsNightDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Open PDFs in night mode'**
+  String get settingsNightDefault;
+
+  /// No description provided for @settingsKeepScreenOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep screen on while reading'**
+  String get settingsKeepScreenOn;
+
+  /// No description provided for @settingsOutput.
+  ///
+  /// In en, this message translates to:
+  /// **'Output'**
+  String get settingsOutput;
+
+  /// No description provided for @settingsQuality.
+  ///
+  /// In en, this message translates to:
+  /// **'Default quality'**
+  String get settingsQuality;
+
+  /// No description provided for @qualitySmall.
+  ///
+  /// In en, this message translates to:
+  /// **'Small'**
+  String get qualitySmall;
+
+  /// No description provided for @qualityBalanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Balanced'**
+  String get qualityBalanced;
+
+  /// No description provided for @qualityBest.
+  ///
+  /// In en, this message translates to:
+  /// **'Best'**
+  String get qualityBest;
+
+  /// No description provided for @settingsSaveLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Save location'**
+  String get settingsSaveLocation;
+
+  /// No description provided for @settingsSaveLocationValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Documents/DocNook'**
+  String get settingsSaveLocationValue;
+
+  /// No description provided for @settingsLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'Library'**
+  String get settingsLibrary;
+
+  /// No description provided for @settingsPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy and security'**
+  String get settingsPrivacy;
+
+  /// No description provided for @settingsBlockScreenshots.
+  ///
+  /// In en, this message translates to:
+  /// **'Block screenshots'**
+  String get settingsBlockScreenshots;
+
+  /// No description provided for @settingsBlockScreenshotsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Hides DocNook in the recent apps list too'**
+  String get settingsBlockScreenshotsBody;
+
+  /// No description provided for @settingsStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'Storage'**
+  String get settingsStorage;
+
+  /// No description provided for @settingsCache.
+  ///
+  /// In en, this message translates to:
+  /// **'Cached copies and thumbnails'**
+  String get settingsCache;
+
+  /// No description provided for @settingsClearCache.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get settingsClearCache;
+
+  /// No description provided for @settingsCacheCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Cache cleared'**
+  String get settingsCacheCleared;
+
+  /// No description provided for @settingsAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get settingsAbout;
+
+  /// No description provided for @settingsVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get settingsVersion;
+
+  /// No description provided for @settingsLicenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Open-source licences'**
+  String get settingsLicenses;
+
+  /// No description provided for @settingsPrivacyPromise.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy promise'**
+  String get settingsPrivacyPromise;
+
+  /// No description provided for @onboardingTitle1.
+  ///
+  /// In en, this message translates to:
+  /// **'Every document, one place'**
+  String get onboardingTitle1;
+
+  /// No description provided for @onboardingBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'Read, scan, convert and combine — all on your phone.'**
+  String get onboardingBody1;
+
+  /// No description provided for @onboardingTitle2.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet. No account.'**
+  String get onboardingTitle2;
+
+  /// No description provided for @onboardingBody2.
+  ///
+  /// In en, this message translates to:
+  /// **'Your files stay on your phone. DocNook has no internet permission, so nothing can be uploaded.'**
+  String get onboardingBody2;
+
+  /// No description provided for @onboardingBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet permission'**
+  String get onboardingBadge;
+
+  /// No description provided for @actionContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get actionContinue;
+
+  /// No description provided for @actionSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get actionSkip;
+
+  /// No description provided for @actionGetStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started'**
+  String get actionGetStarted;
+
   /// No description provided for @openingFile.
   ///
   /// In en, this message translates to:

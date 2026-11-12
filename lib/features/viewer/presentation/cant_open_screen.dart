@@ -3,8 +3,8 @@ import 'package:docnook/app/l10n/generated/app_localizations.dart';
 import 'package:docnook/core/failures.dart';
 import 'package:docnook/design_system/components/buttons.dart';
 import 'package:docnook/design_system/components/states.dart';
+import 'package:docnook/design_system/icons.dart';
 import 'package:flutter/material.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// S32: the shared "can't open this file" screen. Plain reason, then the
 /// most useful next steps (BLUEPRINT principle 4).
