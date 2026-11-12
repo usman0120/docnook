@@ -166,3 +166,17 @@ last publish date and manifest permissions (CLAUDE.md rule 3).
   lays out every fixture at phone width in both themes at 1× and 2× text.
 - Large text files are indexed by line offset in an isolate and read 200 lines at a
   time; a 20 MB log indexes in well under 8 s on the build PC.
+
+## 2026-11-12 — Phase 4 device check (Galaxy A06)
+
+- Every viewer opened from "Open with" in 0.6–0.9 s: Word, ODT, RTF, Markdown,
+  XLSX, ODS, CSV, old XLS, PPTX, EPUB, a 200,000-line log, JSON, ZIP.
+- Fixed after the check: spreadsheet column width unit (8.4 px per digit) so
+  formatted numbers and dates fit; CSV/ODS columns without stored widths size to
+  their content (first 300 rows, max 40 characters); EPUB images without a stated
+  size show at natural size; old .xls shows one table per sheet; Markdown task
+  boxes are drawn as icons (Samsung's font turned ☑ into a colour emoji).
+- Known limit: a merged range that crosses a frozen pane edge is shown unmerged
+  (the grid cannot draw one cell across pinned and scrolling columns).
+- One black screen on the very first launch after install; not reproduced in later
+  launches (graphics warm-up on this Mali GPU). Watch for it in testing.

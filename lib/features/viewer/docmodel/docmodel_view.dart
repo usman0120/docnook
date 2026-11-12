@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:docnook/design_system/icons.dart';
 import 'package:docnook/design_system/tokens.dart';
 import 'package:docnook/design_system/typography.dart';
 import 'package:docnook/domain/docmodel/doc_model.dart';
@@ -144,6 +145,20 @@ class DocBlockView extends StatelessWidget {
         },
         child: LayoutBuilder(
           builder: (context, constraints) {
+            if (block.width <= 0 || block.height <= 0) {
+              // Natural size, never enlarged beyond the picture itself.
+              final dpr = MediaQuery.devicePixelRatioOf(context);
+              return ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+                child: Image.memory(
+                  image.bytes,
+                  scale: math.max(dpr / 1.5, 1),
+                  fit: BoxFit.scaleDown,
+                  gaplessPlayback: true,
+                  errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                ),
+              );
+            }
             final width = math.min(
               constraints.maxWidth,
               block.width * 1.4 * style.textScale,
@@ -195,6 +210,9 @@ class ParagraphView extends StatelessWidget {
   final BlockMatch? activeMatch;
   final ValueChanged<String>? onLink;
   final bool selectable;
+
+  static bool _isCheckbox(String marker) =>
+      marker.startsWith('☑') || marker.startsWith('☐');
 
   static const _headingScale = [1.0, 1.6, 1.35, 1.18, 1.08, 1.0, 1.0];
 
@@ -254,7 +272,20 @@ class ParagraphView extends StatelessWidget {
           offset += text.length;
         case InlineImage(:final imageId, :final width, :final height):
           final image = doc.images[imageId];
-          if (image != null) {
+          if (image != null && (width <= 0 || height <= 0)) {
+            spans.add(
+              WidgetSpan(
+                alignment: PlaceholderAlignment.middle,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: 320,
+                    maxHeight: 320,
+                  ),
+                  child: Image.memory(image.bytes, fit: BoxFit.scaleDown),
+                ),
+              ),
+            );
+          } else if (image != null) {
             final w = math.min(width * 1.4 * scale, 320.0);
             spans.add(
               WidgetSpan(
@@ -303,11 +334,25 @@ class ParagraphView extends StatelessWidget {
             width: list.marker.length > 3
                 ? 14.0 + list.marker.length * 7 * scale
                 : 26 * scale,
-            child: Text(
-              list.marker,
-              textScaler: TextScaler.noScaling,
-              style: markerStyle,
-            ),
+            child: _isCheckbox(list.marker)
+                // Task boxes are drawn, so no font can turn them into emoji.
+                ? Padding(
+                    padding: EdgeInsets.only(
+                      top: (markerStyle.fontSize ?? 15) * 0.25,
+                    ),
+                    child: Icon(
+                      list.marker.startsWith('☑')
+                          ? PhosphorIconsRegular.checkSquare
+                          : PhosphorIconsRegular.square,
+                      size: (markerStyle.fontSize ?? 15) * 1.1,
+                      color: markerStyle.color,
+                    ),
+                  )
+                : Text(
+                    list.marker,
+                    textScaler: TextScaler.noScaling,
+                    style: markerStyle,
+                  ),
           ),
           Expanded(child: rich),
         ],

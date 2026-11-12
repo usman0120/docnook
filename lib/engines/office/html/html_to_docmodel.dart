@@ -282,7 +282,8 @@ final class HtmlToDocModel {
       if (c is HtmlElement &&
           c.tag == 'input' &&
           c.attrs['type'] == 'checkbox') {
-        return c.attrs.containsKey('checked') ? '☑' : '☐';
+        // U+FE0E asks for the plain text glyph, never the colour emoji.
+        return c.attrs.containsKey('checked') ? '☑︎' : '☐︎';
       }
     }
     return null;
@@ -345,8 +346,9 @@ final class HtmlToDocModel {
         final src = e.attrs['src'] ?? e.attrs['href'];
         final id = src == null ? null : resolveImage?.call(src);
         if (id != null) {
-          final w = double.tryParse(e.attrs['width'] ?? '') ?? 280;
-          final h = double.tryParse(e.attrs['height'] ?? '') ?? w * 0.66;
+          // 0 × 0 means "natural size": the renderer measures the picture.
+          final w = double.tryParse(e.attrs['width'] ?? '') ?? 0;
+          final h = double.tryParse(e.attrs['height'] ?? '') ?? 0;
           final alone = _inlines.every(
             (i) => i is TextRun && i.text.trim().isEmpty,
           );

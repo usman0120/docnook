@@ -1,0 +1,9 @@
+{
+  "name": "DocNook",
+  "version": "1.0.0",
+  "features": [
+    "pdf",
+    "scan"
+  ],
+  "offline": true
+}

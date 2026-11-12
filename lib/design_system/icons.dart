@@ -27,6 +27,7 @@ abstract final class PhosphorIconsRegular {
   static const caretDown = IconData(0xe136, fontFamily: 'PhosphorRegular');
   static const caretRight = IconData(0xe13a, fontFamily: 'PhosphorRegular');
   static const caretUp = IconData(0xe13c, fontFamily: 'PhosphorRegular');
+  static const checkSquare = IconData(0xe186, fontFamily: 'PhosphorRegular');
   static const circle = IconData(0xe18a, fontFamily: 'PhosphorRegular');
   static const clockCounterClockwise = IconData(
     0xe1a0,
@@ -91,6 +92,7 @@ abstract final class PhosphorIconsRegular {
   static const shieldCheck = IconData(0xe40c, fontFamily: 'PhosphorRegular');
   static const signature = IconData(0xebac, fontFamily: 'PhosphorRegular');
   static const sortAscending = IconData(0xe444, fontFamily: 'PhosphorRegular');
+  static const square = IconData(0xe45e, fontFamily: 'PhosphorRegular');
   static const squaresFour = IconData(0xe464, fontFamily: 'PhosphorRegular');
   static const stack = IconData(0xe466, fontFamily: 'PhosphorRegular');
   static const star = IconData(0xe46a, fontFamily: 'PhosphorRegular');

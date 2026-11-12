@@ -155,7 +155,7 @@ ods.save(os.path.join(out, 'stock.ods'))
 open(os.path.join(out, 'letter.rtf'), 'w', encoding='ascii').write(
     r'{\rtf1\ansi\ansicpg1252\deff0{\fonttbl{\f0 Calibri;}}{\colortbl;\red192\green57\blue43;}'
     r'{\*\generator Fixture;}\pard\qc\b\fs32 Notice\b0\par'
-    r'\pard\fs22 Dear reader, this is \i italic\i0 , \ul underlined\ulnone\ and \cf1 red\cf0 .\par'
+    r'\pard\fs22 Dear reader, this is \i italic\i0 , \ul underlined\ulnone  and \cf1 red\cf0 .\par '
     'Price: 100 ' + chr(92) + 'u8364? and caf' + r'\'e9.\par'
     r'\trowd\cellx2000\cellx4000\intbl A1\cell B1\cell\row\pard After table.\par}')
 

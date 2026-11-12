@@ -76,7 +76,9 @@ class _SheetViewerScreenState extends ConsumerState<SheetViewerScreen> {
 
   static const _headerHeight = 28.0;
   static const _rowHeaderWidth = 44.0;
-  static const _charWidth = 7.4;
+  // Excel's width unit is one digit of the default font; at DocNook's cell
+  // font size a digit is ~8.4 px.
+  static const _charWidth = 8.4;
 
   @override
   void initState() {
@@ -163,8 +165,39 @@ class _SheetViewerScreenState extends ConsumerState<SheetViewerScreen> {
   }
 
   double _rawColWidth(Sheet sheet, int c) {
-    final chars = sheet.colWidths[c] ?? sheet.defaultColWidth ?? 9.14;
-    return chars <= 0 ? 0 : math.max(chars * _charWidth + 6, 24);
+    final chars =
+        sheet.colWidths[c] ?? sheet.defaultColWidth ?? _autoWidth(sheet, c);
+    return chars <= 0 ? 0 : math.max(chars * _charWidth + 10, 28);
+  }
+
+  /// Files without stored widths (CSV, most ODS) size columns to their
+  /// content, measured on the first 300 rows and capped at 40 characters.
+  final _autoWidths = <Sheet, List<double>>{};
+
+  double _autoWidth(Sheet sheet, int c) {
+    final widths = _autoWidths.putIfAbsent(sheet, () {
+      final out = List<double>.filled(sheet.colCount, 0);
+      final wb = _parsed?.valueOrNull;
+      for (final row in sheet.rows.take(300)) {
+        for (var i = 0; i < row.length; i++) {
+          final col = row.cols[i];
+          if (col >= out.length) continue;
+          final text = wb == null
+              ? '${row.values[i] ?? ''}'
+              : NumberFormatter.format(
+                  row.values[i],
+                  wb.styleAt(row.styleIds[i]).formatCode,
+                  date1904: wb.date1904,
+                );
+          final longest = text
+              .split(String.fromCharCode(10))
+              .fold<int>(0, (m, l) => math.max(m, l.length));
+          out[col] = math.max(out[col], longest.toDouble());
+        }
+      }
+      return [for (final w in out) w == 0 ? 9.14 : w.clamp(6, 40).toDouble()];
+    });
+    return c < widths.length ? widths[c] : 9.14;
   }
 
   double _rowHeight(Sheet sheet, int r, double scale) {
@@ -485,11 +518,12 @@ class _SheetViewerScreenState extends ConsumerState<SheetViewerScreen> {
           onTap: () => setState(() => _selected = (mr, mc)),
         );
         if (merge == null) return TableViewCell(child: cell);
+        // Merge fields are given only for the axis that actually spans.
         return TableViewCell(
-          rowMergeStart: merge.top + 1,
-          rowMergeSpan: merge.rowSpan,
-          columnMergeStart: merge.left + 1,
-          columnMergeSpan: merge.colSpan,
+          rowMergeStart: merge.rowSpan > 1 ? merge.top + 1 : null,
+          rowMergeSpan: merge.rowSpan > 1 ? merge.rowSpan : null,
+          columnMergeStart: merge.colSpan > 1 ? merge.left + 1 : null,
+          columnMergeSpan: merge.colSpan > 1 ? merge.colSpan : null,
           child: cell,
         );
       },

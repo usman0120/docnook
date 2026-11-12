@@ -198,7 +198,7 @@ void main() {
       for (final p in ps)
         if (p.list != null) p.list!.marker,
     ];
-    expect(markers, ['☑', '☐', '◦', '1.', '2.']);
+    expect(markers, ['☑︎', '☐︎', '◦', '1.', '2.']);
     expect(ps.firstWhere((p) => p.plainText == 'Nested item').list!.level, 1);
     expect(
       ps

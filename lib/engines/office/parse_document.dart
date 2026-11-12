@@ -37,7 +37,7 @@ DocModel parseToDocModel(ParseRequest request, JobContext context) {
       LegacyText.ppt(File(request.path).readAsBytesSync()),
       gap: true,
     ),
-    DocFormat.xls => _paragraphs(
+    DocFormat.xls => _sheetTables(
       LegacyText.xls(File(request.path).readAsBytesSync()),
     ),
     DocFormat.markdown => markdownToDocModel(
@@ -62,6 +62,39 @@ DocModel _paragraphs(List<String> lines, {bool gap = false}) => DocModel(
     ),
   ],
 );
+
+/// Old .xls text as one heading and one table per sheet. [lines] holds a
+/// sheet name, its tab-separated rows, then a blank line, for each sheet.
+DocModel _sheetTables(List<String> lines) {
+  final blocks = <Block>[];
+  var rows = <TableRow>[];
+  var expectName = true;
+  void endSheet() {
+    if (rows.isNotEmpty) blocks.add(TableBlock(rows));
+    rows = <TableRow>[];
+  }
+
+  for (final line in lines) {
+    if (line.isEmpty) {
+      endSheet();
+      expectName = true;
+    } else if (expectName) {
+      blocks.add(Paragraph([TextRun(line)], headingLevel: 2));
+      expectName = false;
+    } else {
+      rows.add(
+        TableRow([
+          for (final cell in line.split(String.fromCharCode(9)))
+            TableCell([
+              Paragraph([TextRun(cell)]),
+            ]),
+        ]),
+      );
+    }
+  }
+  endSheet();
+  return DocModel(sections: [DocSection(blocks: blocks)]);
+}
 
 /// Decodes text files: UTF-8 (with or without BOM), UTF-16 with a BOM, and
 /// Windows-1252 when the bytes are not valid UTF-8.
