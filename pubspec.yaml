@@ -11,6 +11,7 @@ environment:
 # last publish date and manifest permissions (CLAUDE.md rule 3).
 dependencies:
   archive: ^4.6.0
+  crypto: ^3.0.8
   drift: ^2.35.4
   flutter:
     sdk: flutter

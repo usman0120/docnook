@@ -39,6 +39,7 @@ class DocNookChannels(
     private var sink: EventChannel.EventSink? = null
     private var pendingIntent: Map<String, Any?>? = null
     private var pendingTreeResult: MethodChannel.Result? = null
+    private var pendingFilesResult: MethodChannel.Result? = null
     private var secure = false
 
     fun register() {
@@ -165,6 +166,11 @@ class DocNookChannels(
                 share(call.argument<List<String>>("paths")!!, call.argument<String>("mime")),
             )
             "pickTree" -> pickTree(result)
+            "pickFiles" -> pickFiles(
+                result,
+                call.argument<List<String>>("mimes") ?: listOf("*/*"),
+                call.argument<Boolean>("multiple") ?: false,
+            )
             "persistedTrees" -> result.success(
                 activity.contentResolver.persistedUriPermissions
                     .filter { it.isReadPermission }
@@ -347,7 +353,65 @@ class DocNookChannels(
         }
     }
 
+    /**
+     * The system document picker (ACTION_OPEN_DOCUMENT). Needs no storage
+     * permission; the grant is made persistable so Recents can reopen it.
+     */
+    private fun pickFiles(result: MethodChannel.Result, mimes: List<String>, multiple: Boolean) {
+        pendingFilesResult?.success(null)
+        pendingFilesResult = result
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = if (mimes.size == 1) mimes[0] else "*/*"
+            if (mimes.size > 1) putExtra(Intent.EXTRA_MIME_TYPES, mimes.toTypedArray())
+            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        }
+        @Suppress("DEPRECATION")
+        try {
+            activity.startActivityForResult(intent, REQUEST_FILES)
+        } catch (_: ActivityNotFoundException) {
+            pendingFilesResult = null
+            result.success(null)
+        }
+    }
+
+    private fun onFilesPicked(resultCode: Int, data: Intent?) {
+        val result = pendingFilesResult ?: return
+        pendingFilesResult = null
+        if (resultCode != Activity.RESULT_OK || data == null) {
+            result.success(null)
+            return
+        }
+        val uris = mutableListOf<Uri>()
+        val clip = data.clipData
+        if (clip != null) {
+            for (i in 0 until clip.itemCount) clip.getItemAt(i).uri?.let(uris::add)
+        } else {
+            data.data?.let(uris::add)
+        }
+        result.success(
+            uris.map { uri ->
+                try {
+                    activity.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                } catch (_: SecurityException) {
+                    // Not persistable (some providers); usable for this session.
+                }
+                mapOf(
+                    "uri" to uri.toString(),
+                    "name" to displayName(uri),
+                    "size" to sizeOf(uri),
+                    "mime" to activity.contentResolver.getType(uri),
+                )
+            },
+        )
+    }
+
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
+        if (requestCode == REQUEST_FILES) {
+            onFilesPicked(resultCode, data)
+            return true
+        }
         if (requestCode != REQUEST_TREE) return false
         val result = pendingTreeResult ?: return true
         pendingTreeResult = null
@@ -413,6 +477,7 @@ class DocNookChannels(
 
     companion object {
         private const val REQUEST_TREE = 4107
+        private const val REQUEST_FILES = 4108
         const val EXTRA_SHORTCUT = "docnook.shortcut"
     }
 }

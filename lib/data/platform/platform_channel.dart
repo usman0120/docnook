@@ -101,7 +101,10 @@ class PlatformChannel {
     return null;
   }
 
-  Future<Result<T>> _call<T>(String method, [Map<String, Object?>? args]) async {
+  Future<Result<T>> _call<T>(
+    String method, [
+    Map<String, Object?>? args,
+  ]) async {
     try {
       return Ok(await _methods.invokeMethod<T>(method, args) as T);
     } on PlatformException catch (e) {
@@ -143,13 +146,38 @@ class PlatformChannel {
   }
 
   Future<bool> openWith(String pathOrUri, {String? mime}) async =>
-      (await _call<bool>('openWith', {'path': pathOrUri, 'mime': mime})).valueOrNull ?? false;
+      (await _call<bool>('openWith', {
+        'path': pathOrUri,
+        'mime': mime,
+      })).valueOrNull ??
+      false;
 
   Future<bool> share(List<String> pathsOrUris, {String? mime}) async =>
-      (await _call<bool>('share', {'paths': pathsOrUris, 'mime': mime})).valueOrNull ?? false;
+      (await _call<bool>('share', {
+        'paths': pathsOrUris,
+        'mime': mime,
+      })).valueOrNull ??
+      false;
+
+  /// Opens the system document picker. Returns the chosen files, or an empty
+  /// list when the user backs out.
+  Future<List<IncomingFile>> pickFiles({
+    List<String> mimes = const ['*/*'],
+    bool multiple = false,
+  }) async {
+    final result = await _call<List<Object?>?>('pickFiles', {
+      'mimes': mimes,
+      'multiple': multiple,
+    });
+    return [
+      for (final f in result.valueOrNull ?? const <Object?>[])
+        IncomingFile.fromMap(f! as Map<Object?, Object?>),
+    ];
+  }
 
   /// Opens the system folder picker; returns the granted tree URI or null.
-  Future<String?> pickTree() async => (await _call<String?>('pickTree')).valueOrNull;
+  Future<String?> pickTree() async =>
+      (await _call<String?>('pickTree')).valueOrNull;
 
   Future<List<String>> persistedTrees() async =>
       ((await _call<List<Object?>>('persistedTrees')).valueOrNull ?? const [])
@@ -161,11 +189,13 @@ class PlatformChannel {
   Future<bool> requestAllFilesAccess() async =>
       (await _call<bool>('requestAllFilesAccess')).valueOrNull ?? false;
 
-  Future<void> setSecure({required bool on}) => _call<void>('setSecure', {'on': on});
+  Future<void> setSecure({required bool on}) =>
+      _call<void>('setSecure', {'on': on});
 
   Future<int> sdkInt() async => (await _call<int>('sdkInt')).valueOrNull ?? 0;
 
-  Future<int> totalMemoryMb() async => (await _call<int>('totalMemoryMb')).valueOrNull ?? 0;
+  Future<int> totalMemoryMb() async =>
+      (await _call<int>('totalMemoryMb')).valueOrNull ?? 0;
 
   Future<bool> openTtsSettings() async =>
       (await _call<bool>('openTtsSettings')).valueOrNull ?? false;

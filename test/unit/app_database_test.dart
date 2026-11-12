@@ -23,7 +23,9 @@ void main() {
 
   test('creates every table and applies defaults', () async {
     final id = await addDoc('report.pdf');
-    final row = await (db.select(db.documents)..where((d) => d.id.equals(id))).getSingle();
+    final row = await (db.select(
+      db.documents,
+    )..where((d) => d.id.equals(id))).getSingle();
     expect(row.openCount, 0);
     expect(row.isStarred, isFalse);
     expect(row.indexState, 'none');
@@ -43,16 +45,31 @@ void main() {
     await db
         .into(db.collectionItems)
         .insert(
-          CollectionItemsCompanion.insert(collectionId: collection, documentId: doc, addedAt: 1),
+          CollectionItemsCompanion.insert(
+            collectionId: collection,
+            documentId: doc,
+            addedAt: 1,
+          ),
         );
     await db
         .into(db.readingStates)
         .insert(
-          ReadingStatesCompanion.insert(documentId: Value(doc), positionJson: '{"page":3}', updatedAt: 1),
+          ReadingStatesCompanion.insert(
+            documentId: Value(doc),
+            positionJson: '{"page":3}',
+            updatedAt: 1,
+          ),
         );
     await db
         .into(db.bookmarks)
-        .insert(BookmarksCompanion.insert(documentId: doc, anchorJson: '{}', label: 'p3', createdAt: 1));
+        .insert(
+          BookmarksCompanion.insert(
+            documentId: doc,
+            anchorJson: '{}',
+            label: 'p3',
+            createdAt: 1,
+          ),
+        );
 
     await (db.delete(db.documents)..where((d) => d.id.equals(doc))).go();
 
@@ -82,8 +99,16 @@ void main() {
   });
 
   test('settings are a key-value table', () async {
-    await db.into(db.appSettings).insertOnConflictUpdate(AppSettingsCompanion.insert(key: 'theme', value: 'dark'));
-    await db.into(db.appSettings).insertOnConflictUpdate(AppSettingsCompanion.insert(key: 'theme', value: 'light'));
+    await db
+        .into(db.appSettings)
+        .insertOnConflictUpdate(
+          AppSettingsCompanion.insert(key: 'theme', value: 'dark'),
+        );
+    await db
+        .into(db.appSettings)
+        .insertOnConflictUpdate(
+          AppSettingsCompanion.insert(key: 'theme', value: 'light'),
+        );
     final rows = await db.select(db.appSettings).get();
     expect(rows.single.value, 'light');
   });

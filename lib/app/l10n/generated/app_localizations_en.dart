@@ -253,6 +253,242 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsTitle => 'Settings';
 
   @override
+  String get openingFile => 'Opening…';
+
+  @override
+  String get copyingFile => 'Copying file…';
+
+  @override
+  String get actionBack => 'Back';
+
+  @override
+  String get actionClose => 'Close';
+
+  @override
+  String get actionCancel => 'Cancel';
+
+  @override
+  String get actionOpen => 'Open';
+
+  @override
+  String get actionShare => 'Share';
+
+  @override
+  String get actionOpenWith => 'Open with another app';
+
+  @override
+  String get actionTryAnyway => 'Open anyway';
+
+  @override
+  String get actionTryText => 'Show as plain text';
+
+  @override
+  String get actionMore => 'More options';
+
+  @override
+  String get actionStar => 'Star';
+
+  @override
+  String get actionUnstar => 'Remove star';
+
+  @override
+  String get actionInfo => 'Document info';
+
+  @override
+  String get actionPrint => 'Print';
+
+  @override
+  String get actionGo => 'Go';
+
+  @override
+  String get errUnsupportedTitle => 'DocNook can\'t open this type of file';
+
+  @override
+  String get errUnsupportedBody => 'You can open it in another app instead.';
+
+  @override
+  String get errCorruptTitle => 'This file looks damaged';
+
+  @override
+  String get errCorruptBody =>
+      'Part of the file is missing or unreadable. If you received it in a chat, ask the sender to share it again.';
+
+  @override
+  String get errMissingTitle => 'This file is no longer available';
+
+  @override
+  String get errMissingBody =>
+      'It may have been moved, renamed or deleted, or the app that shared it no longer gives access.';
+
+  @override
+  String get errPasswordTitle => 'This file is password-protected';
+
+  @override
+  String get errPasswordBody => 'Enter the password to open it.';
+
+  @override
+  String get errTooLargeTitle => 'This file is very large';
+
+  @override
+  String errTooLargeBody(String size) {
+    return 'It is $size, more than DocNook can open comfortably on this phone. It may be slow or close unexpectedly.';
+  }
+
+  @override
+  String get errPermissionTitle => 'DocNook can\'t read this file';
+
+  @override
+  String get errPermissionBody =>
+      'The app that shared it didn\'t give permission. Try opening it from that app again, or use Open file.';
+
+  @override
+  String get errOutOfSpaceTitle => 'Your phone is out of space';
+
+  @override
+  String get errOutOfSpaceBody => 'Free up some storage and try again.';
+
+  @override
+  String get errUnknownTitle => 'Something went wrong';
+
+  @override
+  String get errUnknownBody =>
+      'DocNook couldn\'t finish. Try again, or open the file in another app.';
+
+  @override
+  String get errNoAppToOpen => 'No app on this phone can open this file';
+
+  @override
+  String get errLegacyBanner =>
+      'Old Office files can only be previewed as text.';
+
+  @override
+  String get passwordTitle => 'Enter password';
+
+  @override
+  String get passwordLabel => 'Password';
+
+  @override
+  String get passwordWrong =>
+      'That password didn\'t work. Check it and try again.';
+
+  @override
+  String get passwordOpen => 'Open';
+
+  @override
+  String pdfPageOf(int page, int total) {
+    return '$page / $total';
+  }
+
+  @override
+  String get pdfGoToPage => 'Go to page';
+
+  @override
+  String pdfPageNumberHint(int total) {
+    return 'Page number (1–$total)';
+  }
+
+  @override
+  String get pdfThumbnails => 'Pages';
+
+  @override
+  String get pdfOutline => 'Contents';
+
+  @override
+  String get pdfBookmarks => 'Bookmarks';
+
+  @override
+  String get pdfNightMode => 'Night mode';
+
+  @override
+  String get pdfDayMode => 'Day mode';
+
+  @override
+  String get pdfAnnotate => 'Annotate';
+
+  @override
+  String get pdfNoOutline => 'This PDF has no table of contents.';
+
+  @override
+  String get pdfNoBookmarks =>
+      'No bookmarks yet. Add one for the page you are on.';
+
+  @override
+  String get pdfAddBookmark => 'Bookmark this page';
+
+  @override
+  String get pdfRemoveBookmark => 'Remove bookmark';
+
+  @override
+  String pdfBookmarkLabel(int page) {
+    return 'Page $page';
+  }
+
+  @override
+  String get pdfScrollVertical => 'Continuous scroll';
+
+  @override
+  String get pdfScrollHorizontal => 'Page by page';
+
+  @override
+  String get searchInDocument => 'Find in document';
+
+  @override
+  String searchMatches(int current, int total) {
+    return '$current of $total';
+  }
+
+  @override
+  String get searchNoMatches => 'No matches';
+
+  @override
+  String get searchSearching => 'Searching…';
+
+  @override
+  String get searchPrevious => 'Previous match';
+
+  @override
+  String get searchNext => 'Next match';
+
+  @override
+  String get copied => 'Copied';
+
+  @override
+  String get actionCopy => 'Copy';
+
+  @override
+  String get actionSelectAll => 'Select all';
+
+  @override
+  String sizeBytes(int n) {
+    return '$n B';
+  }
+
+  @override
+  String pagesCount(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n pages',
+      one: '1 page',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get timeJustNow => 'Just now';
+
+  @override
+  String timeMinutesAgo(int n) {
+    return '$n min ago';
+  }
+
+  @override
+  String get timeToday => 'Today';
+
+  @override
+  String get timeYesterday => 'Yesterday';
+
+  @override
   String get comingInPhase => 'Arrives in a later build';
 
   @override

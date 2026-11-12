@@ -580,6 +580,420 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get settingsTitle;
 
+  /// No description provided for @openingFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening…'**
+  String get openingFile;
+
+  /// No description provided for @copyingFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Copying file…'**
+  String get copyingFile;
+
+  /// No description provided for @actionBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get actionBack;
+
+  /// No description provided for @actionClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get actionClose;
+
+  /// No description provided for @actionCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get actionCancel;
+
+  /// No description provided for @actionOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get actionOpen;
+
+  /// No description provided for @actionShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get actionShare;
+
+  /// No description provided for @actionOpenWith.
+  ///
+  /// In en, this message translates to:
+  /// **'Open with another app'**
+  String get actionOpenWith;
+
+  /// No description provided for @actionTryAnyway.
+  ///
+  /// In en, this message translates to:
+  /// **'Open anyway'**
+  String get actionTryAnyway;
+
+  /// No description provided for @actionTryText.
+  ///
+  /// In en, this message translates to:
+  /// **'Show as plain text'**
+  String get actionTryText;
+
+  /// No description provided for @actionMore.
+  ///
+  /// In en, this message translates to:
+  /// **'More options'**
+  String get actionMore;
+
+  /// No description provided for @actionStar.
+  ///
+  /// In en, this message translates to:
+  /// **'Star'**
+  String get actionStar;
+
+  /// No description provided for @actionUnstar.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove star'**
+  String get actionUnstar;
+
+  /// No description provided for @actionInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Document info'**
+  String get actionInfo;
+
+  /// No description provided for @actionPrint.
+  ///
+  /// In en, this message translates to:
+  /// **'Print'**
+  String get actionPrint;
+
+  /// No description provided for @actionGo.
+  ///
+  /// In en, this message translates to:
+  /// **'Go'**
+  String get actionGo;
+
+  /// No description provided for @errUnsupportedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'DocNook can\'t open this type of file'**
+  String get errUnsupportedTitle;
+
+  /// No description provided for @errUnsupportedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You can open it in another app instead.'**
+  String get errUnsupportedBody;
+
+  /// No description provided for @errCorruptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This file looks damaged'**
+  String get errCorruptTitle;
+
+  /// No description provided for @errCorruptBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Part of the file is missing or unreadable. If you received it in a chat, ask the sender to share it again.'**
+  String get errCorruptBody;
+
+  /// No description provided for @errMissingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is no longer available'**
+  String get errMissingTitle;
+
+  /// No description provided for @errMissingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It may have been moved, renamed or deleted, or the app that shared it no longer gives access.'**
+  String get errMissingBody;
+
+  /// No description provided for @errPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is password-protected'**
+  String get errPasswordTitle;
+
+  /// No description provided for @errPasswordBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the password to open it.'**
+  String get errPasswordBody;
+
+  /// No description provided for @errTooLargeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is very large'**
+  String get errTooLargeTitle;
+
+  /// No description provided for @errTooLargeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It is {size}, more than DocNook can open comfortably on this phone. It may be slow or close unexpectedly.'**
+  String errTooLargeBody(String size);
+
+  /// No description provided for @errPermissionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'DocNook can\'t read this file'**
+  String get errPermissionTitle;
+
+  /// No description provided for @errPermissionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The app that shared it didn\'t give permission. Try opening it from that app again, or use Open file.'**
+  String get errPermissionBody;
+
+  /// No description provided for @errOutOfSpaceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone is out of space'**
+  String get errOutOfSpaceTitle;
+
+  /// No description provided for @errOutOfSpaceBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Free up some storage and try again.'**
+  String get errOutOfSpaceBody;
+
+  /// No description provided for @errUnknownTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong'**
+  String get errUnknownTitle;
+
+  /// No description provided for @errUnknownBody.
+  ///
+  /// In en, this message translates to:
+  /// **'DocNook couldn\'t finish. Try again, or open the file in another app.'**
+  String get errUnknownBody;
+
+  /// No description provided for @errNoAppToOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'No app on this phone can open this file'**
+  String get errNoAppToOpen;
+
+  /// No description provided for @errLegacyBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Old Office files can only be previewed as text.'**
+  String get errLegacyBanner;
+
+  /// No description provided for @passwordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter password'**
+  String get passwordTitle;
+
+  /// No description provided for @passwordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get passwordLabel;
+
+  /// No description provided for @passwordWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'That password didn\'t work. Check it and try again.'**
+  String get passwordWrong;
+
+  /// No description provided for @passwordOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get passwordOpen;
+
+  /// No description provided for @pdfPageOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{page} / {total}'**
+  String pdfPageOf(int page, int total);
+
+  /// No description provided for @pdfGoToPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to page'**
+  String get pdfGoToPage;
+
+  /// No description provided for @pdfPageNumberHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Page number (1–{total})'**
+  String pdfPageNumberHint(int total);
+
+  /// No description provided for @pdfThumbnails.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages'**
+  String get pdfThumbnails;
+
+  /// No description provided for @pdfOutline.
+  ///
+  /// In en, this message translates to:
+  /// **'Contents'**
+  String get pdfOutline;
+
+  /// No description provided for @pdfBookmarks.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmarks'**
+  String get pdfBookmarks;
+
+  /// No description provided for @pdfNightMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Night mode'**
+  String get pdfNightMode;
+
+  /// No description provided for @pdfDayMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Day mode'**
+  String get pdfDayMode;
+
+  /// No description provided for @pdfAnnotate.
+  ///
+  /// In en, this message translates to:
+  /// **'Annotate'**
+  String get pdfAnnotate;
+
+  /// No description provided for @pdfNoOutline.
+  ///
+  /// In en, this message translates to:
+  /// **'This PDF has no table of contents.'**
+  String get pdfNoOutline;
+
+  /// No description provided for @pdfNoBookmarks.
+  ///
+  /// In en, this message translates to:
+  /// **'No bookmarks yet. Add one for the page you are on.'**
+  String get pdfNoBookmarks;
+
+  /// No description provided for @pdfAddBookmark.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark this page'**
+  String get pdfAddBookmark;
+
+  /// No description provided for @pdfRemoveBookmark.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove bookmark'**
+  String get pdfRemoveBookmark;
+
+  /// No description provided for @pdfBookmarkLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page}'**
+  String pdfBookmarkLabel(int page);
+
+  /// No description provided for @pdfScrollVertical.
+  ///
+  /// In en, this message translates to:
+  /// **'Continuous scroll'**
+  String get pdfScrollVertical;
+
+  /// No description provided for @pdfScrollHorizontal.
+  ///
+  /// In en, this message translates to:
+  /// **'Page by page'**
+  String get pdfScrollHorizontal;
+
+  /// No description provided for @searchInDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'Find in document'**
+  String get searchInDocument;
+
+  /// No description provided for @searchMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'{current} of {total}'**
+  String searchMatches(int current, int total);
+
+  /// No description provided for @searchNoMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'No matches'**
+  String get searchNoMatches;
+
+  /// No description provided for @searchSearching.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching…'**
+  String get searchSearching;
+
+  /// No description provided for @searchPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous match'**
+  String get searchPrevious;
+
+  /// No description provided for @searchNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next match'**
+  String get searchNext;
+
+  /// No description provided for @copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get copied;
+
+  /// No description provided for @actionCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get actionCopy;
+
+  /// No description provided for @actionSelectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get actionSelectAll;
+
+  /// No description provided for @sizeBytes.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} B'**
+  String sizeBytes(int n);
+
+  /// No description provided for @pagesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 page} other{{n} pages}}'**
+  String pagesCount(int n);
+
+  /// No description provided for @timeJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get timeJustNow;
+
+  /// No description provided for @timeMinutesAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} min ago'**
+  String timeMinutesAgo(int n);
+
+  /// No description provided for @timeToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get timeToday;
+
+  /// No description provided for @timeYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get timeYesterday;
+
   /// No description provided for @comingInPhase.
   ///
   /// In en, this message translates to:

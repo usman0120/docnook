@@ -1,0 +1,137 @@
+import 'dart:async';
+
+import 'package:docnook/app/formatters.dart';
+import 'package:docnook/app/l10n/generated/app_localizations.dart';
+import 'package:docnook/app/providers.dart';
+import 'package:docnook/core/failures.dart';
+import 'package:docnook/core/result.dart';
+import 'package:docnook/design_system/components/buttons.dart';
+import 'package:docnook/design_system/components/states.dart';
+import 'package:docnook/domain/entities/doc_type.dart';
+import 'package:docnook/features/viewer/application/open_document.dart';
+import 'package:docnook/features/viewer/pdf/pdf_viewer_screen.dart';
+import 'package:docnook/features/viewer/presentation/cant_open_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
+
+/// Opens a document and shows the viewer for its real type. Handles the
+/// loading, too-large and error states shared by every viewer.
+class ViewerHost extends ConsumerStatefulWidget {
+  const ViewerHost({required this.request, super.key});
+
+  final OpenRequest request;
+
+  @override
+  ConsumerState<ViewerHost> createState() => _ViewerHostState();
+}
+
+class _ViewerHostState extends ConsumerState<ViewerHost> {
+  Result<OpenedDocument>? _result;
+  bool _sizeAccepted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_open());
+  }
+
+  Future<void> _open() async {
+    final result = await ref.read(openDocumentProvider).call(widget.request);
+    if (mounted) setState(() => _result = result);
+  }
+
+  void _leave() {
+    // Opened from another app: Back returns to it (BLUEPRINT 10.1).
+    if (widget.request.fromIntent && !Navigator.of(context).canPop()) {
+      unawaited(SystemNavigator.pop());
+    } else {
+      Navigator.of(context).maybePop();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final platform = ref.read(platformProvider);
+    void openWith() => unawaited(
+      platform.openWith(widget.request.uri, mime: widget.request.mime).then((
+        ok,
+      ) {
+        if (!ok && mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(l.errNoAppToOpen)));
+        }
+      }),
+    );
+
+    final result = _result;
+    if (result == null) {
+      return Scaffold(
+        appBar: AppBar(
+          leading: IconAction(
+            icon: PhosphorIconsRegular.arrowLeft,
+            label: l.actionBack,
+            onPressed: _leave,
+          ),
+        ),
+        body: LoadingState(label: l.openingFile),
+      );
+    }
+
+    return switch (result) {
+      Err(:final failure) => CantOpenScreen(
+        failure: failure,
+        onOpenWith: openWith,
+      ),
+      Ok(value: final doc) => _viewerFor(doc, l, openWith),
+    };
+  }
+
+  Widget _viewerFor(
+    OpenedDocument doc,
+    AppLocalizations l,
+    VoidCallback openWith,
+  ) {
+    final limit = safeLimitFor(doc.format);
+    if (!_sizeAccepted && limit != null && (doc.sizeBytes ?? 0) > limit) {
+      return CantOpenScreen(
+        failure: const DocNookFailure.tooLarge(),
+        body: l.errTooLargeBody(l.fileSize(doc.sizeBytes!)),
+        retryLabel: l.actionTryAnyway,
+        onRetry: () => setState(() => _sizeAccepted = true),
+        onOpenWith: openWith,
+      );
+    }
+
+    final viewer = switch (doc.format.docType) {
+      DocType.pdf => PdfViewerScreen(document: doc),
+      _ => null,
+    };
+    if (viewer != null) {
+      return PopScope(
+        canPop: !widget.request.fromIntent || Navigator.of(context).canPop(),
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) _leave();
+        },
+        child: viewer,
+      );
+    }
+
+    if (!doc.format.isSupported) {
+      return CantOpenScreen(
+        failure: const DocNookFailure.unsupported(),
+        onOpenWith: openWith,
+      );
+    }
+    // Viewers for the remaining formats arrive in Phase 4.
+    return CantOpenScreen(
+      failure: const DocNookFailure.unsupported(),
+      title: doc.name,
+      body: l.comingInPhase,
+      onOpenWith: openWith,
+    );
+  }
+}

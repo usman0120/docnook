@@ -1,34 +1,91 @@
+import 'dart:async';
+
 import 'package:docnook/app/l10n/generated/app_localizations.dart';
+import 'package:docnook/app/providers.dart';
 import 'package:docnook/app/router.dart';
 import 'package:docnook/app/theme/app_theme.dart';
+import 'package:docnook/data/platform/platform_channel.dart';
+import 'package:docnook/data/repositories/settings_repository.dart';
+import 'package:docnook/domain/entities/document_info.dart';
+import 'package:docnook/features/viewer/application/open_document.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class DocNookApp extends StatefulWidget {
+final themePreferenceProvider = StreamProvider<ThemePreference>(
+  (ref) => ref.watch(settingsRepositoryProvider).watchTheme(),
+);
+
+class DocNookApp extends ConsumerStatefulWidget {
   const DocNookApp({super.key});
 
   @override
-  State<DocNookApp> createState() => _DocNookAppState();
+  ConsumerState<DocNookApp> createState() => _DocNookAppState();
 }
 
-class _DocNookAppState extends State<DocNookApp> {
+class _DocNookAppState extends ConsumerState<DocNookApp> {
   late final GoRouter _router = buildRouter();
+  StreamSubscription<IncomingEvent>? _incoming;
+
+  @override
+  void initState() {
+    super.initState();
+    _incoming = ref.read(platformProvider).incoming.listen(_onIncoming);
+  }
+
+  void _onIncoming(IncomingEvent event) {
+    switch (event) {
+      case ViewEvent(:final file):
+        unawaited(
+          _router.push(
+            '/view',
+            extra: OpenRequest.fromIncoming(file, source: DocSource.intent),
+          ),
+        );
+      case ShareEvent(:final files):
+        // One shared file opens directly; several go to Tools (Phase 6).
+        unawaited(
+          _router.push(
+            '/view',
+            extra: OpenRequest.fromIncoming(
+              files.first,
+              source: DocSource.intent,
+            ),
+          ),
+        );
+      case ShortcutEvent(:final id):
+        _router.go(switch (id) {
+          'merge' => '/tools',
+          _ => '/home',
+        });
+      case SharedTextEvent():
+        break;
+    }
+  }
 
   @override
   void dispose() {
+    unawaited(_incoming?.cancel());
     _router.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme =
+        ref.watch(themePreferenceProvider).value ?? ThemePreference.system;
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
+      themeMode: switch (theme) {
+        ThemePreference.system => ThemeMode.system,
+        ThemePreference.light => ThemeMode.light,
+        ThemePreference.dark => ThemeMode.dark,
+      },
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: _router,
