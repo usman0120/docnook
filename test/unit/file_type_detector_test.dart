@@ -82,7 +82,10 @@ DocFormat detect(List<int> bytes, {String? name, String? mime}) =>
 void main() {
   group('magic bytes win over names', () {
     test('PDF renamed to .txt is still a PDF', () {
-      expect(detect(ascii.encode('%PDF-1.7\n...'), name: 'notes.txt'), DocFormat.pdf);
+      expect(
+        detect(ascii.encode('%PDF-1.7\n...'), name: 'notes.txt'),
+        DocFormat.pdf,
+      );
     });
 
     test('PDF with no extension and octet-stream MIME', () {
@@ -101,13 +104,19 @@ void main() {
     });
 
     test('images', () {
-      expect(detect([0xFF, 0xD8, 0xFF, 0xE0, 0, 0], name: 'a.pdf'), DocFormat.jpeg);
+      expect(
+        detect([0xFF, 0xD8, 0xFF, 0xE0, 0, 0], name: 'a.pdf'),
+        DocFormat.jpeg,
+      );
       expect(
         detect([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0]),
         DocFormat.png,
       );
       expect(detect(ascii.encode('GIF89a....')), DocFormat.gif);
-      expect(detect(ascii.encode('RIFF\x10\x00\x00\x00WEBPVP8 ')), DocFormat.webp);
+      expect(
+        detect(ascii.encode('RIFF\x10\x00\x00\x00WEBPVP8 ')),
+        DocFormat.webp,
+      );
       expect(
         detect([0, 0, 0, 0x18, ...ascii.encode('ftypheic'), 0, 0, 0, 0]),
         DocFormat.heic,
@@ -115,31 +124,58 @@ void main() {
     });
 
     test('RTF', () {
-      expect(detect(ascii.encode(r'{\rtf1\ansi Hello}'), name: 'x.doc'), DocFormat.rtf);
+      expect(
+        detect(ascii.encode(r'{\rtf1\ansi Hello}'), name: 'x.doc'),
+        DocFormat.rtf,
+      );
     });
   });
 
   group('ZIP containers', () {
     test('DOCX, XLSX and PPTX by content, whatever the name', () {
-      final docx = buildZip({'[Content_Types].xml': '<Types/>', 'word/document.xml': '<w/>'});
-      final xlsx = buildZip({'[Content_Types].xml': '<Types/>', 'xl/workbook.xml': '<w/>'});
-      final pptx = buildZip({'[Content_Types].xml': '<Types/>', 'ppt/presentation.xml': '<p/>'});
+      final docx = buildZip({
+        '[Content_Types].xml': '<Types/>',
+        'word/document.xml': '<w/>',
+      });
+      final xlsx = buildZip({
+        '[Content_Types].xml': '<Types/>',
+        'xl/workbook.xml': '<w/>',
+      });
+      final pptx = buildZip({
+        '[Content_Types].xml': '<Types/>',
+        'ppt/presentation.xml': '<p/>',
+      });
       expect(detect(docx, name: 'report.zip'), DocFormat.docx);
       expect(detect(xlsx, name: 'budget'), DocFormat.xlsx);
       expect(detect(pptx, name: 'slides.docx'), DocFormat.pptx);
     });
 
     test('template and macro variants keep their extension meaning', () {
-      final docx = buildZip({'[Content_Types].xml': '<Types/>', 'word/document.xml': '<w/>'});
-      final xlsx = buildZip({'[Content_Types].xml': '<Types/>', 'xl/workbook.xml': '<w/>'});
+      final docx = buildZip({
+        '[Content_Types].xml': '<Types/>',
+        'word/document.xml': '<w/>',
+      });
+      final xlsx = buildZip({
+        '[Content_Types].xml': '<Types/>',
+        'xl/workbook.xml': '<w/>',
+      });
       expect(detect(docx, name: 'letter.dotx'), DocFormat.dotx);
       expect(detect(xlsx, name: 'macro.xlsm'), DocFormat.xlsm);
     });
 
     test('ODT, ODS and EPUB by mimetype entry', () {
-      final odt = buildZip({'mimetype': 'application/vnd.oasis.opendocument.text', 'content.xml': '<x/>'});
-      final ods = buildZip({'mimetype': 'application/vnd.oasis.opendocument.spreadsheet', 'content.xml': '<x/>'});
-      final epub = buildZip({'mimetype': 'application/epub+zip', 'META-INF/container.xml': '<x/>'});
+      final odt = buildZip({
+        'mimetype': 'application/vnd.oasis.opendocument.text',
+        'content.xml': '<x/>',
+      });
+      final ods = buildZip({
+        'mimetype': 'application/vnd.oasis.opendocument.spreadsheet',
+        'content.xml': '<x/>',
+      });
+      final epub = buildZip({
+        'mimetype': 'application/epub+zip',
+        'META-INF/container.xml': '<x/>',
+      });
       expect(detect(odt, name: 'a.zip'), DocFormat.odt);
       expect(detect(ods), DocFormat.ods);
       expect(detect(epub, name: 'book.zip'), DocFormat.epub);
@@ -166,14 +202,20 @@ void main() {
 
   group('text', () {
     test('extension picks the text flavour', () {
-      expect(detect(utf8.encode('# Title'), name: 'README.md'), DocFormat.markdown);
+      expect(
+        detect(utf8.encode('# Title'), name: 'README.md'),
+        DocFormat.markdown,
+      );
       expect(detect(utf8.encode('{"a":1}'), name: 'data.json'), DocFormat.code);
       expect(detect(utf8.encode('a,b\n1,2'), name: 'table.csv'), DocFormat.csv);
       expect(detect(utf8.encode('line'), name: 'app.log'), DocFormat.plainText);
     });
 
     test('unknown extension but readable text opens as text', () {
-      expect(detect(utf8.encode('just some words\n'), name: 'notes.xyz'), DocFormat.plainText);
+      expect(
+        detect(utf8.encode('just some words\n'), name: 'notes.xyz'),
+        DocFormat.plainText,
+      );
     });
 
     test('non-ASCII UTF-8 cut mid-character is still text', () {
@@ -182,15 +224,24 @@ void main() {
     });
 
     test('ANSI CSV with 8-bit characters is still a CSV', () {
-      expect(detect([0x63, 0x61, 0x66, 0xE9, 0x2C, 0x31, 0x0A], name: 'ansi.csv'), DocFormat.csv);
+      expect(
+        detect([0x63, 0x61, 0x66, 0xE9, 0x2C, 0x31, 0x0A], name: 'ansi.csv'),
+        DocFormat.csv,
+      );
     });
 
     test('binary blob with a text extension is not text', () {
-      expect(detect([1, 2, 0, 0, 5, 6, 0, 9], name: 'blob.txt'), DocFormat.unknown);
+      expect(
+        detect([1, 2, 0, 0, 5, 6, 0, 9], name: 'blob.txt'),
+        DocFormat.unknown,
+      );
     });
 
     test('MIME hint is used when the name says nothing', () {
-      expect(detect(utf8.encode('a,b'), name: 'export', mime: 'text/csv'), DocFormat.csv);
+      expect(
+        detect(utf8.encode('a,b'), name: 'export', mime: 'text/csv'),
+        DocFormat.csv,
+      );
     });
 
     test('empty file with a known extension keeps that type', () {

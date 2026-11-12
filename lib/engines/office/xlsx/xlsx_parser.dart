@@ -28,7 +28,10 @@ abstract final class XlsxParser {
     }
   }
 
-  static Workbook parseBytes(Uint8List bytes, {int maxCells = defaultMaxCells}) {
+  static Workbook parseBytes(
+    Uint8List bytes, {
+    int maxCells = defaultMaxCells,
+  }) {
     final zip = SafeZip.fromBytes(bytes);
     try {
       return _parse(zip, maxCells, null);
@@ -83,7 +86,15 @@ abstract final class XlsxParser {
       final xml = zip.text(entry.path);
       if (xml == null || remaining <= 0) {
         if (xml != null) truncated = true;
-        sheets.add(Sheet(name: entry.name, rows: const [], rowCount: 0, colCount: 0, hidden: entry.hidden));
+        sheets.add(
+          Sheet(
+            name: entry.name,
+            rows: const [],
+            rowCount: 0,
+            colCount: 0,
+            hidden: entry.hidden,
+          ),
+        );
         continue;
       }
       final reader = _SheetReader(strings, remaining)..read(xml);
@@ -250,7 +261,8 @@ abstract final class XlsxParser {
       final f = x.fontId < fonts.length ? fonts[x.fontId] : const _Font();
       styles.add(
         CellStyle(
-          formatCode: formats[x.numFmtId] ?? NumberFormatter.builtinCode(x.numFmtId),
+          formatCode:
+              formats[x.numFmtId] ?? NumberFormatter.builtinCode(x.numFmtId),
           bold: f.bold,
           italic: f.italic,
           underline: f.underline,
@@ -270,8 +282,16 @@ abstract final class XlsxParser {
       if (event is XmlStartElementEvent) {
         final name = event.localName;
         switch (name) {
-          case 'numFmts' || 'fonts' || 'fills' || 'borders' || 'cellXfs' ||
-              'cellStyleXfs' || 'cellStyles' || 'dxfs' || 'tableStyles' || 'colors':
+          case 'numFmts' ||
+              'fonts' ||
+              'fills' ||
+              'borders' ||
+              'cellXfs' ||
+              'cellStyleXfs' ||
+              'cellStyles' ||
+              'dxfs' ||
+              'tableStyles' ||
+              'colors':
             if (!event.isSelfClosing) section = name;
             continue;
         }
@@ -290,7 +310,8 @@ abstract final class XlsxParser {
                 font = null;
               }
             } else if (font != null) {
-              final on = event.attr('val') != '0' && event.attr('val') != 'false';
+              final on =
+                  event.attr('val') != '0' && event.attr('val') != 'false';
               font = switch (name) {
                 'b' => font.copy(bold: on),
                 'i' => font.copy(italic: on),
@@ -320,7 +341,12 @@ abstract final class XlsxParser {
             if (name == 'border') {
               borderHasLine = false;
               if (event.isSelfClosing) borders.add(false);
-            } else if (const {'left', 'right', 'top', 'bottom'}.contains(name)) {
+            } else if (const {
+              'left',
+              'right',
+              'top',
+              'bottom',
+            }.contains(name)) {
               final style = event.attr('style');
               if (style != null && style != 'none') borderHasLine = true;
             }
@@ -337,7 +363,9 @@ abstract final class XlsxParser {
               xf!
                 ..hAlign = switch (event.attr('horizontal')) {
                   'left' => HAlign.left,
-                  'center' || 'centerContinuous' || 'distributed' => HAlign.center,
+                  'center' ||
+                  'centerContinuous' ||
+                  'distributed' => HAlign.center,
                   'right' => HAlign.right,
                   _ => HAlign.general,
                 }
@@ -556,13 +584,16 @@ final class _SheetReader {
             }
           case 't':
             // Inline string text: <c t="inlineStr"><is><t>…</t></is></c>
-            inInlineText = inCell && type == 'inlineStr' && !event.isSelfClosing;
+            inInlineText =
+                inCell && type == 'inlineStr' && !event.isSelfClosing;
             if (inInlineText) hasValue = true;
           case 'row':
             if (truncated) return;
             final r = event.intAttr('r');
             rowIndex = r != null ? r - 1 : rowIndex + 1;
-            rowHeight = event.boolAttr('customHeight') ? event.doubleAttr('ht') : null;
+            rowHeight = event.boolAttr('customHeight')
+                ? event.doubleAttr('ht')
+                : null;
             col = -1;
             inRow = !event.isSelfClosing;
           case 'col':
@@ -584,7 +615,8 @@ final class _SheetReader {
               }
             }
           case 'sheetFormatPr':
-            defaultColWidth = event.doubleAttr('defaultColWidth') ?? defaultColWidth;
+            defaultColWidth =
+                event.doubleAttr('defaultColWidth') ?? defaultColWidth;
           case 'pane':
             final state = event.attr('state');
             if (state == 'frozen' || state == 'frozenSplit') {

@@ -50,7 +50,10 @@ void main() {
     expect(f(-1234.5, '#,##0.00;(#,##0.00)'), '(1,234.50)');
     expect(f(-5, '#,##0;[Red]-#,##0'), '-5');
     expect(f(0, '#,##0;-#,##0;"-"'), '-');
-    expect(f(5, r'_($* #,##0.00_);_($* (#,##0.00);_($* "-"??_);_(@_)'), r' $5.00 ');
+    expect(
+      f(5, r'_($* #,##0.00_);_($* (#,##0.00);_($* "-"??_);_(@_)'),
+      r' $5.00 ',
+    );
     expect(f(1.5, r'0.0\ \k\g'), '1.5 kg');
   });
 
@@ -94,7 +97,10 @@ void main() {
   });
 
   test('1904 date system', () {
-    expect(NumberFormatter.format(0, 'yyyy-mm-dd', date1904: true), '1904-01-01');
+    expect(
+      NumberFormatter.format(0, 'yyyy-mm-dd', date1904: true),
+      '1904-01-01',
+    );
   });
 
   test('built-in ids', () {

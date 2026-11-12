@@ -76,16 +76,15 @@ abstract final class PdfEncryptor {
     );
 
     final cipher = _ObjectCipher(fileKey, rng);
-    final writer = PdfWriter(
-      transformString: cipher.encrypt,
-      transformStream: cipher.encrypt,
-    );
-
-    // AES-256 needs PDF 1.7 extension level 8 or PDF 2.0; state 1.7 and
-    // declare the extension in the catalog, as Acrobat and qpdf do.
-    writer
-      ..raw('%PDF-1.7\n')
-      ..bytes(const [0x25, 0xE2, 0xE3, 0xCF, 0xD3, 0x0A]);
+    final writer =
+        PdfWriter(
+            transformString: cipher.encrypt,
+            transformStream: cipher.encrypt,
+          )
+          // AES-256 needs PDF 1.7 extension level 8 or PDF 2.0; state 1.7 and
+          // declare the extension in the catalog, as Acrobat and qpdf do.
+          ..raw('%PDF-1.7\n')
+          ..bytes(const [0x25, 0xE2, 0xE3, 0xCF, 0xD3, 0x0A]);
 
     final rootRef = doc.trailer['/Root'];
     final offsets = <int, int>{};
@@ -100,9 +99,12 @@ abstract final class PdfEncryptor {
 
       // Cross-reference and object streams never appear in a classic-table
       // file; skip any stray one rather than encrypting it wrongly.
-      final dict = value is PdfStream ? value.dict : (value is PdfDict ? value : null);
+      final dict = value is PdfStream
+          ? value.dict
+          : (value is PdfDict ? value : null);
       final type = dict?.nameOf('/Type');
-      if (value is PdfStream && (type == '/XRef' || type == '/ObjStm')) continue;
+      if (value is PdfStream && (type == '/XRef' || type == '/ObjStm'))
+        continue;
 
       if (rootRef is PdfRef && rootRef.number == number && value is PdfDict) {
         value = _withExtension(value);
@@ -170,7 +172,9 @@ abstract final class PdfEncryptor {
   /// Passwords are UTF-8, at most 127 bytes (ISO 32000-2, 7.6.4.3.3).
   static Uint8List _passwordBytes(String password) {
     final bytes = utf8.encode(password);
-    return Uint8List.fromList(bytes.length > 127 ? bytes.sublist(0, 127) : bytes);
+    return Uint8List.fromList(
+      bytes.length > 127 ? bytes.sublist(0, 127) : bytes,
+    );
   }
 }
 
@@ -268,13 +272,19 @@ final class _SecurityValues {
 
     // Algorithm 10: /Perms, so a reader can detect a tampered /P.
     final block = Uint8List(16);
-    ByteData.sublistView(block).setUint32(0, permissions & 0xFFFFFFFF, Endian.little);
+    ByteData.sublistView(
+      block,
+    ).setUint32(0, permissions & 0xFFFFFFFF, Endian.little);
     block
       ..fillRange(4, 8, 0xFF)
-      ..[8] = 0x54 // 'T': metadata is encrypted
-      ..[9] = 0x61 // 'a'
-      ..[10] = 0x64 // 'd'
-      ..[11] = 0x62 // 'b'
+      ..[8] =
+          0x54 // 'T': metadata is encrypted
+      ..[9] =
+          0x61 // 'a'
+      ..[10] =
+          0x64 // 'd'
+      ..[11] =
+          0x62 // 'b'
       ..setAll(12, _randomBytes(rng, 4));
     final ecb = AESEngine()..init(true, KeyParameter(fileKey));
     final perms = Uint8List(16);

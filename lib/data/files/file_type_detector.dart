@@ -103,17 +103,63 @@ abstract final class FileTypeDetector {
   /// Format implied by an extension alone. Used by the discovery scanner to
   /// decide which files are worth indexing without opening each one.
   static DocFormat? formatForExtension(String ext) =>
-      _byExtension[ext] ?? (codeExtensions.contains(ext) ? DocFormat.code : null);
+      _byExtension[ext] ??
+      (codeExtensions.contains(ext) ? DocFormat.code : null);
 
   static bool isSupportedExtension(String ext) =>
       formatForExtension(ext) != null;
 
   static const codeExtensions = <String>{
-    'json', 'xml', 'yaml', 'yml', 'ini', 'toml', 'conf', 'cfg', 'properties',
-    'html', 'htm', 'css', 'scss', 'js', 'mjs', 'ts', 'jsx', 'tsx', 'dart',
-    'java', 'kt', 'kts', 'swift', 'c', 'h', 'cpp', 'hpp', 'cc', 'cs', 'go',
-    'rs', 'py', 'rb', 'php', 'pl', 'lua', 'r', 'sql', 'sh', 'bash', 'bat',
-    'ps1', 'gradle', 'tex', 'srt', 'vtt', 'env', 'gitignore', 'diff', 'patch',
+    'json',
+    'xml',
+    'yaml',
+    'yml',
+    'ini',
+    'toml',
+    'conf',
+    'cfg',
+    'properties',
+    'html',
+    'htm',
+    'css',
+    'scss',
+    'js',
+    'mjs',
+    'ts',
+    'jsx',
+    'tsx',
+    'dart',
+    'java',
+    'kt',
+    'kts',
+    'swift',
+    'c',
+    'h',
+    'cpp',
+    'hpp',
+    'cc',
+    'cs',
+    'go',
+    'rs',
+    'py',
+    'rb',
+    'php',
+    'pl',
+    'lua',
+    'r',
+    'sql',
+    'sh',
+    'bash',
+    'bat',
+    'ps1',
+    'gradle',
+    'tex',
+    'srt',
+    'vtt',
+    'env',
+    'gitignore',
+    'diff',
+    'patch',
   };
 
   static const _byExtension = <String, DocFormat>{
@@ -206,7 +252,16 @@ abstract final class FileTypeDetector {
       return DocFormat.rtf; // {\rtf
     }
     if (_startsWith(head, const [0xFF, 0xD8, 0xFF])) return DocFormat.jpeg;
-    if (_startsWith(head, const [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])) {
+    if (_startsWith(head, const [
+      0x89,
+      0x50,
+      0x4E,
+      0x47,
+      0x0D,
+      0x0A,
+      0x1A,
+      0x0A,
+    ])) {
       return DocFormat.png;
     }
     if (_startsWith(head, const [0x47, 0x49, 0x46, 0x38])) return DocFormat.gif;
@@ -215,9 +270,18 @@ abstract final class FileTypeDetector {
         _matchesAt(head, 8, const [0x57, 0x45, 0x42, 0x50])) {
       return DocFormat.webp;
     }
-    if (head.length >= 12 && _matchesAt(head, 4, const [0x66, 0x74, 0x79, 0x70])) {
+    if (head.length >= 12 &&
+        _matchesAt(head, 4, const [0x66, 0x74, 0x79, 0x70])) {
       final brand = ascii.decode(head.sublist(8, 12), allowInvalid: true);
-      const heifBrands = {'heic', 'heix', 'hevc', 'hevx', 'mif1', 'msf1', 'heim'};
+      const heifBrands = {
+        'heic',
+        'heix',
+        'hevc',
+        'hevx',
+        'mif1',
+        'msf1',
+        'heim',
+      };
       if (heifBrands.contains(brand)) return DocFormat.heic;
     }
     // "BM" is too short to trust alone: also require a sane header size field.
@@ -232,7 +296,11 @@ abstract final class FileTypeDetector {
 
   /// DOCX, XLSX, PPTX, ODT, ODS and EPUB are all ZIP files; tell them apart by
   /// what is inside rather than by name.
-  static DocFormat _zipContainer(ByteSource source, Uint8List head, String ext) {
+  static DocFormat _zipContainer(
+    ByteSource source,
+    Uint8List head,
+    String ext,
+  ) {
     // ODF and EPUB store an uncompressed `mimetype` entry first.
     final declared = _leadingMimetypeEntry(head);
     if (declared != null) {
@@ -240,7 +308,9 @@ abstract final class FileTypeDetector {
       if (declared.startsWith('application/vnd.oasis.opendocument.text')) {
         return DocFormat.odt;
       }
-      if (declared.startsWith('application/vnd.oasis.opendocument.spreadsheet')) {
+      if (declared.startsWith(
+        'application/vnd.oasis.opendocument.spreadsheet',
+      )) {
         return DocFormat.ods;
       }
     }
@@ -329,7 +399,9 @@ abstract final class FileTypeDetector {
       final commentLength = view.getUint16(pos + 32, Endian.little);
       final nameEnd = pos + 46 + nameLength;
       if (nameEnd > dir.length) break;
-      names.add(utf8.decode(dir.sublist(pos + 46, nameEnd), allowMalformed: true));
+      names.add(
+        utf8.decode(dir.sublist(pos + 46, nameEnd), allowMalformed: true),
+      );
       pos = nameEnd + extraLength + commentLength;
     }
     return names;
@@ -337,7 +409,11 @@ abstract final class FileTypeDetector {
 
   /// Old .doc/.xls/.ppt share one container format; the stream names in its
   /// directory say which application wrote it.
-  static DocFormat _oleContainer(ByteSource source, Uint8List head, String ext) {
+  static DocFormat _oleContainer(
+    ByteSource source,
+    Uint8List head,
+    String ext,
+  ) {
     final byExt = _byExtension[ext];
     final fallback = byExt != null && byExt.isLegacyOffice
         ? byExt
@@ -392,7 +468,9 @@ abstract final class FileTypeDetector {
     try {
       // The head may cut a multi-byte character; drop up to 3 trailing bytes.
       var end = head.length;
-      while (end > 0 && head.length - end < 3 && (head[end - 1] & 0xC0) == 0x80) {
+      while (end > 0 &&
+          head.length - end < 3 &&
+          (head[end - 1] & 0xC0) == 0x80) {
         end--;
       }
       if (end > 0 && head[end - 1] >= 0xC0) end--;

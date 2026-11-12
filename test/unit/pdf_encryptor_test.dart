@@ -17,7 +17,9 @@ Uint8List buildPdf(List<String> bodies, {String trailerExtra = ''}) {
     out.add(latin1.encode('${i + 1} 0 obj\n${bodies[i]}\nendobj\n'));
   }
   final xref = out.length;
-  final table = StringBuffer('xref\n0 ${bodies.length + 1}\n0000000000 65535 f \n');
+  final table = StringBuffer(
+    'xref\n0 ${bodies.length + 1}\n0000000000 65535 f \n',
+  );
   for (final offset in offsets) {
     table.write('${offset.toString().padLeft(10, '0')} 00000 n \n');
   }
@@ -125,7 +127,12 @@ void main() {
   test('permission flags produce the standard /P values', () {
     expect(PdfPermissions.all.value, -4);
     expect(
-      const PdfPermissions(print: false, modify: false, copy: false, annotate: false).value,
+      const PdfPermissions(
+        print: false,
+        modify: false,
+        copy: false,
+        annotate: false,
+      ).value,
       -3904,
     );
   });
@@ -187,11 +194,15 @@ void main() {
 
       final info = pdf.object(5) as PdfDict;
       expect(
-        latin1.decode(EncryptedPdf.decrypt(key, (info['/Title']! as PdfStr).bytes)),
+        latin1.decode(
+          EncryptedPdf.decrypt(key, (info['/Title']! as PdfStr).bytes),
+        ),
         'Quarterly (Q3) report',
       );
       expect(
-        latin1.decode(EncryptedPdf.decrypt(key, (info['/Author']! as PdfStr).bytes)),
+        latin1.decode(
+          EncryptedPdf.decrypt(key, (info['/Author']! as PdfStr).bytes),
+        ),
         'DocNook',
       );
     });
@@ -218,12 +229,16 @@ void main() {
   });
 
   test('owner password defaults to the user password', () {
-    final pdf = EncryptedPdf(PdfEncryptor.encrypt(samplePdf(), userPassword: 'pw'));
+    final pdf = EncryptedPdf(
+      PdfEncryptor.encrypt(samplePdf(), userPassword: 'pw'),
+    );
     expect(pdf.ownerKey('pw'), pdf.userKey('pw'));
   });
 
   test('non-ASCII passwords are UTF-8', () {
-    final pdf = EncryptedPdf(PdfEncryptor.encrypt(samplePdf(), userPassword: 'pässwörd'));
+    final pdf = EncryptedPdf(
+      PdfEncryptor.encrypt(samplePdf(), userPassword: 'pässwörd'),
+    );
     expect(pdf.userKey('pässwörd'), isNotNull);
     expect(pdf.userKey('password'), isNull);
   });

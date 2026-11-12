@@ -135,7 +135,13 @@ const _months = [
   'August', 'September', 'October', 'November', 'December',
 ];
 const _days = [
-  'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', //
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday', //
 ];
 
 final class _Section {
@@ -206,7 +212,8 @@ final class _Section {
 
       countScale(lastIntegerDigit);
       if (lastDigit != lastIntegerDigit) countScale(lastDigit);
-      isFraction = tokens.any((t) => t.type == _T.literal && t.text == '/') &&
+      isFraction =
+          tokens.any((t) => t.type == _T.literal && t.text == '/') &&
           tokens.where((t) => t.type == _T.digit).length >= 2 &&
           !seenPoint;
     }
@@ -321,9 +328,11 @@ final class _Format {
         final innerLower = inner.toLowerCase();
         if (innerLower.isNotEmpty && RegExp(r'^h+$').hasMatch(innerLower)) {
           tokens.add(_Tok(_T.elapsedH, inner));
-        } else if (innerLower.isNotEmpty && RegExp(r'^m+$').hasMatch(innerLower)) {
+        } else if (innerLower.isNotEmpty &&
+            RegExp(r'^m+$').hasMatch(innerLower)) {
           tokens.add(_Tok(_T.elapsedM, inner));
-        } else if (innerLower.isNotEmpty && RegExp(r'^s+$').hasMatch(innerLower)) {
+        } else if (innerLower.isNotEmpty &&
+            RegExp(r'^s+$').hasMatch(innerLower)) {
           tokens.add(_Tok(_T.elapsedS, inner));
         } else if (inner.startsWith(r'$')) {
           // [$€-407]: currency symbol, then an ignored locale id.
@@ -374,7 +383,11 @@ final class _Format {
       } else if (lower.startsWith('a/p', i)) {
         tokens.add(_Tok(_T.ampm, part.substring(i, i + 3)));
         i += 3;
-      } else if (lc == 'y' || lc == 'm' || lc == 'd' || lc == 'h' || lc == 's') {
+      } else if (lc == 'y' ||
+          lc == 'm' ||
+          lc == 'd' ||
+          lc == 'h' ||
+          lc == 's') {
         var j = i;
         while (j < part.length && lower[j] == lc) {
           j++;
@@ -423,7 +436,9 @@ final class _Format {
     // A fourth section, or any section containing "@", formats text.
     final section = sections.length >= 4
         ? sections[3]
-        : (sections.length == 1 && sections.first.hasText ? sections.first : null);
+        : (sections.length == 1 && sections.first.hasText
+              ? sections.first
+              : null);
     if (section == null) return text;
     final out = StringBuffer();
     for (final token in section.tokens) {
@@ -543,7 +558,9 @@ final class _Format {
     final parts = value.toStringAsExponential(s.maxDecimals).split('e');
     final exponent = int.parse(parts[1]);
     final exponentToken = s.tokens.firstWhere((t) => t.type == _T.exponent);
-    final sign = exponent < 0 ? '-' : (exponentToken.text.endsWith('+') ? '+' : '');
+    final sign = exponent < 0
+        ? '-'
+        : (exponentToken.text.endsWith('+') ? '+' : '');
     return '${parts[0]}E$sign${exponent.abs().toString().padLeft(2, '0')}';
   }
 
@@ -552,14 +569,19 @@ final class _Format {
     final subDigits = s.tokens
         .where((t) => t.type == _T.subSecond)
         .fold(0, (max, t) => t.text.length > max ? t.text.length : max);
-    final hasSeconds = s.tokens.any((t) => t.type == _T.second || t.type == _T.elapsedS);
+    final hasSeconds = s.tokens.any(
+      (t) => t.type == _T.second || t.type == _T.elapsedS,
+    );
     var unitMs = hasSeconds ? 1000.0 : 60000.0;
     for (var i = 0; i < subDigits && i < 3; i++) {
       unitMs /= 10;
     }
     final totalMs = ((serial * 86400000) / unitMs).round() * unitMs;
     final roundedSerial = totalMs / 86400000;
-    final date = NumberFormatter.serialToDate(roundedSerial, date1904: date1904);
+    final date = NumberFormatter.serialToDate(
+      roundedSerial,
+      date1904: date1904,
+    );
 
     final out = StringBuffer();
     for (final token in s.tokens) {
@@ -568,7 +590,11 @@ final class _Format {
         case _T.literal:
           out.write(token.text);
         case _T.year:
-          out.write(n <= 2 ? (date.year % 100).toString().padLeft(2, '0') : '${date.year}');
+          out.write(
+            n <= 2
+                ? (date.year % 100).toString().padLeft(2, '0')
+                : '${date.year}',
+          );
         case _T.month:
           out.write(switch (n) {
             1 => '${date.month}',
@@ -589,23 +615,35 @@ final class _Format {
           if (s.twelveHour) hour = hour % 12 == 0 ? 12 : hour % 12;
           out.write(n >= 2 ? hour.toString().padLeft(2, '0') : '$hour');
         case _T.minute:
-          out.write(n >= 2 ? date.minute.toString().padLeft(2, '0') : '${date.minute}');
+          out.write(
+            n >= 2 ? date.minute.toString().padLeft(2, '0') : '${date.minute}',
+          );
         case _T.second:
-          out.write(n >= 2 ? date.second.toString().padLeft(2, '0') : '${date.second}');
+          out.write(
+            n >= 2 ? date.second.toString().padLeft(2, '0') : '${date.second}',
+          );
         case _T.subSecond:
           final fraction = date.millisecond.toString().padLeft(3, '0');
           out.write('.${fraction.substring(0, n > 3 ? 3 : n)}');
         case _T.ampm:
           final pm = date.hour >= 12;
-          out.write(token.text.length == 3 ? (pm ? 'P' : 'A') : (pm ? 'PM' : 'AM'));
+          out.write(
+            token.text.length == 3 ? (pm ? 'P' : 'A') : (pm ? 'PM' : 'AM'),
+          );
         case _T.elapsedH:
           out.write((totalMs / 3600000).floor().toString().padLeft(n, '0'));
         case _T.elapsedM:
           out.write((totalMs / 60000).floor().toString().padLeft(n, '0'));
         case _T.elapsedS:
           out.write((totalMs / 1000).floor().toString().padLeft(n, '0'));
-        case _T.digit || _T.point || _T.comma || _T.percent || _T.exponent || _T.text:
-          if (token.type == _T.point || token.type == _T.comma) out.write(token.text);
+        case _T.digit ||
+            _T.point ||
+            _T.comma ||
+            _T.percent ||
+            _T.exponent ||
+            _T.text:
+          if (token.type == _T.point || token.type == _T.comma)
+            out.write(token.text);
       }
     }
     return out.toString();

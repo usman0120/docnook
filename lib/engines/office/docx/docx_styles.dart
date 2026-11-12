@@ -4,10 +4,12 @@ import 'package:docnook/engines/office/xml_events.dart';
 /// Unit conversions used across WordprocessingML.
 abstract final class Units {
   /// Twentieths of a point → points.
-  static double twips(String? value) => (double.tryParse(value ?? '') ?? 0) / 20;
+  static double twips(String? value) =>
+      (double.tryParse(value ?? '') ?? 0) / 20;
 
   /// English Metric Units → points.
-  static double emu(String? value) => (double.tryParse(value ?? '') ?? 0) / 12700;
+  static double emu(String? value) =>
+      (double.tryParse(value ?? '') ?? 0) / 12700;
 }
 
 /// Run formatting where every field may be unset, so layers (document
@@ -94,7 +96,10 @@ final class RunProps {
             _ => VerticalPosition.baseline,
           };
         case 'rFonts':
-          final name = child.attr('w:ascii') ?? child.attr('w:hAnsi') ?? child.attr('w:cs');
+          final name =
+              child.attr('w:ascii') ??
+              child.attr('w:hAnsi') ??
+              child.attr('w:cs');
           if (name != null) props.font = classifyFont(name);
         case 'rStyle':
           props.styleId = child.attr('w:val');
@@ -106,7 +111,8 @@ final class RunProps {
   /// `<w:b/>` is on; `<w:b w:val="0"/>` is off.
   static bool _toggle(XmlStartElementEvent element) {
     final value = element.attr('w:val');
-    return value == null || (value != '0' && value != 'false' && value != 'off');
+    return value == null ||
+        (value != '0' && value != 'false' && value != 'off');
   }
 
   static const _highlights = <String, int>{
@@ -139,7 +145,14 @@ int? parseHexColor(String? value) {
 /// Maps a font name onto the three families DocNook bundles.
 FontClass classifyFont(String name) {
   final n = name.toLowerCase();
-  const mono = ['courier', 'consolas', 'mono', 'menlo', 'lucida console', 'fixedsys'];
+  const mono = [
+    'courier',
+    'consolas',
+    'mono',
+    'menlo',
+    'lucida console',
+    'fixedsys',
+  ];
   for (final key in mono) {
     if (n.contains(key)) return FontClass.mono;
   }
@@ -258,7 +271,8 @@ final class ParaProps {
           });
         case 'pageBreakBefore':
           final value = child.attr('w:val');
-          props.pageBreakBefore = value == null || (value != '0' && value != 'false');
+          props.pageBreakBefore =
+              value == null || (value != '0' && value != 'false');
         case 'shd':
           props.background = parseHexColor(child.attr('w:fill'));
         case 'bidi':
@@ -353,11 +367,13 @@ final class DocxStyles {
         pull.children(child, (d) {
           if (d.localName == 'rPrDefault') {
             pull.children(d, (r) {
-              if (r.localName == 'rPr') styles.defaultRun = RunProps.read(pull, r);
+              if (r.localName == 'rPr')
+                styles.defaultRun = RunProps.read(pull, r);
             });
           } else if (d.localName == 'pPrDefault') {
             pull.children(d, (p) {
-              if (p.localName == 'pPr') styles.defaultPara = ParaProps.read(pull, p);
+              if (p.localName == 'pPr')
+                styles.defaultPara = ParaProps.read(pull, p);
             });
           }
         });
@@ -452,7 +468,10 @@ final class DocxStyles {
   int headingLevelOf(String? styleId) {
     var current = _defs[styleId];
     for (var hops = 0; current != null && hops < 20; hops++) {
-      final name = (current.name ?? current.id).toLowerCase().replaceAll(' ', '');
+      final name = (current.name ?? current.id).toLowerCase().replaceAll(
+        ' ',
+        '',
+      );
       final match = RegExp(r'^heading(\d)$').firstMatch(name);
       if (match != null) return int.parse(match.group(1)!).clamp(1, 6);
       if (name == 'title') return 1;

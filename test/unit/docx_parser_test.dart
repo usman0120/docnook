@@ -30,23 +30,34 @@ Uint8List buildDocx(
   void text(String name, String content) => add(name, utf8.encode(content));
 
   text('[Content_Types].xml', '<Types/>');
-  text('word/document.xml', '<w:document $_w><w:body>$body</w:body></w:document>');
-  if (styles != null) text('word/styles.xml', '<w:styles $_w>$styles</w:styles>');
+  text(
+    'word/document.xml',
+    '<w:document $_w><w:body>$body</w:body></w:document>',
+  );
+  if (styles != null)
+    text('word/styles.xml', '<w:styles $_w>$styles</w:styles>');
   if (numbering != null) {
     text('word/numbering.xml', '<w:numbering $_w>$numbering</w:numbering>');
   }
   if (rels != null) {
-    text('word/_rels/document.xml.rels', '<Relationships>$rels</Relationships>');
+    text(
+      'word/_rels/document.xml.rels',
+      '<Relationships>$rels</Relationships>',
+    );
   }
   parts.forEach(text);
   binary.forEach(add);
   return Uint8List.fromList(ZipEncoder().encode(archive));
 }
 
-List<Block> blocksOf(String body, {String? styles, String? numbering, String? rels}) =>
-    DocxParser.parseBytes(
-      buildDocx(body, styles: styles, numbering: numbering, rels: rels),
-    ).blocks.toList();
+List<Block> blocksOf(
+  String body, {
+  String? styles,
+  String? numbering,
+  String? rels,
+}) => DocxParser.parseBytes(
+  buildDocx(body, styles: styles, numbering: numbering, rels: rels),
+).blocks.toList();
 
 const _styles = '''
 <w:docDefaults><w:rPrDefault><w:rPr><w:sz w:val="22"/><w:rFonts w:ascii="Calibri"/></w:rPr></w:rPrDefault>
@@ -99,10 +110,13 @@ void main() {
   });
 
   test('styles inherit through basedOn and document defaults', () {
-    final blocks = blocksOf('''
+    final blocks = blocksOf(
+      '''
 <w:p><w:pPr><w:pStyle w:val="Heading1"/></w:pPr><w:r><w:t>Title</w:t></w:r></w:p>
 <w:p><w:pPr><w:pStyle w:val="Sub"/></w:pPr><w:r><w:t>Sub</w:t></w:r></w:p>
-<w:p><w:r><w:t>Body </w:t></w:r><w:r><w:rPr><w:rStyle w:val="Strong"/></w:rPr><w:t>strong</w:t></w:r></w:p>''', styles: _styles);
+<w:p><w:r><w:t>Body </w:t></w:r><w:r><w:rPr><w:rStyle w:val="Strong"/></w:rPr><w:t>strong</w:t></w:r></w:p>''',
+      styles: _styles,
+    );
 
     final heading = blocks[0] as Paragraph;
     expect(heading.headingLevel, 1);
@@ -114,7 +128,11 @@ void main() {
     expect(heading.style.spaceAfter, 0);
 
     final sub = blocks[1] as Paragraph;
-    expect(sub.headingLevel, 1, reason: 'heading level is inherited from the base style');
+    expect(
+      sub.headingLevel,
+      1,
+      reason: 'heading level is inherited from the base style',
+    );
     expect((sub.inlines.single as TextRun).style.fontSize, 13);
     expect((sub.inlines.single as TextRun).style.bold, isTrue);
 
@@ -204,7 +222,10 @@ void main() {
     expect(table.rows[1].cells[2].covered, isTrue);
 
     final nested = table.rows[1].cells[1].blocks.whereType<TableBlock>().single;
-    expect(((nested.rows.single.cells.single.blocks.single) as Paragraph).plainText, 'inner');
+    expect(
+      ((nested.rows.single.cells.single.blocks.single) as Paragraph).plainText,
+      'inner',
+    );
     expect(nested.bordered, isFalse);
   });
 
@@ -220,7 +241,12 @@ void main() {
   <w:r><w:rPr><w:vanish/></w:rPr><w:t>secret</w:t></w:r>
   <w:r><w:rPr><w:caps/></w:rPr><w:t> shout</w:t></w:r>
 </w:p>''');
-    expect(blocks.map((b) => b.runtimeType), [Paragraph, PageBreak, Paragraph, Paragraph]);
+    expect(blocks.map((b) => b.runtimeType), [
+      Paragraph,
+      PageBreak,
+      Paragraph,
+      Paragraph,
+    ]);
     expect((blocks[3] as Paragraph).plainText, 'inserted 7 SHOUT');
   });
 
@@ -244,10 +270,14 @@ void main() {
   </a:graphicData></a:graphic></wp:anchor></w:drawing></mc:Choice>
   <mc:Fallback><w:pict><v:textbox><w:txbxContent><w:p><w:r><w:t>boxed</w:t></w:r></w:p></w:txbxContent></v:textbox></w:pict></mc:Fallback>
 </mc:AlternateContent></w:r></w:p>''',
-        rels: '<Relationship Id="rId1" Target="https://example.org/" TargetMode="External"/>'
+        rels:
+            '<Relationship Id="rId1" Target="https://example.org/" TargetMode="External"/>'
             '<Relationship Id="rId2" Target="media/image1.png"/>'
             '<Relationship Id="rId3" Target="media/chart.emf"/>',
-        binary: {'word/media/image1.png': png, 'word/media/chart.emf': [1, 2, 3]},
+        binary: {
+          'word/media/image1.png': png,
+          'word/media/chart.emf': [1, 2, 3],
+        },
       ),
     );
     final blocks = doc.blocks.toList();
@@ -262,13 +292,19 @@ void main() {
     expect(picture.height, 50);
     expect(picture.align, TextAlignment.center);
     expect(doc.images['word/media/image1.png']!.bytes, png);
-    expect(doc.images, hasLength(1), reason: 'the picture is loaded once; EMF is dropped');
+    expect(
+      doc.images,
+      hasLength(1),
+      reason: 'the picture is loaded once; EMF is dropped',
+    );
 
     final mixed = blocks[2] as Paragraph;
     expect(mixed.inlines.last, isA<InlineImage>());
 
     // The text box appears once (Fallback ignored), after its paragraph.
-    final boxed = blocks.whereType<Paragraph>().where((p) => p.plainText == 'boxed');
+    final boxed = blocks.whereType<Paragraph>().where(
+      (p) => p.plainText == 'boxed',
+    );
     expect(boxed, hasLength(1));
     expect(doc.simplified, isTrue);
   });
@@ -282,13 +318,18 @@ void main() {
 <w:p><w:r><w:t>Second</w:t></w:r></w:p>
 <w:sectPr><w:headerReference w:type="default" r:id="rId1"/><w:footerReference w:type="default" r:id="rId2"/>
   <w:pgSz w:w="16838" w:h="11906" w:orient="landscape"/></w:sectPr>''',
-        rels: '<Relationship Id="rId1" Target="header1.xml"/><Relationship Id="rId2" Target="footer1.xml"/>',
+        rels:
+            '<Relationship Id="rId1" Target="header1.xml"/><Relationship Id="rId2" Target="footer1.xml"/>',
         parts: {
-          'word/header1.xml': '<w:hdr $_w><w:p><w:r><w:t>Company</w:t></w:r></w:p><w:p/></w:hdr>',
-          'word/footer1.xml': '<w:ftr $_w><w:p><w:r><w:t>Page 1</w:t></w:r></w:p></w:ftr>',
-          'word/footnotes.xml': '<w:footnotes $_w><w:footnote w:type="separator" w:id="0"><w:p/></w:footnote>'
+          'word/header1.xml':
+              '<w:hdr $_w><w:p><w:r><w:t>Company</w:t></w:r></w:p><w:p/></w:hdr>',
+          'word/footer1.xml':
+              '<w:ftr $_w><w:p><w:r><w:t>Page 1</w:t></w:r></w:p></w:ftr>',
+          'word/footnotes.xml':
+              '<w:footnotes $_w><w:footnote w:type="separator" w:id="0"><w:p/></w:footnote>'
               '<w:footnote w:id="2"><w:p><w:r><w:t>The note.</w:t></w:r></w:p></w:footnote></w:footnotes>',
-          'docProps/core.xml': '<cp:coreProperties xmlns:cp="c" xmlns:dc="d"><dc:title> Annual report </dc:title></cp:coreProperties>',
+          'docProps/core.xml':
+              '<cp:coreProperties xmlns:cp="c" xmlns:dc="d"><dc:title> Annual report </dc:title></cp:coreProperties>',
         },
       ),
     );
@@ -302,28 +343,39 @@ void main() {
 
     final first = doc.sections[0].blocks.first as Paragraph;
     expect(first.plainText, 'First1');
-    expect((first.inlines.last as TextRun).style.position, VerticalPosition.superscript);
+    expect(
+      (first.inlines.last as TextRun).style.position,
+      VerticalPosition.superscript,
+    );
     final last = doc.sections[1].blocks.last as Paragraph;
     expect(last.plainText, '1. The note.');
   });
 
   test('outline and plain text', () {
     final doc = DocxParser.parseBytes(
-      buildDocx('''
+      buildDocx(
+        '''
 <w:p><w:pPr><w:pStyle w:val="Heading1"/></w:pPr><w:r><w:t>Intro</w:t></w:r></w:p>
 <w:p><w:r><w:t>Body</w:t></w:r></w:p>
 <w:p><w:pPr><w:outlineLvl w:val="1"/></w:pPr><w:r><w:t>Detail</w:t></w:r></w:p>
-<w:tbl><w:tr><w:tc><w:p><w:r><w:t>a</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t>b</w:t></w:r></w:p></w:tc></w:tr></w:tbl>''', styles: _styles),
+<w:tbl><w:tr><w:tc><w:p><w:r><w:t>a</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t>b</w:t></w:r></w:p></w:tc></w:tr></w:tbl>''',
+        styles: _styles,
+      ),
     );
     final outline = doc.outline();
-    expect(outline.map((e) => (e.title, e.level, e.blockIndex)), [('Intro', 1, 0), ('Detail', 2, 2)]);
+    expect(outline.map((e) => (e.title, e.level, e.blockIndex)), [
+      ('Intro', 1, 0),
+      ('Detail', 2, 2),
+    ]);
     expect(doc.plainText(), 'Intro\nBody\nDetail\na\tb\n');
   });
 
   test('rejects files that are not Word documents', () {
     final archive = Archive()..addFile(ArchiveFile('x.txt', 1, [65]));
     expect(
-      () => DocxParser.parseBytes(Uint8List.fromList(ZipEncoder().encode(archive))),
+      () => DocxParser.parseBytes(
+        Uint8List.fromList(ZipEncoder().encode(archive)),
+      ),
       throwsA(const DocNookFailure.corrupt()),
     );
     expect(

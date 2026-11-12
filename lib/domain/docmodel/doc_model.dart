@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:meta/meta.dart';
+
 /// DocModel: the one in-memory form of every flowing document DocNook reads
 /// (DOCX, ODT, RTF, PPTX, PDF→Word). Two renderers consume it: Flutter
 /// widgets for the viewer and `pdf` widgets for conversion (BLUEPRINT 5.5).
@@ -172,7 +174,11 @@ final class ParagraphStyle {
 /// List membership of a paragraph. The marker text ("•", "1.", "a)") is
 /// resolved by the parser so both renderers print the same thing.
 final class ListInfo {
-  const ListInfo({required this.level, required this.marker, this.ordered = false});
+  const ListInfo({
+    required this.level,
+    required this.marker,
+    this.ordered = false,
+  });
   final int level;
   final String marker;
   final bool ordered;
@@ -193,7 +199,8 @@ final class Paragraph extends Block {
   final int headingLevel;
   final ListInfo? list;
 
-  bool get isEmpty => inlines.every((i) => i is TextRun && i.text.trim().isEmpty);
+  bool get isEmpty =>
+      inlines.every((i) => i is TextRun && i.text.trim().isEmpty);
 
   String get plainText {
     if (inlines.length == 1) {
@@ -216,6 +223,7 @@ enum FontClass { sans, serif, mono }
 
 enum VerticalPosition { baseline, superscript, subscript }
 
+@immutable
 final class RunStyle {
   const RunStyle({
     this.bold = false,
@@ -289,7 +297,16 @@ final class RunStyle {
 
   @override
   int get hashCode => Object.hash(
-    bold, italic, underline, strike, fontSize, color, highlight, font, position, link, //
+    bold,
+    italic,
+    underline,
+    strike,
+    fontSize,
+    color,
+    highlight,
+    font,
+    position,
+    link, //
   );
 }
 
@@ -327,7 +344,11 @@ final class PageBreak extends Block {
 }
 
 final class TableBlock extends Block {
-  const TableBlock(this.rows, {this.columnWidths = const [], this.bordered = true});
+  const TableBlock(
+    this.rows, {
+    this.columnWidths = const [],
+    this.bordered = true,
+  });
 
   final List<TableRow> rows;
 
@@ -425,7 +446,13 @@ final class SlideText extends SlideItem {
 }
 
 final class SlideImage extends SlideItem {
-  const SlideImage(super.x, super.y, super.width, super.height, {required this.imageId});
+  const SlideImage(
+    super.x,
+    super.y,
+    super.width,
+    super.height, {
+    required this.imageId,
+  });
   final String imageId;
 }
 

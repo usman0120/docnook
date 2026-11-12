@@ -82,7 +82,10 @@ final class DocxNumbering {
     final lvl = level.clamp(0, 8);
     final def = levels[lvl] ?? _Level();
 
-    final counters = _counters.putIfAbsent(abstractId!, () => List.filled(9, null));
+    final counters = _counters.putIfAbsent(
+      abstractId!,
+      () => List.filled(9, null),
+    );
     // A list instance with a start override restarts the shared counter the
     // first time it appears.
     final override = _overrides[numId]?[lvl];
@@ -145,7 +148,13 @@ final class DocxNumbering {
     if (value < 1 || value > 3999) return '$value';
     const numerals = [
       (1000, 'M'), (900, 'CM'), (500, 'D'), (400, 'CD'), (100, 'C'), (90, 'XC'),
-      (50, 'L'), (40, 'XL'), (10, 'X'), (9, 'IX'), (5, 'V'), (4, 'IV'), (1, 'I'), //
+      (50, 'L'),
+      (40, 'XL'),
+      (10, 'X'),
+      (9, 'IX'),
+      (5, 'V'),
+      (4, 'IV'),
+      (1, 'I'), //
     ];
     final out = StringBuffer();
     var rest = value;

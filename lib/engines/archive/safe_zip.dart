@@ -50,7 +50,10 @@ final class SafeZip {
   }
 
   /// Opens an archive held in memory (an entry inside another archive).
-  factory SafeZip.fromBytes(Uint8List bytes, {ZipLimits limits = const ZipLimits()}) {
+  factory SafeZip.fromBytes(
+    Uint8List bytes, {
+    ZipLimits limits = const ZipLimits(),
+  }) {
     try {
       final archive = ZipDecoder().decodeBytes(bytes);
       _check(archive, bytes.length, limits);
@@ -163,7 +166,10 @@ final class SafeZip {
         final view = ByteData.sublistView(data);
         final units = Uint16List((data.length - 2) ~/ 2);
         for (var i = 0; i < units.length; i++) {
-          units[i] = view.getUint16(2 + i * 2, littleEndian ? Endian.little : Endian.big);
+          units[i] = view.getUint16(
+            2 + i * 2,
+            littleEndian ? Endian.little : Endian.big,
+          );
         }
         return String.fromCharCodes(units);
       }

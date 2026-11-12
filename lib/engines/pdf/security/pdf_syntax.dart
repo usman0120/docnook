@@ -75,7 +75,12 @@ final class PdfReader {
   int? Function(PdfRef ref)? resolveInt;
 
   static bool _isWhite(int c) =>
-      c == 0x20 || c == 0x0A || c == 0x0D || c == 0x09 || c == 0x0C || c == 0x00;
+      c == 0x20 ||
+      c == 0x0A ||
+      c == 0x0D ||
+      c == 0x09 ||
+      c == 0x0C ||
+      c == 0x00;
 
   static bool _isDelimiter(int c) =>
       c == 0x28 || // (
@@ -108,7 +113,9 @@ final class PdfReader {
   String readToken() {
     skipWhitespace();
     final start = pos;
-    while (pos < bytes.length && !_isWhite(bytes[pos]) && !_isDelimiter(bytes[pos])) {
+    while (pos < bytes.length &&
+        !_isWhite(bytes[pos]) &&
+        !_isDelimiter(bytes[pos])) {
       pos++;
     }
     return latin1.decode(Uint8List.sublistView(bytes, start, pos));
@@ -169,7 +176,10 @@ final class PdfReader {
       pos = start + length;
       skipWhitespace();
       if (_matches('endstream')) {
-        return PdfStream(dict, Uint8List.sublistView(bytes, start, start + length));
+        return PdfStream(
+          dict,
+          Uint8List.sublistView(bytes, start, start + length),
+        );
       }
     }
 
@@ -245,7 +255,9 @@ final class PdfReader {
   PdfRaw _readName() {
     final start = pos;
     pos++;
-    while (pos < bytes.length && !_isWhite(bytes[pos]) && !_isDelimiter(bytes[pos])) {
+    while (pos < bytes.length &&
+        !_isWhite(bytes[pos]) &&
+        !_isDelimiter(bytes[pos])) {
       pos++;
     }
     return PdfRaw(latin1.decode(Uint8List.sublistView(bytes, start, pos)));
@@ -257,7 +269,9 @@ final class PdfReader {
     while (true) {
       skipWhitespace();
       if (pos >= bytes.length) _corrupt('unterminated dictionary');
-      if (bytes[pos] == 0x3E && pos + 1 < bytes.length && bytes[pos + 1] == 0x3E) {
+      if (bytes[pos] == 0x3E &&
+          pos + 1 < bytes.length &&
+          bytes[pos + 1] == 0x3E) {
         pos += 2;
         return dict;
       }
@@ -339,7 +353,9 @@ final class PdfReader {
             if (e >= 0x30 && e <= 0x37) {
               var value = e - 0x30;
               for (var i = 0; i < 2; i++) {
-                if (pos < bytes.length && bytes[pos] >= 0x30 && bytes[pos] <= 0x37) {
+                if (pos < bytes.length &&
+                    bytes[pos] >= 0x30 &&
+                    bytes[pos] <= 0x37) {
                   value = value * 8 + (bytes[pos++] - 0x30);
                 } else {
                   break;
@@ -433,7 +449,8 @@ final class PdfWriter {
   void _dict(PdfDict dict, {required bool encrypt}) {
     // A signature's /Contents is never encrypted (ISO 32000-2, 7.6.2).
     final isSignature =
-        dict.entries.containsKey('/ByteRange') || dict.nameOf('/Type') == '/Sig';
+        dict.entries.containsKey('/ByteRange') ||
+        dict.nameOf('/Type') == '/Sig';
     raw('<<');
     dict.entries.forEach((key, value) {
       raw(key);
@@ -444,7 +461,12 @@ final class PdfWriter {
     raw('>>');
   }
 
-  void indirect(int number, int generation, PdfObj value, {bool encrypt = true}) {
+  void indirect(
+    int number,
+    int generation,
+    PdfObj value, {
+    bool encrypt = true,
+  }) {
     raw('$number $generation obj\n');
     object(value, encrypt: encrypt);
     raw('\nendobj\n');

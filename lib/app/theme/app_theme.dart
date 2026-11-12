@@ -109,7 +109,9 @@ abstract final class AppTheme {
       snackBarTheme: SnackBarThemeData(
         backgroundColor: c.ink,
         contentTextStyle: DocNookText.body.copyWith(color: c.paper),
-        actionTextColor: c.isDark ? DocNookColors.light.accent : DocNookColors.dark.accent,
+        actionTextColor: c.isDark
+            ? DocNookColors.light.accent
+            : DocNookColors.dark.accent,
         behavior: SnackBarBehavior.floating,
         elevation: 0,
         shape: const RoundedRectangleBorder(borderRadius: Radii.cardAll),
@@ -156,7 +158,8 @@ abstract final class AppTheme {
       ),
       checkboxTheme: CheckboxThemeData(
         fillColor: WidgetStateProperty.resolveWith(
-          (s) => s.contains(WidgetState.selected) ? c.primary : Colors.transparent,
+          (s) =>
+              s.contains(WidgetState.selected) ? c.primary : Colors.transparent,
         ),
         checkColor: WidgetStatePropertyAll(c.onPrimary),
         side: BorderSide(color: c.inkMuted, width: 1.5),
@@ -213,7 +216,9 @@ abstract final class AppTheme {
     statusBarIconBrightness: c.isDark ? Brightness.light : Brightness.dark,
     statusBarBrightness: c.brightness,
     systemNavigationBarColor: Colors.transparent,
-    systemNavigationBarIconBrightness: c.isDark ? Brightness.light : Brightness.dark,
+    systemNavigationBarIconBrightness: c.isDark
+        ? Brightness.light
+        : Brightness.dark,
     systemNavigationBarContrastEnforced: false,
   );
 

@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+
 /// Every way a DocNook operation can fail. Each kind maps to exactly one
 /// friendly message and one next-step action in the UI (BLUEPRINT 5.2).
 enum FailureKind {
@@ -12,10 +14,11 @@ enum FailureKind {
   unknown,
 }
 
-/// A failure carried through [Result]. Pure data: safe to send across isolates.
+/// A failure carried through `Result`. Pure data: safe to send across isolates.
 ///
 /// [debugDetail] is for debug builds only. It must never hold file paths,
 /// document content or passwords, because release logs record only [kind].
+@immutable
 final class DocNookFailure implements Exception {
   const DocNookFailure(this.kind, {this.debugDetail});
 
@@ -23,8 +26,7 @@ final class DocNookFailure implements Exception {
     : this(FailureKind.unsupported, debugDetail: detail);
   const DocNookFailure.corrupt({String? detail})
     : this(FailureKind.corrupt, debugDetail: detail);
-  const DocNookFailure.passwordRequired()
-    : this(FailureKind.passwordRequired);
+  const DocNookFailure.passwordRequired() : this(FailureKind.passwordRequired);
   const DocNookFailure.wrongPassword() : this(FailureKind.wrongPassword);
   const DocNookFailure.tooLarge({String? detail})
     : this(FailureKind.tooLarge, debugDetail: detail);

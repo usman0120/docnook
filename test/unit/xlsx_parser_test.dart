@@ -8,7 +8,8 @@ import 'package:docnook/domain/sheetmodel/sheet_model.dart';
 import 'package:docnook/engines/office/xlsx/xlsx_parser.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-const _ns = 'xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '
+const _ns =
+    'xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '
     'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"';
 
 /// Builds an .xlsx in memory from raw part XML.
@@ -32,18 +33,12 @@ Uint8List buildXlsx({
   );
   add(
     'xl/workbook.xml',
-    '<?xml version="1.0"?><workbook $_ns>$workbookPr<sheets>${[
-      for (var i = 0; i < names.length; i++)
-        '<sheet name="${names[i]}" sheetId="${i + 1}" r:id="rId${i + 1}"'
-            '${sheetStates.containsKey(names[i]) ? ' state="${sheetStates[names[i]]}"' : ''}/>',
-    ].join()}</sheets></workbook>',
+    '<?xml version="1.0"?><workbook $_ns>$workbookPr<sheets>${[for (var i = 0; i < names.length; i++) '<sheet name="${names[i]}" sheetId="${i + 1}" r:id="rId${i + 1}"'
+          '${sheetStates.containsKey(names[i]) ? ' state="${sheetStates[names[i]]}"' : ''}/>'].join()}</sheets></workbook>',
   );
   add(
     'xl/_rels/workbook.xml.rels',
-    '<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${[
-      for (var i = 0; i < names.length; i++)
-        '<Relationship Id="rId${i + 1}" Type="x" Target="worksheets/sheet${i + 1}.xml"/>',
-    ].join()}</Relationships>',
+    '<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${[for (var i = 0; i < names.length; i++) '<Relationship Id="rId${i + 1}" Type="x" Target="worksheets/sheet${i + 1}.xml"/>'].join()}</Relationships>',
   );
   for (var i = 0; i < names.length; i++) {
     add(
@@ -58,7 +53,10 @@ Uint8List buildXlsx({
     );
   }
   if (stylesXml != null) {
-    add('xl/styles.xml', '<?xml version="1.0"?><styleSheet $_ns>$stylesXml</styleSheet>');
+    add(
+      'xl/styles.xml',
+      '<?xml version="1.0"?><styleSheet $_ns>$stylesXml</styleSheet>',
+    );
   }
   return Uint8List.fromList(ZipEncoder().encode(archive));
 }
@@ -90,7 +88,10 @@ void main() {
   test('reads values of every cell type', () {
     final wb = XlsxParser.parseBytes(
       buildXlsx(
-        sharedStrings: ['<t>Name</t>', '<r><t>Rich </t></r><r><t>text</t></r><rPh><t>ignored</t></rPh>'],
+        sharedStrings: [
+          '<t>Name</t>',
+          '<r><t>Rich </t></r><r><t>text</t></r><rPh><t>ignored</t></rPh>',
+        ],
         sheets: {
           'Data': '''
 <sheetData>
@@ -164,8 +165,20 @@ void main() {
     expect(money.hasBorder, isTrue);
     expect(NumberFormatter.format(1234.5, money.formatCode), 'Rs 1,234.50');
 
-    expect(NumberFormatter.format(45000, wb.styleAt(sheet.styleIdAt(0, 1)).formatCode), '15/03/2023');
-    expect(NumberFormatter.format(0.256, wb.styleAt(sheet.styleIdAt(0, 2)).formatCode), '25.60%');
+    expect(
+      NumberFormatter.format(
+        45000,
+        wb.styleAt(sheet.styleIdAt(0, 1)).formatCode,
+      ),
+      '15/03/2023',
+    );
+    expect(
+      NumberFormatter.format(
+        0.256,
+        wb.styleAt(sheet.styleIdAt(0, 2)).formatCode,
+      ),
+      '25.60%',
+    );
 
     // A styled but empty cell is kept so its fill and border still draw.
     expect(sheet.styleIdAt(2, 1), 1);
@@ -179,9 +192,11 @@ void main() {
         workbookPr: '<workbookPr date1904="1"/>',
         sheetStates: {'Secret': 'hidden'},
         sheets: {
-          'First': '<sheetData><row r="1"><c r="A1"><v>1</v></c></row></sheetData>',
+          'First':
+              '<sheetData><row r="1"><c r="A1"><v>1</v></c></row></sheetData>',
           'Secret': '<sheetData/>',
-          'Third': '<sheetData><row r="5"><c r="C5"><v>9</v></c></row></sheetData>',
+          'Third':
+              '<sheetData><row r="5"><c r="C5"><v>9</v></c></row></sheetData>',
         },
       ),
     );
@@ -196,7 +211,8 @@ void main() {
     final wb = XlsxParser.parseBytes(
       buildXlsx(
         sheets: {
-          'S': '<sheetData><row><c><v>1</v></c><c><v>2</v></c></row><row><c><v>3</v></c></row></sheetData>',
+          'S':
+              '<sheetData><row><c><v>1</v></c><c><v>2</v></c></row><row><c><v>3</v></c></row></sheetData>',
         },
       ),
     );
@@ -216,7 +232,10 @@ void main() {
       rows.write('</row>');
     }
     rows.write('</sheetData>');
-    final wb = XlsxParser.parseBytes(buildXlsx(sheets: {'Big': rows.toString()}), maxCells: 250);
+    final wb = XlsxParser.parseBytes(
+      buildXlsx(sheets: {'Big': rows.toString()}),
+      maxCells: 250,
+    );
     expect(wb.truncated, isTrue);
     expect(wb.cellCount, 250);
   });
@@ -240,15 +259,20 @@ void main() {
       }
     }
     expect(
-      () => XlsxParser.parseBytes(Uint8List.fromList(ZipEncoder().encode(rebuilt))),
+      () => XlsxParser.parseBytes(
+        Uint8List.fromList(ZipEncoder().encode(rebuilt)),
+      ),
       throwsA(const DocNookFailure.corrupt()),
     );
   });
 
   test('a ZIP that is not a workbook is reported as corrupt', () {
-    final archive = Archive()..addFile(ArchiveFile('hello.txt', 2, utf8.encode('hi')));
+    final archive = Archive()
+      ..addFile(ArchiveFile('hello.txt', 2, utf8.encode('hi')));
     expect(
-      () => XlsxParser.parseBytes(Uint8List.fromList(ZipEncoder().encode(archive))),
+      () => XlsxParser.parseBytes(
+        Uint8List.fromList(ZipEncoder().encode(archive)),
+      ),
       throwsA(const DocNookFailure.corrupt()),
     );
     expect(

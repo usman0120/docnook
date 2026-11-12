@@ -59,3 +59,40 @@ last publish date and manifest permissions (CLAUDE.md rule 3).
   and zip-slip guards). All XML goes through `xmlEvents`, which rejects any DOCTYPE.
 - Excel's built-in date format (id 14) is locale-dependent; DocNook shows it
   day-first (`dd/mm/yyyy`) to match the target market.
+
+## 2026-11-12 — Toolchain and core packages
+
+- Flutter upgraded to **3.47.9** (Dart 3.13.7).
+- Each package below was checked for licence and manifest permissions. None of the
+  plugin libraries declares a permission; only their example apps request INTERNET,
+  which does not reach DocNook. `tool/check.sh` still verifies the merged manifest.
+
+| Package | Version | Licence | Why |
+| --- | --- | --- | --- |
+| flutter_riverpod | 3.5.0 | MIT | State management (BLUEPRINT 4.1) |
+| go_router | 18.1.4 | BSD-3 | Routing, deep links from intents |
+| drift / drift_dev | 2.35.x | MIT | Typed SQLite, migrations, FTS5 |
+| sqlite3 (via drift) | 3.x | MIT | Native SQLite now ships through Dart build hooks. `sqlite3_flutter_libs` is end-of-life (`0.6.0+eol`) and was **not** added. |
+| path_provider, path | 2.1.x, 1.9.x | BSD-3 | App directories |
+| pdfrx | 2.12.0 | MIT (PDFium: BSD/Apache) | PDF render, text, search (BLUEPRINT 4.2) |
+| pointycastle | 4.0.0 | MIT | AES/SHA for the PDF security writer |
+| archive | 4.6.0 | MIT | ZIP for every Office/EPUB format |
+| xml | 7.1.x | MIT | Event-based XML parsing |
+| phosphor_flutter | 2.1.0 | MIT | The single icon family (BLUEPRINT 9.3) |
+| intl, flutter_localizations | SDK | BSD-3 | English ARB strings |
+| meta | 1.x | BSD-3 | `@immutable` in pure-Dart domain code |
+| very_good_analysis (dev) | 11.0.0 | MIT | Strict lints; a few purely stylistic rules relaxed in `analysis_options.yaml` |
+| build_runner, mocktail (dev) | — | BSD-3 / MIT | Codegen, test doubles |
+
+## 2026-11-12 — Spike D: DOCX → DocModel — PASSED (desktop)
+
+- `lib/engines/office/docx/` parses styles (with `basedOn` inheritance and document
+  defaults), numbering (bullets, nested decimal/letter/roman, restarts), tables (grid
+  widths, horizontal spans, vertical merges, shading, nesting), pictures (PNG/JPEG/GIF/
+  BMP/WebP; EMF/WMF dropped), hyperlinks, page breaks, sections with page size,
+  headers/footers (simplified to text), footnotes (listed at the end), tracked
+  changes (insertions kept, deletions dropped), text boxes (flattened, flagged
+  "simplified").
+- A 30-page Word file made with python-docx (`test/fixtures/handbook_30p.docx`,
+  generated, not personal) parses in ~45 ms on the build PC (warm), ~200 ms cold.
+- Not yet done: the Flutter renderer for DocModel (Phase 4).

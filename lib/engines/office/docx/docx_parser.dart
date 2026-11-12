@@ -118,7 +118,12 @@ final class _DocxReader {
       _pull = savedPull;
       _usePart('word/document.xml');
       sections.add(
-        DocSection(blocks: blocks, page: props.page, header: header, footer: footer),
+        DocSection(
+          blocks: blocks,
+          page: props.page,
+          header: header,
+          footer: footer,
+        ),
       );
       blocks = <Block>[];
     }
@@ -166,7 +171,9 @@ final class _DocxReader {
       final id = event.attr('Id');
       final target = event.attr('Target');
       if (id == null || target == null) continue;
-      result[id] = event.attr('TargetMode') == 'External' ? 'external:$target' : target;
+      result[id] = event.attr('TargetMode') == 'External'
+          ? 'external:$target'
+          : target;
     }
     return result;
   }
@@ -175,7 +182,9 @@ final class _DocxReader {
   String? _partPath(String? relId) {
     final target = _rels[relId];
     if (target == null || target.startsWith('external:')) return null;
-    final raw = target.startsWith('/') ? target.substring(1) : '$_partDir$target';
+    final raw = target.startsWith('/')
+        ? target.substring(1)
+        : '$_partDir$target';
     final parts = <String>[];
     for (final part in raw.split('/')) {
       if (part == '..') {
@@ -204,7 +213,8 @@ final class _DocxReader {
     _pull = XmlPull(xml);
     final blocks = <Block>[];
     final root = _pull.find(rootName);
-    if (root != null) _pull.children(root, (child) => _blockChild(child, blocks));
+    if (root != null)
+      _pull.children(root, (child) => _blockChild(child, blocks));
     // Keep only what a simplified header can show: non-empty text lines.
     return [
       for (final block in blocks)
@@ -235,10 +245,9 @@ final class _DocxReader {
     if (_footnoteOrder.isEmpty) return;
     const small = RunStyle(fontSize: 9);
     blocks.add(
-      const Paragraph(
-        [TextRun('Footnotes', RunStyle(bold: true, fontSize: 10))],
-        style: ParagraphStyle(spaceBefore: 18, spaceAfter: 4),
-      ),
+      const Paragraph([
+        TextRun('Footnotes', RunStyle(bold: true, fontSize: 10)),
+      ], style: ParagraphStyle(spaceBefore: 18, spaceAfter: 4)),
     );
     for (var i = 0; i < _footnoteOrder.length; i++) {
       final content = _footnotes[_footnoteOrder[i]] ?? const [];
@@ -247,10 +256,9 @@ final class _DocxReader {
           if (block is Paragraph) block.plainText.trim(),
       ].where((t) => t.isNotEmpty).join(' ');
       blocks.add(
-        Paragraph(
-          [TextRun('${i + 1}. $text', small)],
-          style: const ParagraphStyle(spaceAfter: 2),
-        ),
+        Paragraph([
+          TextRun('${i + 1}. $text', small),
+        ], style: const ParagraphStyle(spaceAfter: 2)),
       );
     }
   }
@@ -307,7 +315,9 @@ final class _DocxReader {
 
     final inlines = _mergeRuns(context.inlines);
     final pictures = inlines.whereType<InlineImage>().toList();
-    final hasText = inlines.any((i) => i is TextRun && i.text.trim().isNotEmpty);
+    final hasText = inlines.any(
+      (i) => i is TextRun && i.text.trim().isNotEmpty,
+    );
 
     if (pictures.isNotEmpty && !hasText) {
       // A paragraph that only holds pictures becomes picture blocks.
@@ -357,7 +367,10 @@ final class _DocxReader {
     for (final inline in inlines) {
       final last = merged.isEmpty ? null : merged.last;
       if (inline is TextRun && last is TextRun && inline.style == last.style) {
-        merged[merged.length - 1] = TextRun(last.text + inline.text, last.style);
+        merged[merged.length - 1] = TextRun(
+          last.text + inline.text,
+          last.style,
+        );
       } else {
         merged.add(inline);
       }
@@ -367,7 +380,11 @@ final class _DocxReader {
 
   // --------------------------------------------------------------- inlines
 
-  void _inlineChild(XmlStartElementEvent element, _ParagraphContext context, String? link) {
+  void _inlineChild(
+    XmlStartElementEvent element,
+    _ParagraphContext context,
+    String? link,
+  ) {
     switch (element.localName) {
       case 'r':
         _readRun(element, context, link);
@@ -377,26 +394,45 @@ final class _DocxReader {
         final href = target != null
             ? (target.startsWith('external:') ? target.substring(9) : target)
             : (anchor != null ? '#$anchor' : null);
-        _pull.children(element, (child) => _inlineChild(child, context, href ?? link));
-      case 'ins' || 'moveTo' || 'smartTag' || 'fldSimple' || 'customXml' || 'dir' || 'bdo':
+        _pull.children(
+          element,
+          (child) => _inlineChild(child, context, href ?? link),
+        );
+      case 'ins' ||
+          'moveTo' ||
+          'smartTag' ||
+          'fldSimple' ||
+          'customXml' ||
+          'dir' ||
+          'bdo':
         _pull.children(element, (child) => _inlineChild(child, context, link));
       case 'sdt':
         _pull.children(element, (child) {
           if (child.localName == 'sdtContent') {
-            _pull.children(child, (inner) => _inlineChild(inner, context, link));
+            _pull.children(
+              child,
+              (inner) => _inlineChild(inner, context, link),
+            );
           }
         });
       case 'AlternateContent':
         _pull.children(element, (child) {
           if (child.localName == 'Choice') {
-            _pull.children(child, (inner) => _inlineChild(inner, context, link));
+            _pull.children(
+              child,
+              (inner) => _inlineChild(inner, context, link),
+            );
           }
         });
       // 'del' and 'moveFrom' hold removed text and are skipped.
     }
   }
 
-  void _readRun(XmlStartElementEvent element, _ParagraphContext context, String? link) {
+  void _readRun(
+    XmlStartElementEvent element,
+    _ParagraphContext context,
+    String? link,
+  ) {
     var props = context.styleRun;
     RunStyle? style;
     final text = StringBuffer();
@@ -406,7 +442,9 @@ final class _DocxReader {
     void flush() {
       if (text.isEmpty) return;
       if (!(props.hidden ?? false)) {
-        final value = (props.caps ?? false) ? text.toString().toUpperCase() : text.toString();
+        final value = (props.caps ?? false)
+            ? text.toString().toUpperCase()
+            : text.toString();
         context.inlines.add(TextRun(value, currentStyle()));
       }
       text.clear();
@@ -532,7 +570,9 @@ final class _DocxReader {
       }
       // Size comes from the drawing; fall back to a sensible default.
       final w = picture.width > 0 ? picture.width : (width > 0 ? width : 240.0);
-      final h = picture.height > 0 ? picture.height : (height > 0 ? height : 180.0);
+      final h = picture.height > 0
+          ? picture.height
+          : (height > 0 ? height : 180.0);
       context.inlines.add(InlineImage(id, width: w, height: h));
     }
   }
@@ -544,7 +584,9 @@ final class _DocxReader {
     if (path == null) return null;
     if (_images.containsKey(path)) return path;
     final dot = path.lastIndexOf('.');
-    final mime = dot < 0 ? null : _imageMimes[path.substring(dot + 1).toLowerCase()];
+    final mime = dot < 0
+        ? null
+        : _imageMimes[path.substring(dot + 1).toLowerCase()];
     if (mime == null) return null;
     final size = _zip.sizeOf(path);
     if (size == 0 || _imageBytes + size > _maxImageBytes) return null;
@@ -580,7 +622,10 @@ final class _DocxReader {
             _pull.children(child, (p) {
               switch (p.localName) {
                 case 'gridSpan':
-                  span = (int.tryParse(p.attr('w:val') ?? '') ?? 1).clamp(1, 63);
+                  span = (int.tryParse(p.attr('w:val') ?? '') ?? 1).clamp(
+                    1,
+                    63,
+                  );
                 case 'vMerge':
                   merge = p.attr('w:val') ?? 'continue';
                 case 'shd':
@@ -620,7 +665,8 @@ final class _DocxReader {
             readCell(child);
           case 'sdt':
             _pull.children(child, (inner) {
-              if (inner.localName == 'sdtContent') _pull.children(inner, rowChild);
+              if (inner.localName == 'sdtContent')
+                _pull.children(inner, rowChild);
             });
         }
       }
@@ -641,7 +687,8 @@ final class _DocxReader {
           });
         case 'tblGrid':
           _pull.children(child, (g) {
-            if (g.localName == 'gridCol') widths.add(Units.twips(g.attr('w:w')));
+            if (g.localName == 'gridCol')
+              widths.add(Units.twips(g.attr('w:w')));
           });
         case 'tr':
           readRow(child);

@@ -68,8 +68,16 @@ abstract final class DocNookText {
   /// fields, menus) pick up the same type without per-widget overrides.
   static TextTheme textTheme(Color ink, Color inkMuted) => TextTheme(
     headlineMedium: screenTitle.copyWith(color: ink),
-    headlineSmall: screenTitle.copyWith(color: ink, fontSize: 22, height: 28 / 22),
-    titleLarge: sectionTitle.copyWith(color: ink, fontSize: 19, height: 26 / 19),
+    headlineSmall: screenTitle.copyWith(
+      color: ink,
+      fontSize: 22,
+      height: 28 / 22,
+    ),
+    titleLarge: sectionTitle.copyWith(
+      color: ink,
+      fontSize: 19,
+      height: 26 / 19,
+    ),
     titleMedium: sectionTitle.copyWith(color: ink),
     titleSmall: bodyStrong.copyWith(color: ink),
     bodyLarge: body.copyWith(color: ink),
