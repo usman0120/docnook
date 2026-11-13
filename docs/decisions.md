@@ -275,3 +275,19 @@ ask first). Fallback path still needs an emulator without Play services.
   Manual mode and generated pages only.
 - Re-rendering a page preview after a crop took about 4 s on the A06; previews are
   now 1280 px on the long edge (was 1600), still sharper than the 720 px screen.
+
+## 2026-11-13 — Files deleted outside DocNook
+
+- Found during cleanup: deleting files in another app left them in DocNook's
+  library, because missing files were only detected by a full discovery run, which
+  needs all-files access.
+- Now a presence check runs at start and whenever the app returns to the foreground.
+  File paths are checked with `stat` in a JobRunner isolate; content URIs are queried
+  through the Kotlin glue (`urisExist`). A deleted MediaStore item queries empty and a
+  deleted SAF document throws FileNotFound/IllegalArgument: both count as gone.
+  Anything uncertain (revoked grant, no permission) counts as present, so DocNook
+  never hides a file it merely can't see.
+- Without storage access Android reports other apps' files as absent, so file paths
+  are checked then only inside Documents/DocNook and DocNook's private folders.
+- Gone documents are marked `is_missing` (schema unchanged): hidden from Files and
+  search, shown greyed in Recents and collections, and restored if found again.

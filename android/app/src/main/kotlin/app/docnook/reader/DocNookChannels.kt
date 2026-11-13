@@ -211,6 +211,9 @@ class DocNookChannels(
             }
             "sdkInt" -> result.success(Build.VERSION.SDK_INT)
             "tesseractAvailable" -> result.success(Tesseract.AVAILABLE)
+            "urisExist" -> background(result) {
+                urisExist(call.argument<List<String>>("uris")!!)
+            }
             "ocrTesseract" -> background(result) {
                 Tesseract.recognize(activity.applicationContext, call.argument<String>("path")!!)
             }
@@ -243,6 +246,30 @@ class DocNookChannels(
             } catch (e: Exception) {
                 activity.runOnUiThread { result.error("unknown", e.javaClass.simpleName, null) }
             }
+        }
+    }
+
+    /**
+     * Whether each content URI still points at a document. A deleted
+     * MediaStore item queries as empty; a deleted SAF document throws
+     * FileNotFound or IllegalArgument. Anything else (a revoked grant)
+     * counts as present, so DocNook never hides a file it merely can't see.
+     */
+    private fun urisExist(uris: List<String>): List<Boolean> = uris.map { raw ->
+        try {
+            activity.contentResolver.query(
+                Uri.parse(raw),
+                arrayOf(OpenableColumns.DISPLAY_NAME),
+                null,
+                null,
+                null,
+            )?.use { it.moveToFirst() } ?: true
+        } catch (e: java.io.FileNotFoundException) {
+            false
+        } catch (e: IllegalArgumentException) {
+            false
+        } catch (e: Exception) {
+            true
         }
     }
 

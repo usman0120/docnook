@@ -223,6 +223,18 @@ class PlatformChannel {
         'name': name,
       })).valueOrNull;
 
+  /// For each content URI, whether it still points at a document. Unknown
+  /// (for example, a revoked permission) counts as present.
+  Future<List<bool>> urisExist(List<String> uris) async {
+    if (uris.isEmpty) return const [];
+    final result = await _call<List<Object?>>('urisExist', {'uris': uris});
+    final list = result.valueOrNull;
+    if (list == null || list.length != uris.length) {
+      return List<bool>.filled(uris.length, true);
+    }
+    return [for (final v in list) v != false];
+  }
+
   Future<bool> hasAllFilesAccess() async =>
       (await _call<bool>('hasAllFilesAccess')).valueOrNull ?? false;
 

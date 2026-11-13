@@ -4,7 +4,9 @@ import 'package:docnook/app/providers.dart';
 import 'package:docnook/core/result.dart';
 import 'package:docnook/data/repositories/library_repository.dart';
 import 'package:docnook/engines/library/discovery.dart';
+import 'package:docnook/engines/library/presence.dart';
 import 'package:docnook/features/search/application/indexer.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// State of document discovery, shown as the "Finding documents…" banner.
@@ -59,8 +61,72 @@ final discoveryProvider = NotifierProvider<DiscoveryController, DiscoveryState>(
 class DiscoveryController extends Notifier<DiscoveryState> {
   @override
   DiscoveryState build() {
-    unawaited(refreshAccess(thenScan: true));
+    unawaited(_start());
+    // Files can be deleted in other apps while DocNook is in the background.
+    final lifecycle = AppLifecycleListener(
+      onResume: () => unawaited(checkPresence()),
+    );
+    ref.onDispose(lifecycle.dispose);
     return const DiscoveryState();
+  }
+
+  Future<void> _start() async {
+    await refreshAccess(thenScan: true);
+    await checkPresence();
+  }
+
+  bool _checking = false;
+
+  /// Marks documents whose files are gone (deleted or moved in another app).
+  /// Covers every known document, including ones opened from other apps or
+  /// saved by DocNook, which a discovery run doesn't see without storage
+  /// access.
+  Future<void> checkPresence() async {
+    if (_checking) return;
+    _checking = true;
+    try {
+      final library = ref.read(libraryRepositoryProvider);
+      final rows = await library.presentLocations();
+      // Without storage access Android reports other apps' files as absent,
+      // so only DocNook's own outputs and private files are checked then.
+      final paths = ref.read(appPathsProvider);
+      bool checkable(String path) =>
+          state.hasAccess ||
+          path.contains('/Documents/DocNook/') ||
+          path.startsWith(paths.files) ||
+          path.startsWith(paths.cache);
+      final files = [
+        for (final r in rows)
+          if (isFilePath(r.$2) && checkable(filePathOf(r.$2))) r,
+      ];
+      final content = [
+        for (final r in rows)
+          if (!isFilePath(r.$2)) r,
+      ];
+      final gone = <int>[];
+      if (files.isNotEmpty) {
+        final result = await ref.read(jobRunnerProvider).run(filesExist, [
+          for (final f in files) filePathOf(f.$2),
+        ]).result;
+        final exists = result.valueOrNull;
+        if (exists != null) {
+          for (var i = 0; i < files.length; i++) {
+            if (!exists[i]) gone.add(files[i].$1);
+          }
+        }
+      }
+      if (content.isNotEmpty) {
+        final exists = await ref.read(platformProvider).urisExist([
+          for (final c in content) c.$2,
+        ]);
+        for (var i = 0; i < content.length; i++) {
+          if (!exists[i]) gone.add(content[i].$1);
+        }
+      }
+      if (gone.isNotEmpty) await library.markMissing(gone);
+    } finally {
+      _checking = false;
+    }
   }
 
   Future<void> refreshAccess({bool thenScan = false}) async {

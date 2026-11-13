@@ -132,6 +132,32 @@ class LibraryRepository {
     );
   });
 
+  /// Id and location of every document not already marked missing, for the
+  /// presence check.
+  Future<List<(int, String)>> presentLocations() async {
+    final rows =
+        await (_db.selectOnly(_db.documents)
+              ..addColumns([_db.documents.id, _db.documents.uri])
+              ..where(_db.documents.isMissing.equals(false)))
+            .get();
+    return [
+      for (final r in rows)
+        (r.read(_db.documents.id)!, r.read(_db.documents.uri)!),
+    ];
+  }
+
+  /// Marks documents whose files were deleted or moved outside DocNook.
+  /// Their rows stay, so Recents and collections can say "no longer
+  /// available"; a later discovery or open that finds them clears the flag.
+  Future<void> markMissing(List<int> ids) async {
+    for (var i = 0; i < ids.length; i += 500) {
+      final chunk = ids.sublist(i, (i + 500).clamp(0, ids.length));
+      await (_db.update(_db.documents)..where((d) => d.id.isIn(chunk))).write(
+        const DocumentsCompanion(isMissing: Value(true)),
+      );
+    }
+  }
+
   static String _escapeLike(String s) =>
       s.replaceAll(r'\', r'\\').replaceAll('%', r'\%').replaceAll('_', r'\_');
 
