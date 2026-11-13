@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:docnook/app/l10n/generated/app_localizations.dart';
 import 'package:docnook/design_system/components/tab_bar.dart';
 import 'package:docnook/design_system/icons.dart';
 import 'package:docnook/design_system/tokens.dart';
 import 'package:docnook/design_system/typography.dart';
+import 'package:docnook/domain/scan/scan_models.dart';
 import 'package:docnook/features/library/presentation/files_screen.dart';
+import 'package:docnook/features/scan/presentation/scan_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -26,9 +30,8 @@ class AppShell extends ConsumerWidget {
       floatingActionButton: showScan
           ? _ScanButton(
               label: l.actionScan,
-              onPressed: () => ScaffoldMessenger.of(context)
-                ..hideCurrentSnackBar()
-                ..showSnackBar(SnackBar(content: Text(l.comingInPhase))),
+              onPressed: () =>
+                  unawaited(startScan(context, ref, ScanMode.document)),
             )
           : null,
       bottomNavigationBar: DocNookTabBar(

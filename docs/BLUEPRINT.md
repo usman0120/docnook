@@ -841,11 +841,11 @@ Claude Code writes all the code in ten phases; you install each phase's build on
 
 ### Phase 5 — Scan and OCR (2.5 weeks)
 
-- [ ] S23 capture via ML Kit; fallback camera with Dart edge detection and manual crop (`copyRectify`).
-- [ ] S24 review/edit: crop, rotate, filters (isolate), reorder, retake, add page; drafts saved in `scan_sessions`/`scan_pages`.
-- [ ] Modes: Document, ID card, Book.
-- [ ] S25 export to PDF/JPG with size presets.
-- [ ] OCR (ML Kit; Tesseract on the no-Google path); searchable PDF via invisible text layer from OCR line boxes; text stored in `doc_search`.
+- [x] S23 capture via ML Kit; fallback camera with Dart edge detection and manual crop (`copyRectify`).
+- [x] S24 review/edit: crop, rotate, filters (isolate), reorder, retake, add page; drafts saved in `scan_sessions`/`scan_pages`.
+- [x] Modes: Document, ID card, Book.
+- [x] S25 export to PDF/JPG with size presets.
+- [x] OCR (ML Kit; Tesseract on the no-Google path); searchable PDF via invisible text layer from OCR line boxes; text stored in `doc_search`.
 
 **Done when:** a 10-page scan with OCR exports in < 20 s, its text is selectable in Chrome, an ID card prints at real size, and killing the app mid-session restores the draft.
 

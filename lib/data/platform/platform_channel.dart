@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:docnook/core/failures.dart';
 import 'package:docnook/core/result.dart';
+import 'package:docnook/domain/scan/scan_models.dart';
 import 'package:flutter/services.dart';
 
 /// A file handed to DocNook by another app ("Open with" / "Share to").
@@ -121,7 +122,7 @@ class PlatformChannel {
 
   /// Streams a content URI into [dest] (app-private). Returns bytes copied.
   Future<Result<int>> copyToCache(String uri, String dest) async =>
-      (await _call<int>('copyToCache', {'uri': uri, 'dest': dest}));
+      await _call<int>('copyToCache', {'uri': uri, 'dest': dest});
 
   /// Publishes a finished file in `Documents/DocNook/<subdir>/`.
   Future<Result<SavedFile>> saveToDocuments({
@@ -230,6 +231,30 @@ class PlatformChannel {
 
   Future<void> setSecure({required bool on}) =>
       _call<void>('setSecure', {'on': on});
+
+  /// Tesseract OCR (direct APK only). Null when unavailable or failed.
+  Future<OcrPage?> ocrTesseract(String path) async {
+    final result = await _call<Map<Object?, Object?>>('ocrTesseract', {
+      'path': path,
+    });
+    final m = result.valueOrNull;
+    if (m == null) return null;
+    return OcrPage(
+      (m['width']! as num).toDouble(),
+      (m['height']! as num).toDouble(),
+      [
+        for (final raw in m['lines']! as List<Object?>)
+          if (raw case final Map<Object?, Object?> l)
+            OcrLine(
+              l['text']! as String,
+              (l['left']! as num).toDouble(),
+              (l['top']! as num).toDouble(),
+              (l['width']! as num).toDouble(),
+              (l['height']! as num).toDouble(),
+            ),
+      ],
+    );
+  }
 
   Future<int> sdkInt() async => (await _call<int>('sdkInt')).valueOrNull ?? 0;
 

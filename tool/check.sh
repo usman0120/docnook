@@ -31,7 +31,11 @@ fi
 step "Merged manifest: no network permissions"
 GRADLEW=./gradlew
 [[ "${OS:-}" == "Windows_NT" ]] && GRADLEW=./gradlew.bat
-(cd android && "$GRADLEW" -q :app:processPlayReleaseMainManifest :app:processDirectReleaseMainManifest)
+# Use the JDK Flutter builds with; a newer system JDK can be too new for
+# Gradle ("What went wrong: 27").
+FLUTTER_JAVA=$(flutter doctor -v 2>/dev/null | sed -n 's/.*Java binary at: \(.*\)[\/]bin[\/]java.*/\1/p' | head -n 1)
+[[ -n "$FLUTTER_JAVA" ]] && export JAVA_HOME="$FLUTTER_JAVA"
+(cd android && "$GRADLEW" -q :app:processPlayReleaseManifest :app:processDirectReleaseManifest)
 
 FAILED=0
 for flavor in playRelease directRelease; do

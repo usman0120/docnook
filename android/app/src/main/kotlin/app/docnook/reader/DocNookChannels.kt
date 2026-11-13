@@ -210,6 +210,10 @@ class DocNookChannels(
                 result.success(null)
             }
             "sdkInt" -> result.success(Build.VERSION.SDK_INT)
+            "tesseractAvailable" -> result.success(Tesseract.AVAILABLE)
+            "ocrTesseract" -> background(result) {
+                Tesseract.recognize(activity.applicationContext, call.argument<String>("path")!!)
+            }
             "totalMemoryMb" -> {
                 val info = android.app.ActivityManager.MemoryInfo()
                 (activity.getSystemService(Activity.ACTIVITY_SERVICE) as android.app.ActivityManager)

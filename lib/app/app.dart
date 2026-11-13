@@ -7,7 +7,9 @@ import 'package:docnook/app/theme/app_theme.dart';
 import 'package:docnook/data/platform/platform_channel.dart';
 import 'package:docnook/data/repositories/settings_repository.dart';
 import 'package:docnook/domain/entities/document_info.dart';
+import 'package:docnook/domain/scan/scan_models.dart';
 import 'package:docnook/features/library/application/library_controller.dart';
+import 'package:docnook/features/scan/presentation/scan_launcher.dart';
 import 'package:docnook/features/search/application/indexer.dart';
 import 'package:docnook/features/viewer/application/open_document.dart';
 import 'package:flutter/foundation.dart';
@@ -70,6 +72,14 @@ class _DocNookAppState extends ConsumerState<DocNookApp> {
           'merge' => '/tools',
           _ => '/home',
         });
+        if (id == 'scan') {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            final context = rootNavigatorKey.currentContext;
+            if (context != null && context.mounted) {
+              unawaited(startScan(context, ref, ScanMode.document));
+            }
+          });
+        }
       case SharedTextEvent():
         break;
     }

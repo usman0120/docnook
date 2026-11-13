@@ -1,10 +1,15 @@
+import 'dart:async';
+
 import 'package:docnook/app/l10n/generated/app_localizations.dart';
 import 'package:docnook/design_system/components/layout.dart';
 import 'package:docnook/design_system/components/tool_tile.dart';
 import 'package:docnook/design_system/icons.dart';
 import 'package:docnook/design_system/tokens.dart';
 import 'package:docnook/domain/entities/doc_type.dart';
+import 'package:docnook/domain/scan/scan_models.dart';
+import 'package:docnook/features/scan/presentation/scan_launcher.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// One entry of the Tools hub.
 final class ToolEntry {
@@ -25,7 +30,7 @@ final class ToolEntry {
 }
 
 /// S07 Tools hub: three groups of tool tiles.
-class ToolsScreen extends StatelessWidget {
+class ToolsScreen extends ConsumerWidget {
   const ToolsScreen({super.key});
 
   static List<(String, List<ToolEntry>)> groups(AppLocalizations l) => [
@@ -225,12 +230,21 @@ class ToolsScreen extends StatelessWidget {
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final c = context.colors;
     void later() => ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(l.comingInPhase)));
+    VoidCallback onTap(String id) => switch (id) {
+      'scanDoc' => () => unawaited(startScan(context, ref, ScanMode.document)),
+      'scanId' => () => unawaited(startScan(context, ref, ScanMode.idCard)),
+      'scanBook' => () => unawaited(startScan(context, ref, ScanMode.book)),
+      'scanOcr' => () => unawaited(
+        startScan(context, ref, ScanMode.document, ocr: true),
+      ),
+      _ => later,
+    };
 
     // Wider tiles at large text sizes so two lines of description still fit.
     final scale = MediaQuery.textScalerOf(context).scale(1);
@@ -262,7 +276,7 @@ class ToolsScreen extends StatelessWidget {
                 tint: tools[i].input == null
                     ? null
                     : c.fileType(tools[i].input!),
-                onTap: later,
+                onTap: onTap(tools[i].id),
               ),
             ),
           ),

@@ -39,6 +39,15 @@ android {
         versionName = flutter.versionName
     }
 
+    // ML Kit's and Tesseract's libraries ask for uncompressed native code,
+    // which roughly quadruples the APK. Compress it: the app starts only a
+    // little slower once, at install, and downloads are much smaller.
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
     flavorDimensions += "distribution"
     productFlavors {
         // Google Play build (AAB).
@@ -66,6 +75,10 @@ android {
 
     buildTypes {
         release {
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
             signingConfig = if (hasReleaseKey) {
                 signingConfigs.getByName("release")
             } else {
@@ -82,4 +95,6 @@ flutter {
 dependencies {
     // FileProvider for sharing outputs and "Open with another app".
     implementation("androidx.core:core-ktx:1.16.0")
+    // Tesseract OCR for phones without Google Play services; direct APK only.
+    "directImplementation"("cz.adaptech.tesseract4android:tesseract4android:4.9.0")
 }

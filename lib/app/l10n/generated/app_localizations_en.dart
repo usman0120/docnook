@@ -1096,4 +1096,256 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get privacyPromise =>
       'DocNook has no internet permission. Your documents never leave your phone unless you share them. No accounts, no ads, no tracking.';
+
+  @override
+  String get actionDone => 'Done';
+
+  @override
+  String get actionNext => 'Next';
+
+  @override
+  String get actionSave => 'Save';
+
+  @override
+  String get scanPageLimit => 'A scan can have up to 50 pages';
+
+  @override
+  String get scanAddFailed => 'Couldn\'t add that page. Try again.';
+
+  @override
+  String get scanIdHint =>
+      'Scan the front of the card first, then the back. Both sides are placed at real size on one page.';
+
+  @override
+  String get scanLoadErrorTitle => 'Couldn\'t open this scan';
+
+  @override
+  String get scanLoadErrorBody => 'Go back and try again.';
+
+  @override
+  String get scanGoneTitle => 'This scan has been saved or discarded';
+
+  @override
+  String get scanDiscard => 'Discard scan';
+
+  @override
+  String get scanDiscardTitle => 'Discard this scan?';
+
+  @override
+  String scanDiscardBody(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Its $n pages will be deleted.',
+      one: 'Its page will be deleted.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get scanNoPagesTitle => 'No pages yet';
+
+  @override
+  String get scanAddPage => 'Add page';
+
+  @override
+  String get scanCrop => 'Crop';
+
+  @override
+  String get scanRotate => 'Rotate';
+
+  @override
+  String get scanFilter => 'Filter';
+
+  @override
+  String get scanRetake => 'Retake';
+
+  @override
+  String get scanApplyToAll => 'Apply to all pages';
+
+  @override
+  String get scanDeletePageTitle => 'Delete this page?';
+
+  @override
+  String get scanFilterOriginal => 'Original';
+
+  @override
+  String get scanFilterDocument => 'Document';
+
+  @override
+  String get scanFilterGrayscale => 'Grayscale';
+
+  @override
+  String get scanFilterEnhanced => 'Enhanced colour';
+
+  @override
+  String scanPageLabel(int n) {
+    return 'Page $n';
+  }
+
+  @override
+  String get scanSplitLine => 'Split between pages. Drag to adjust.';
+
+  @override
+  String get scanCropAuto => 'Detect edges';
+
+  @override
+  String get scanCropFull => 'Whole photo';
+
+  @override
+  String get scanCornerTopLeft => 'Top-left corner';
+
+  @override
+  String get scanCornerTopRight => 'Top-right corner';
+
+  @override
+  String get scanCornerBottomRight => 'Bottom-right corner';
+
+  @override
+  String get scanCornerBottomLeft => 'Bottom-left corner';
+
+  @override
+  String get scanCameraFailed =>
+      'The camera couldn\'t start. Close other camera apps and try again.';
+
+  @override
+  String get scanCameraDenied =>
+      'DocNook needs the camera to scan. Allow it in Settings › Apps › DocNook › Permissions.';
+
+  @override
+  String get scanCameraMissing => 'This phone has no camera DocNook can use.';
+
+  @override
+  String get scanIdFront => 'Front of the card';
+
+  @override
+  String get scanIdBack => 'Back of the card';
+
+  @override
+  String get scanBookHint => 'Fit both pages of the open book in the frame';
+
+  @override
+  String get scanFlashOn => 'Turn on light';
+
+  @override
+  String get scanFlashOff => 'Turn off light';
+
+  @override
+  String get scanShutter => 'Take photo';
+
+  @override
+  String get scanModeDocument => 'Document';
+
+  @override
+  String get scanModeIdCard => 'ID card';
+
+  @override
+  String get scanModeBook => 'Book';
+
+  @override
+  String scanPagesCount(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n pages',
+      one: '1 page',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get scanSaveTitle => 'Save scan';
+
+  @override
+  String get scanFieldName => 'Name';
+
+  @override
+  String get scanFieldFormat => 'Format';
+
+  @override
+  String get scanFieldPageSize => 'Page size';
+
+  @override
+  String get scanFieldQuality => 'Quality';
+
+  @override
+  String get scanFieldCollection => 'Collection';
+
+  @override
+  String get scanSizeLetter => 'Letter';
+
+  @override
+  String get scanSizeFit => 'Fit to image';
+
+  @override
+  String get scanQualitySmall => 'Small';
+
+  @override
+  String get scanQualityBalanced => 'Balanced';
+
+  @override
+  String get scanQualityBest => 'Best';
+
+  @override
+  String scanEstimate(String size) {
+    return 'About $size';
+  }
+
+  @override
+  String get scanOcrToggle => 'Make text searchable';
+
+  @override
+  String get scanOcrHelp =>
+      'Reads English and other Latin-script text on your phone, so you can search and copy it.';
+
+  @override
+  String get scanNoCollection => 'None';
+
+  @override
+  String scanSaving(int percent) {
+    return 'Saving… $percent%';
+  }
+
+  @override
+  String get scanSaveFailed =>
+      'Couldn\'t save the scan. Your pages are kept; try again.';
+
+  @override
+  String get scanSaveNoSpace =>
+      'Your phone is out of space. Free some space and try again.';
+
+  @override
+  String get scanSavedTitle => 'Saved';
+
+  @override
+  String get scanSavedLocation => 'Documents › DocNook › Scans';
+
+  @override
+  String scanImagesCount(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n images',
+      one: '1 image',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get homeDraftTitle => 'Unfinished scan';
+
+  @override
+  String homeDraftDetails(int n, String when) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n pages',
+      one: '1 page',
+      zero: 'No pages yet',
+    );
+    return '$_temp0 · $when';
+  }
+
+  @override
+  String get homeDraftResume => 'Resume';
 }

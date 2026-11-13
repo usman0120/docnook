@@ -180,3 +180,71 @@ last publish date and manifest permissions (CLAUDE.md rule 3).
   (the grid cannot draw one cell across pinned and scrolling columns).
 - One black screen on the very first launch after install; not reproduced in later
   launches (graphics warm-up on this Mali GPU). Watch for it in testing.
+
+## 2026-11-13 — Phase 5: scanning and OCR
+
+Owner decisions (asked 2026-11-13):
+- Backup scanner for phones without Google services: **DocNook's own camera
+  screen** (live preview, flash, mode switch). Adds the `CAMERA` permission, which
+  the blueprint already listed as optional; it is asked only when that screen opens.
+- **Tesseract included** in the direct APK only.
+
+Packages (checked on pub.dev 2026-11-13; none needs an account or key):
+
+| Package | Version | Licence | Published | Manifest | Why |
+| --- | --- | --- | --- | --- | --- |
+| google_mlkit_document_scanner | 0.7.2 | MIT (plugin); ML Kit terms (SDK, free, no key) | 2026-11-10 | nothing extra; scanner runs in Play services | S23 primary capture: edge detection, crop, gallery import |
+| google_mlkit_text_recognition | 1.0.3 | MIT (plugin); ML Kit terms | 2026-11-13 | nothing extra | OCR with the bundled Latin model (works offline) |
+| camera | 0.12.2 (camera_android_camerax 0.7.6+1) | BSD-3-Clause | 2026-10-27 | CAMERA, RECORD_AUDIO, WRITE_EXTERNAL_STORAGE ≤28, camera.any feature | fallback camera screen |
+| image | 4.12.0 (was transitive) | MIT | 2026-10-11 | none (pure Dart) | crop/perspective, filters, JPEG in isolates |
+| Tesseract4Android (Gradle, direct flavor only) | 4.9.0 from JitPack | Apache-2.0 | — | none | OCR when ML Kit can't run |
+| tessdata_fast `eng.traineddata` | main | Apache-2.0 | — | — | English model, 4.1 MB, in `android/app/src/direct/assets` |
+
+Manifest handling (CLAUDE.md rule 1 still holds; `tool/check.sh` verifies it):
+- `RECORD_AUDIO` from the camera plugin is removed (`tools:node="remove"`); video is
+  never recorded. `android.hardware.camera.any` is marked not required, so phones
+  without a camera can still install DocNook.
+- ML Kit brings Google's usage-statistics uploader (datatransport). The app has no
+  network permission, so nothing can be sent. Its upload backend registration is
+  removed as well, so it never schedules upload jobs (Android 14+ refuses network
+  jobs from apps without network-state permission, which could otherwise crash).
+- JitPack is added as a Maven repository restricted to the
+  `cz.adaptech.tesseract4android` group.
+- R8 rules: `-dontwarn` for ML Kit's optional Chinese/Devanagari/Japanese/Korean
+  models (not bundled), `-keep` for Tesseract's JNI classes.
+- ML Kit and Tesseract ask for uncompressed native libraries, which made the APK
+  139 MB. `useLegacyPackaging = true` plus `extractNativeLibs="true"` compresses
+  them: the universal direct APK is 67.6 MB and the arm64 part about 28 MB
+  (was about 13 MB). The direct APK should be published per ABI
+  (`--split-per-abi`); Play splits the AAB itself.
+
+Design:
+- Capture: ML Kit scanner first; if it can't start (no Google Play services), DocNook's
+  camera screen. Mode (Document, ID card, Book) is chosen before capture (Tools tiles;
+  the Scan button means Document) because ML Kit's own screen can't host a switch;
+  the fallback camera shows the switch above the shutter as in S23.
+- Drafts (FR-SCAN-01): each page is written to `scan_sessions`/`scan_pages` and to
+  `files/scans/<id>/` as soon as it is captured. Home lists unfinished scans. The
+  page's crop corners and the Book-mode split point share `corners_json`
+  (`{"corners":[…8 numbers…],"split":0.52}`), so the shipped schema is unchanged.
+- Image work (`engines/scan/scan_image.dart`, pure Dart in JobRunner isolates):
+  EXIF upright, perspective crop with `copyRectify`, quarter-turn rotation, then
+  Book split, then filter. Document/Enhanced filters divide out uneven lighting
+  (a coarse grid of local paper brightness), so paper turns white.
+- Fallback edge detection: Otsu threshold, largest bright region, extreme corners;
+  falls back to the whole photo when the region is implausible. Book gutter: darkest
+  column band in the middle third, else the centre.
+- PDF (`engines/scan/scan_pdf_writer.dart`): pure-Dart writer that embeds each JPEG
+  as-is (DCTDecode) and adds an invisible text layer (render mode 3, Helvetica,
+  WinAnsi, per-line size and horizontal scale from the OCR box). Checked with pypdf:
+  text extracts in reading order at the right positions, including "café €5".
+- ID card: one page (A4, or Letter if chosen) with front and back at exactly
+  85.6 × 54 mm, centred, 40 mm from the top with a 20 mm gap; JPG export composes the
+  same sheet at 200 dpi.
+- OCR runs on the exported images (so boxes match), ML Kit first, Tesseract when ML
+  Kit fails. Text goes into `doc_search` per page (FR-SCAN-03).
+- Outputs go to `Documents/DocNook/Scans/` through MediaStore; the draft and its
+  photos are deleted after a successful save.
+
+Spike C status: ML Kit path builds; device test pending (owner's phone is shared;
+ask first). Fallback path still needs an emulator without Play services.

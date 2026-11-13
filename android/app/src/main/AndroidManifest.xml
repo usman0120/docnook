@@ -26,21 +26,32 @@
         android:name="android.permission.ACCESS_NETWORK_STATE"
         tools:node="remove" />
 
+    <!-- The camera plugin merges these in; DocNook never records audio. -->
+    <uses-permission
+        android:name="android.permission.RECORD_AUDIO"
+        tools:node="remove" />
+
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.any"
+        android:required="false"
+        tools:replace="android:required" />
 
     <application
         android:name="${applicationName}"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:enableOnBackInvokedCallback="true"
+        android:extractNativeLibs="true"
         android:fullBackupContent="false"
         android:icon="@mipmap/ic_launcher"
         android:label="DocNook"
         android:requestLegacyExternalStorage="true"
         android:usesCleartextTraffic="false"
-        tools:targetApi="33">
+        tools:targetApi="33"
+        tools:replace="android:extractNativeLibs">
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
@@ -117,6 +128,18 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <!-- ML Kit bundles Google's usage-statistics uploader. DocNook has no
+             network permission, so nothing could be sent anyway; removing
+             the upload backend also stops it from scheduling upload jobs,
+             which Android 14+ refuses without network-state permission. -->
+        <service
+            android:name="com.google.android.datatransport.runtime.backends.TransportBackendDiscovery"
+            android:exported="false">
+            <meta-data
+                android:name="backend:com.google.android.datatransport.cct.CctBackendFactory"
+                tools:node="remove" />
+        </service>
     </application>
 
     <queries>

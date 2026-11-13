@@ -2,8 +2,12 @@ import 'package:docnook/app/shell.dart';
 import 'package:docnook/features/home/presentation/home_screen.dart';
 import 'package:docnook/features/library/presentation/collection_screen.dart';
 import 'package:docnook/features/library/presentation/files_screen.dart';
-import 'package:docnook/features/search/presentation/search_screen.dart';
 import 'package:docnook/features/onboarding/presentation/onboarding_screen.dart';
+import 'package:docnook/features/scan/presentation/camera_screen.dart';
+import 'package:docnook/features/scan/presentation/scan_export_screen.dart';
+import 'package:docnook/features/scan/presentation/scan_launcher.dart';
+import 'package:docnook/features/scan/presentation/scan_review_screen.dart';
+import 'package:docnook/features/search/presentation/search_screen.dart';
 import 'package:docnook/features/settings/presentation/settings_screen.dart';
 import 'package:docnook/features/tools/presentation/tools_screen.dart';
 import 'package:docnook/features/viewer/application/open_document.dart';
@@ -61,6 +65,35 @@ GoRouter buildRouter({bool onboarded = true}) => GoRouter(
         final id = int.tryParse(state.pathParameters['id'] ?? '');
         if (id == null) return const _BadRoute();
         return CollectionScreen(id: id, name: state.extra as String? ?? '');
+      },
+    ),
+    GoRoute(
+      path: '/scan/:id',
+      parentNavigatorKey: rootNavigatorKey,
+      builder: (context, state) {
+        final id = int.tryParse(state.pathParameters['id'] ?? '');
+        if (id == null) return const _BadRoute();
+        return ScanReviewScreen(sessionId: id);
+      },
+      routes: [
+        GoRoute(
+          path: 'export',
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) {
+            final id = int.tryParse(state.pathParameters['id'] ?? '');
+            if (id == null) return const _BadRoute();
+            return ScanExportScreen(sessionId: id);
+          },
+        ),
+      ],
+    ),
+    GoRoute(
+      path: '/scan-camera',
+      parentNavigatorKey: rootNavigatorKey,
+      builder: (context, state) {
+        final args = state.extra;
+        if (args is! ScanCameraArgs) return const _BadRoute();
+        return ScanCameraScreen(args: args);
       },
     ),
     GoRoute(

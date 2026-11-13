@@ -2031,6 +2031,420 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'DocNook has no internet permission. Your documents never leave your phone unless you share them. No accounts, no ads, no tracking.'**
   String get privacyPromise;
+
+  /// No description provided for @actionDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get actionDone;
+
+  /// No description provided for @actionNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get actionNext;
+
+  /// No description provided for @actionSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get actionSave;
+
+  /// No description provided for @scanPageLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'A scan can have up to 50 pages'**
+  String get scanPageLimit;
+
+  /// No description provided for @scanAddFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t add that page. Try again.'**
+  String get scanAddFailed;
+
+  /// No description provided for @scanIdHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan the front of the card first, then the back. Both sides are placed at real size on one page.'**
+  String get scanIdHint;
+
+  /// No description provided for @scanLoadErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open this scan'**
+  String get scanLoadErrorTitle;
+
+  /// No description provided for @scanLoadErrorBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Go back and try again.'**
+  String get scanLoadErrorBody;
+
+  /// No description provided for @scanGoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This scan has been saved or discarded'**
+  String get scanGoneTitle;
+
+  /// No description provided for @scanDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard scan'**
+  String get scanDiscard;
+
+  /// No description provided for @scanDiscardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard this scan?'**
+  String get scanDiscardTitle;
+
+  /// No description provided for @scanDiscardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{Its page will be deleted.} other{Its {n} pages will be deleted.}}'**
+  String scanDiscardBody(int n);
+
+  /// No description provided for @scanNoPagesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No pages yet'**
+  String get scanNoPagesTitle;
+
+  /// No description provided for @scanAddPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add page'**
+  String get scanAddPage;
+
+  /// No description provided for @scanCrop.
+  ///
+  /// In en, this message translates to:
+  /// **'Crop'**
+  String get scanCrop;
+
+  /// No description provided for @scanRotate.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotate'**
+  String get scanRotate;
+
+  /// No description provided for @scanFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get scanFilter;
+
+  /// No description provided for @scanRetake.
+  ///
+  /// In en, this message translates to:
+  /// **'Retake'**
+  String get scanRetake;
+
+  /// No description provided for @scanApplyToAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply to all pages'**
+  String get scanApplyToAll;
+
+  /// No description provided for @scanDeletePageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this page?'**
+  String get scanDeletePageTitle;
+
+  /// No description provided for @scanFilterOriginal.
+  ///
+  /// In en, this message translates to:
+  /// **'Original'**
+  String get scanFilterOriginal;
+
+  /// No description provided for @scanFilterDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'Document'**
+  String get scanFilterDocument;
+
+  /// No description provided for @scanFilterGrayscale.
+  ///
+  /// In en, this message translates to:
+  /// **'Grayscale'**
+  String get scanFilterGrayscale;
+
+  /// No description provided for @scanFilterEnhanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Enhanced colour'**
+  String get scanFilterEnhanced;
+
+  /// No description provided for @scanPageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {n}'**
+  String scanPageLabel(int n);
+
+  /// No description provided for @scanSplitLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Split between pages. Drag to adjust.'**
+  String get scanSplitLine;
+
+  /// No description provided for @scanCropAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Detect edges'**
+  String get scanCropAuto;
+
+  /// No description provided for @scanCropFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Whole photo'**
+  String get scanCropFull;
+
+  /// No description provided for @scanCornerTopLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Top-left corner'**
+  String get scanCornerTopLeft;
+
+  /// No description provided for @scanCornerTopRight.
+  ///
+  /// In en, this message translates to:
+  /// **'Top-right corner'**
+  String get scanCornerTopRight;
+
+  /// No description provided for @scanCornerBottomRight.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottom-right corner'**
+  String get scanCornerBottomRight;
+
+  /// No description provided for @scanCornerBottomLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottom-left corner'**
+  String get scanCornerBottomLeft;
+
+  /// No description provided for @scanCameraFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The camera couldn\'t start. Close other camera apps and try again.'**
+  String get scanCameraFailed;
+
+  /// No description provided for @scanCameraDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'DocNook needs the camera to scan. Allow it in Settings › Apps › DocNook › Permissions.'**
+  String get scanCameraDenied;
+
+  /// No description provided for @scanCameraMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone has no camera DocNook can use.'**
+  String get scanCameraMissing;
+
+  /// No description provided for @scanIdFront.
+  ///
+  /// In en, this message translates to:
+  /// **'Front of the card'**
+  String get scanIdFront;
+
+  /// No description provided for @scanIdBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back of the card'**
+  String get scanIdBack;
+
+  /// No description provided for @scanBookHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Fit both pages of the open book in the frame'**
+  String get scanBookHint;
+
+  /// No description provided for @scanFlashOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on light'**
+  String get scanFlashOn;
+
+  /// No description provided for @scanFlashOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off light'**
+  String get scanFlashOff;
+
+  /// No description provided for @scanShutter.
+  ///
+  /// In en, this message translates to:
+  /// **'Take photo'**
+  String get scanShutter;
+
+  /// No description provided for @scanModeDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'Document'**
+  String get scanModeDocument;
+
+  /// No description provided for @scanModeIdCard.
+  ///
+  /// In en, this message translates to:
+  /// **'ID card'**
+  String get scanModeIdCard;
+
+  /// No description provided for @scanModeBook.
+  ///
+  /// In en, this message translates to:
+  /// **'Book'**
+  String get scanModeBook;
+
+  /// No description provided for @scanPagesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 page} other{{n} pages}}'**
+  String scanPagesCount(int n);
+
+  /// No description provided for @scanSaveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save scan'**
+  String get scanSaveTitle;
+
+  /// No description provided for @scanFieldName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get scanFieldName;
+
+  /// No description provided for @scanFieldFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Format'**
+  String get scanFieldFormat;
+
+  /// No description provided for @scanFieldPageSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Page size'**
+  String get scanFieldPageSize;
+
+  /// No description provided for @scanFieldQuality.
+  ///
+  /// In en, this message translates to:
+  /// **'Quality'**
+  String get scanFieldQuality;
+
+  /// No description provided for @scanFieldCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'Collection'**
+  String get scanFieldCollection;
+
+  /// No description provided for @scanSizeLetter.
+  ///
+  /// In en, this message translates to:
+  /// **'Letter'**
+  String get scanSizeLetter;
+
+  /// No description provided for @scanSizeFit.
+  ///
+  /// In en, this message translates to:
+  /// **'Fit to image'**
+  String get scanSizeFit;
+
+  /// No description provided for @scanQualitySmall.
+  ///
+  /// In en, this message translates to:
+  /// **'Small'**
+  String get scanQualitySmall;
+
+  /// No description provided for @scanQualityBalanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Balanced'**
+  String get scanQualityBalanced;
+
+  /// No description provided for @scanQualityBest.
+  ///
+  /// In en, this message translates to:
+  /// **'Best'**
+  String get scanQualityBest;
+
+  /// No description provided for @scanEstimate.
+  ///
+  /// In en, this message translates to:
+  /// **'About {size}'**
+  String scanEstimate(String size);
+
+  /// No description provided for @scanOcrToggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Make text searchable'**
+  String get scanOcrToggle;
+
+  /// No description provided for @scanOcrHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Reads English and other Latin-script text on your phone, so you can search and copy it.'**
+  String get scanOcrHelp;
+
+  /// No description provided for @scanNoCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get scanNoCollection;
+
+  /// No description provided for @scanSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving… {percent}%'**
+  String scanSaving(int percent);
+
+  /// No description provided for @scanSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save the scan. Your pages are kept; try again.'**
+  String get scanSaveFailed;
+
+  /// No description provided for @scanSaveNoSpace.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone is out of space. Free some space and try again.'**
+  String get scanSaveNoSpace;
+
+  /// No description provided for @scanSavedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get scanSavedTitle;
+
+  /// No description provided for @scanSavedLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Documents › DocNook › Scans'**
+  String get scanSavedLocation;
+
+  /// No description provided for @scanImagesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 image} other{{n} images}}'**
+  String scanImagesCount(int n);
+
+  /// No description provided for @homeDraftTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unfinished scan'**
+  String get homeDraftTitle;
+
+  /// No description provided for @homeDraftDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =0{No pages yet} =1{1 page} other{{n} pages}} · {when}'**
+  String homeDraftDetails(int n, String when);
+
+  /// No description provided for @homeDraftResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get homeDraftResume;
 }
 
 class _AppLocalizationsDelegate
