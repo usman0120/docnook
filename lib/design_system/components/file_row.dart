@@ -357,8 +357,9 @@ class FileTile extends StatelessWidget {
                     image: thumbnail,
                     width: constraints.maxWidth,
                   );
-                  if (heroTag != null)
+                  if (heroTag != null) {
                     thumb = Hero(tag: heroTag!, child: thumb);
+                  }
                   return Stack(
                     children: [
                       thumb,

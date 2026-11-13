@@ -88,14 +88,16 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
         1.8,
       );
       _theme = ReadingTheme.values.asNameMap()[prefs['theme']] ?? _theme;
-      if (book != null)
+      if (book != null) {
         _chapter = (saved?.chapter ?? 0).clamp(0, book.chapters.length - 1);
+      }
     });
     final offset = saved?.offset;
     if (offset != null && offset > 0) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (_scroll.hasClients)
+        if (_scroll.hasClients) {
           _scroll.jumpTo(offset * _scroll.position.maxScrollExtent);
+        }
       });
     }
     if (book != null) unawaited(_index(book));
@@ -113,8 +115,9 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
     if (!_scroll.hasClients) return;
     final max = _scroll.position.maxScrollExtent;
     final p = max <= 0 ? 1.0 : (_scroll.offset / max).clamp(0.0, 1.0);
-    if ((p - _chapterProgress).abs() > 0.01)
+    if ((p - _chapterProgress).abs() > 0.01) {
       setState(() => _chapterProgress = p);
+    }
     _saveTimer?.cancel();
     _saveTimer = Timer(
       const Duration(milliseconds: 800),
@@ -146,8 +149,9 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
       _chapterProgress = toEnd ? 1 : 0;
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scroll.hasClients)
+      if (_scroll.hasClients) {
         _scroll.jumpTo(toEnd ? _scroll.position.maxScrollExtent : 0);
+      }
     });
     unawaited(_save());
   }
@@ -162,12 +166,10 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
     } else if (direction < 0 && pos.pixels <= 2) {
       _goChapter(_chapter - 1, toEnd: true);
     } else {
-      unawaited(
-        _scroll.animateTo(
-          (pos.pixels + direction * step).clamp(0, pos.maxScrollExtent),
-          duration: Motion.of(context, Motion.fast),
-          curve: Motion.curve,
-        ),
+      _scroll.animateTo(
+        (pos.pixels + direction * step).clamp(0, pos.maxScrollExtent),
+        duration: Motion.of(context, Motion.fast),
+        curve: Motion.curve,
       );
     }
   }
@@ -307,8 +309,9 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
                               ),
                               itemCount: chapter.blocks.length + 1,
                               itemBuilder: (context, i) {
-                                if (i == chapter.blocks.length)
+                                if (i == chapter.blocks.length) {
                                   return _chapterEnd(book, l, muted);
+                                }
                                 return DocBlockView(
                                   block: chapter.blocks[i],
                                   doc: model,
@@ -353,8 +356,9 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
   }
 
   Widget _chapterEnd(EpubBook book, AppLocalizations l, Color muted) {
-    if (_chapter >= book.chapters.length - 1)
+    if (_chapter >= book.chapters.length - 1) {
       return const SizedBox(height: Space.x8);
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: Space.x8),
       child: Center(

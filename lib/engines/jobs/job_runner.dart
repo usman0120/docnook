@@ -153,7 +153,6 @@ class JobRunner {
           _entry<A, R>,
           _Start<A, R>(body, args, receive.sendPort),
           onExit: receive.sendPort,
-          errorsAreFatal: true,
           debugName: debugName,
         );
         if (cancelled || completer.isCompleted) {

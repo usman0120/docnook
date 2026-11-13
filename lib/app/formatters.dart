@@ -27,8 +27,9 @@ extension Formatters on AppLocalizations {
     final current = now ?? DateTime.now();
     final diff = current.difference(time);
     if (diff.inMinutes < 1 && !diff.isNegative) return timeJustNow;
-    if (diff.inMinutes < 60 && !diff.isNegative)
+    if (diff.inMinutes < 60 && !diff.isNegative) {
       return timeMinutesAgo(diff.inMinutes);
+    }
     final today = DateTime(current.year, current.month, current.day);
     final day = DateTime(time.year, time.month, time.day);
     final days = today.difference(day).inDays;
@@ -56,8 +57,9 @@ extension Formatters on AppLocalizations {
 
   String _typeName(DocumentInfo doc) {
     final ext = doc.extension;
-    if (ext != null && ext.isNotEmpty && ext.length <= 5)
+    if (ext != null && ext.isNotEmpty && ext.length <= 5) {
       return ext.toUpperCase();
+    }
     return switch (doc.type) {
       DocType.pdf => 'PDF',
       DocType.word => 'Word',

@@ -40,9 +40,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   void _next() {
     if (_page == 0) {
-      unawaited(
-        _pages.nextPage(duration: Motion.of(context), curve: Motion.curve),
-      );
+      _pages.nextPage(duration: Motion.of(context), curve: Motion.curve);
     } else {
       unawaited(_finish());
     }

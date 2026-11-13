@@ -44,12 +44,13 @@ final class _PptxReader {
   int _imageBytes = 0;
   double _width = 720;
   double _height = 540;
-  Map<String, int> _theme = Map.of(_themeColors);
+  final Map<String, int> _theme = Map.of(_themeColors);
 
   DocModel read() {
     final presentation = _zip.text('ppt/presentation.xml');
-    if (presentation == null)
+    if (presentation == null) {
       throw const DocNookFailure.corrupt(detail: 'pptx: presentation');
+    }
     final rels = _rels('ppt/_rels/presentation.xml.rels', 'ppt/');
     _readTheme();
 
@@ -80,8 +81,9 @@ final class _PptxReader {
       final frame = _slide(path);
       if (frame != null) slides.add(frame);
     }
-    if (slides.isEmpty)
+    if (slides.isEmpty) {
       throw const DocNookFailure.corrupt(detail: 'pptx: no slides');
+    }
     return DocModel(
       sections: [DocSection(blocks: slides)],
       images: _images,
@@ -121,8 +123,9 @@ final class _PptxReader {
       if (e is! XmlStartElementEvent || e.localName != 'Relationship') continue;
       final id = e.attr('Id');
       final target = e.attr('Target');
-      if (id == null || target == null || e.attr('TargetMode') == 'External')
+      if (id == null || target == null || e.attr('TargetMode') == 'External') {
         continue;
+      }
       out[id] = _resolve(dir, target);
     }
     return out;
@@ -255,7 +258,12 @@ final class _PptxReader {
           var gox = ox, goy = oy, gk = scale;
           pull.children(node, (g) {
             if (g.localName == 'grpSpPr') {
-              var gx = 0.0, gy = 0.0, chx = 0.0, chy = 0.0, gw = 0.0, chw = 0.0;
+              var gx = 0.0;
+              var gy = 0.0;
+              var chx = 0.0;
+              var chy = 0.0;
+              var gw = 0.0;
+              var chw = 0.0;
               pull.children(g, (xf) {
                 if (xf.localName != 'xfrm') return;
                 pull.children(xf, (v) {
@@ -290,8 +298,9 @@ final class _PptxReader {
         if (c.localName == 'bg') {
           pull.children(c, (bgPr) {
             pull.children(bgPr, (fill) {
-              if (fill.localName == 'solidFill')
+              if (fill.localName == 'solidFill') {
                 background = _color(pull, fill);
+              }
             });
           });
         } else if (c.localName == 'spTree') {
@@ -348,7 +357,10 @@ final class _PptxReader {
     double scale, {
     bool forceLine = false,
   }) {
-    double? x, y, w, h;
+    double? x;
+    double? y;
+    double? w;
+    double? h;
     String? phKey;
     var isTitle = false;
     var geometry = forceLine ? 'line' : 'rect';
@@ -425,10 +437,10 @@ final class _PptxReader {
       }
     }
     if (x == null || w == null || h == null) return null;
-    final rx = ox + x! * scale,
-        ry = oy + (y ?? 0) * scale,
-        rw = w! * scale,
-        rh = h! * scale;
+    final rx = ox + x! * scale;
+    final ry = oy + (y ?? 0) * scale;
+    final rw = w! * scale;
+    final rh = h! * scale;
 
     final hasText = paragraphs.any((p) => !p.isEmpty);
     if (hasText) {
@@ -452,8 +464,9 @@ final class _PptxReader {
     };
     if ((noFill || fill == null) &&
         stroke == null &&
-        kind != SlideShapeKind.line)
+        kind != SlideShapeKind.line) {
       return null;
+    }
     return SlideShape(
       rx,
       ry,
@@ -534,10 +547,11 @@ final class _PptxReader {
           runs.add(TextRun('\n', RunStyle(fontSize: defaultSize ?? 18)));
         case 'fld':
           pull.children(c, (rc) {
-            if (rc.localName == 't')
+            if (rc.localName == 't') {
               runs.add(
                 TextRun(pull.text(rc), RunStyle(fontSize: defaultSize ?? 18)),
               );
+            }
           });
       }
     });
@@ -565,7 +579,10 @@ final class _PptxReader {
     double scale,
   ) {
     String? rid;
-    double? x, y, w, h;
+    double? x;
+    double? y;
+    double? w;
+    double? h;
     void walk(XmlStartElementEvent e) {
       switch (e.localName) {
         case 'blip':

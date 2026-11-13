@@ -69,7 +69,7 @@ class DocumentRepository {
       );
       return existing.id;
     }
-    return _db
+    return await _db
         .into(_db.documents)
         .insert(
           DocumentsCompanion.insert(

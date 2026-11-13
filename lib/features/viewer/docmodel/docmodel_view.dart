@@ -58,8 +58,9 @@ final class DocRenderStyle {
     if (argb == null) return null;
     final color = Color(argb);
     // Very light fills on a dark page become a faint tint instead of a glare.
-    if (dark && color.computeLuminance() > 0.6)
+    if (dark && color.computeLuminance() > 0.6) {
       return color.withValues(alpha: 0.12);
+    }
     return color;
   }
 
@@ -319,14 +320,9 @@ class ParagraphView extends StatelessWidget {
 
     Widget body = rich;
     if (list != null) {
-      final markerStyle =
-          base(
-            p.inlines.whereType<TextRun>().firstOrNull?.style ?? RunStyle.plain,
-          ).copyWith(
-            fontWeight: FontWeight.w400,
-            decoration: TextDecoration.none,
-            backgroundColor: null,
-          );
+      final markerStyle = base(
+        p.inlines.whereType<TextRun>().firstOrNull?.style ?? RunStyle.plain,
+      ).copyWith(fontWeight: FontWeight.w400, decoration: TextDecoration.none);
       body = Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -370,7 +366,7 @@ class ParagraphView extends StatelessWidget {
         : 0.0;
     Widget result = Padding(
       padding: EdgeInsetsDirectional.only(
-        start: indent.toDouble(),
+        start: indent,
         end: (ps.indentEnd * 0.5).clamp(0, 60).toDouble(),
         top: math.max(ps.spaceBefore, level > 0 ? 10 : 0) * scale,
         bottom: math.max(ps.spaceAfter, level > 0 ? 4 : 6) * scale,
@@ -396,8 +392,9 @@ class ParagraphView extends StatelessWidget {
     TextStyle ts,
     GestureRecognizer? recognizer,
   ) {
-    if (matches.isEmpty || text.isEmpty)
+    if (matches.isEmpty || text.isEmpty) {
       return [TextSpan(text: text, style: ts, recognizer: recognizer)];
+    }
     final spans = <InlineSpan>[];
     var cursor = 0;
     final end = offset + text.length;
@@ -405,7 +402,7 @@ class ParagraphView extends StatelessWidget {
       if (m.end <= offset || m.start >= end) continue;
       final s = math.max(m.start - offset, cursor);
       final e = math.min(m.end - offset, text.length);
-      if (s > cursor)
+      if (s > cursor) {
         spans.add(
           TextSpan(
             text: text.substring(cursor, s),
@@ -413,6 +410,7 @@ class ParagraphView extends StatelessWidget {
             recognizer: recognizer,
           ),
         );
+      }
       final active =
           activeMatch != null &&
           activeMatch!.block == m.block &&
@@ -428,7 +426,7 @@ class ParagraphView extends StatelessWidget {
       );
       cursor = e;
     }
-    if (cursor < text.length)
+    if (cursor < text.length) {
       spans.add(
         TextSpan(
           text: text.substring(cursor),
@@ -436,6 +434,7 @@ class ParagraphView extends StatelessWidget {
           recognizer: recognizer,
         ),
       );
+    }
     return spans;
   }
 }
@@ -784,8 +783,9 @@ class _ShapePainter extends CustomPainter {
       }
     }
 
-    if (fill != null && kind != SlideShapeKind.line)
+    if (fill != null && kind != SlideShapeKind.line) {
       draw(Paint()..color = fill!);
+    }
     if (stroke != null) {
       draw(
         Paint()

@@ -13,8 +13,9 @@ abstract final class OdsParser {
     final zip = SafeZip.open(path);
     try {
       final content = zip.text('content.xml');
-      if (content == null)
+      if (content == null) {
         throw const DocNookFailure.corrupt(detail: 'ods: content');
+      }
       return _read(content, maxCells);
     } finally {
       zip.close();
@@ -24,8 +25,9 @@ abstract final class OdsParser {
   static Workbook _read(String content, int maxCells) {
     final pull = XmlPull(content);
     final spreadsheet = pull.find('spreadsheet');
-    if (spreadsheet == null)
+    if (spreadsheet == null) {
       throw const DocNookFailure.corrupt(detail: 'ods: body');
+    }
 
     // Styles: index 0 plain, 1 percent, 2 currency, 3 date.
     const styles = [
@@ -49,18 +51,19 @@ abstract final class OdsParser {
 
       void readRow(XmlStartElementEvent row) {
         final repeat =
-            (int.tryParse(row.attr('table:number-rows-repeated') ?? '') ?? 1);
+            int.tryParse(row.attr('table:number-rows-repeated') ?? '') ?? 1;
         final cols = <int>[];
         final values = <Object?>[];
         final styleIds = <int>[];
         var c = 0;
         pull.children(row, (cell) {
           if (cell.localName != 'table-cell' &&
-              cell.localName != 'covered-table-cell')
+              cell.localName != 'covered-table-cell') {
             return;
+          }
           final colRepeat =
-              (int.tryParse(cell.attr('table:number-columns-repeated') ?? '') ??
-              1);
+              int.tryParse(cell.attr('table:number-columns-repeated') ?? '') ??
+              1;
           final type = cell.attr('office:value-type');
           Object? value;
           var style = 0;
@@ -147,8 +150,9 @@ abstract final class OdsParser {
       );
     });
 
-    if (sheets.isEmpty)
+    if (sheets.isEmpty) {
       throw const DocNookFailure.corrupt(detail: 'ods: no tables');
+    }
     return Workbook(sheets: sheets, styles: styles, truncated: truncated);
   }
 

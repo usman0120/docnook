@@ -112,11 +112,12 @@ class _FilesScreenState extends ConsumerState<FilesScreen>
     );
     final grid =
         await settings.get(SettingsRepository.keyLibraryView) == 'grid';
-    if (mounted)
+    if (mounted) {
       setState(() {
         _sort = sort;
         _grid = grid;
       });
+    }
   }
 
   void _setSelecting(bool Function() change) {
@@ -513,8 +514,9 @@ class _CollectionsSliver extends ConsumerWidget {
         label: l.collectionName,
         action: l.collectionCreate,
       );
-      if (name != null)
+      if (name != null) {
         await ref.read(libraryRepositoryProvider).createCollection(name);
+      }
     }
 
     if (collections == null) {

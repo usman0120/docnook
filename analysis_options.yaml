@@ -27,3 +27,12 @@ linter:
     no_adjacent_strings_in_list: false
     specify_nonobvious_property_types: false
     prefer_foreach: false
+    # The rules below are style advice that fights the code more than it
+    # helps: int literals turn math.min/max results into `num`, and a few
+    # small async stat() calls are clearer than their sync twins.
+    prefer_int_literals: false
+    avoid_slow_async_io: false
+    avoid_multiple_declarations_per_line: false
+    use_setters_to_change_properties: false
+    comment_references: false
+    cascade_invocations: false

@@ -63,8 +63,9 @@ final class _OdtReader {
 
   DocModel read() {
     final content = _zip.text('content.xml');
-    if (content == null)
+    if (content == null) {
       throw const DocNookFailure.corrupt(detail: 'odt: no content');
+    }
     final stylesXml = _zip.text('styles.xml');
     if (stylesXml != null) _readStyles(XmlPull(stylesXml), 'styles');
     _readStyles(XmlPull(content), 'automatic-styles');
@@ -218,8 +219,10 @@ final class _OdtReader {
       case 'list':
         var n = 0;
         _pull.children(e, (item) {
-          if (item.localName != 'list-item' && item.localName != 'list-header')
+          if (item.localName != 'list-item' &&
+              item.localName != 'list-header') {
             return;
+          }
           n++;
           var first = true;
           _pull.children(item, (child) {
@@ -253,8 +256,9 @@ final class _OdtReader {
         final inlines = <Inline>[];
         _frame(e, inlines);
         for (final i in inlines) {
-          if (i is InlineImage)
+          if (i is InlineImage) {
             out.add(ImageBlock(i.imageId, width: i.width, height: i.height));
+          }
         }
     }
   }
@@ -408,7 +412,7 @@ final class _OdtReader {
           });
       }
     });
-    return TableBlock(rows, columnWidths: widths, bordered: true);
+    return TableBlock(rows, columnWidths: widths);
   }
 
   static List<Inline> _merge(List<Inline> inlines) {

@@ -148,7 +148,7 @@ void main() {
 
       // Re-indexing replaces old rows.
       await search.store(invoice, const [IndexChunk(1, 'nothing here')]);
-      expect((await search.searchContent('rupees')), isEmpty);
+      expect(await search.searchContent('rupees'), isEmpty);
     },
   );
 

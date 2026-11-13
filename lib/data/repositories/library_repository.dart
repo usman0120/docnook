@@ -80,7 +80,7 @@ class LibraryRepository {
             'size_bytes = excluded.size_bytes, modified_at = excluded.modified_at, '
             'is_missing = 0, '
             // A changed file must be indexed again.
-            "index_state = CASE WHEN documents.modified_at IS NOT excluded.modified_at "
+            'index_state = CASE WHEN documents.modified_at IS NOT excluded.modified_at '
             "THEN 'none' ELSE documents.index_state END",
             [
               f.uri,
@@ -168,8 +168,9 @@ class LibraryRepository {
 
     final types = _typesFor(filter);
     if (types != null) query.where(_db.documents.docType.isIn(types));
-    if (filter == LibraryFilter.starred)
+    if (filter == LibraryFilter.starred) {
       query.where(_db.documents.isStarred.equals(true));
+    }
 
     final d = _db.documents;
     query.orderBy(switch (sort) {

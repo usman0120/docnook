@@ -213,8 +213,9 @@ final class _DocxReader {
     _pull = XmlPull(xml);
     final blocks = <Block>[];
     final root = _pull.find(rootName);
-    if (root != null)
+    if (root != null) {
       _pull.children(root, (child) => _blockChild(child, blocks));
+    }
     // Keep only what a simplified header can show: non-empty text lines.
     return [
       for (final block in blocks)
@@ -665,8 +666,9 @@ final class _DocxReader {
             readCell(child);
           case 'sdt':
             _pull.children(child, (inner) {
-              if (inner.localName == 'sdtContent')
+              if (inner.localName == 'sdtContent') {
                 _pull.children(inner, rowChild);
+              }
             });
         }
       }
@@ -687,8 +689,9 @@ final class _DocxReader {
           });
         case 'tblGrid':
           _pull.children(child, (g) {
-            if (g.localName == 'gridCol')
+            if (g.localName == 'gridCol') {
               widths.add(Units.twips(g.attr('w:w')));
+            }
           });
         case 'tr':
           readRow(child);

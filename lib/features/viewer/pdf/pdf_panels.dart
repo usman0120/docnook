@@ -29,8 +29,9 @@ Future<int?> askPageNumber(
       );
     void submit() {
       final page = int.tryParse(field.text.trim());
-      if (page != null && page >= 1 && page <= total)
+      if (page != null && page >= 1 && page <= total) {
         Navigator.of(context).pop(page);
+      }
     }
 
     return AlertDialog(

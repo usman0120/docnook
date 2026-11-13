@@ -233,8 +233,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   }
 
   Widget _results(AppLocalizations l, DocNookColors c) {
-    if (_loading && _names.isEmpty && _hits.isEmpty)
+    if (_loading && _names.isEmpty && _hits.isEmpty) {
       return const LoadingState();
+    }
     if (_names.isEmpty && _hits.isEmpty) {
       return SingleChildScrollView(
         child: EmptyState(
@@ -345,8 +346,9 @@ class _HitRow extends StatelessWidget {
     final pattern = RegExp(r'\[([^\]]*)\]');
     var last = 0;
     for (final m in pattern.allMatches(snippet)) {
-      if (m.start > last)
+      if (m.start > last) {
         spans.add(TextSpan(text: snippet.substring(last, m.start)));
+      }
       spans.add(
         TextSpan(
           text: m.group(1),
@@ -358,8 +360,9 @@ class _HitRow extends StatelessWidget {
       );
       last = m.end;
     }
-    if (last < snippet.length)
+    if (last < snippet.length) {
       spans.add(TextSpan(text: snippet.substring(last)));
+    }
     return TextSpan(children: spans);
   }
 }

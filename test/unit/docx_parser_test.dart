@@ -34,8 +34,9 @@ Uint8List buildDocx(
     'word/document.xml',
     '<w:document $_w><w:body>$body</w:body></w:document>',
   );
-  if (styles != null)
+  if (styles != null) {
     text('word/styles.xml', '<w:styles $_w>$styles</w:styles>');
+  }
   if (numbering != null) {
     text('word/numbering.xml', '<w:numbering $_w>$numbering</w:numbering>');
   }

@@ -171,8 +171,9 @@ Future<void> _openWith(
   DocumentInfo doc,
 ) async {
   final ok = await ref.read(platformProvider).openWith(doc.uri, mime: doc.mime);
-  if (!ok && context.mounted)
+  if (!ok && context.mounted) {
     _snack(context, AppLocalizations.of(context).errNoAppToOpen);
+  }
 }
 
 Future<void> shareDocuments(
@@ -263,8 +264,9 @@ Future<void> renameDocument(
   name = name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
   // Keep the extension if the user removed it.
   final ext = FileTypeDetector.extensionOf(doc.name);
-  if (ext.isNotEmpty && FileTypeDetector.extensionOf(name) != ext)
+  if (ext.isNotEmpty && FileTypeDetector.extensionOf(name) != ext) {
     name = '$name.$ext';
+  }
 
   final newUri = await ref.read(platformProvider).renameDocument(doc.uri, name);
   if (!context.mounted) return;
@@ -383,8 +385,9 @@ Future<void> addToCollection(
     id = await library.createCollection(name);
   }
   await library.addToCollection(id, [for (final d in docs) d.id]);
-  if (context.mounted && name != null)
+  if (context.mounted && name != null) {
     _snack(context, l.addedToCollection(name));
+  }
 }
 
 /// S26: document facts in a bottom sheet.
@@ -479,7 +482,7 @@ Future<void> showDocumentInfo(
 
 String _readableLocation(String uri) {
   if (!uri.startsWith('content://')) {
-    return uri.replaceFirst(RegExp(r'^/storage/emulated/0/'), '');
+    return uri.replaceFirst(RegExp('^/storage/emulated/0/'), '');
   }
   final decoded = Uri.decodeComponent(uri);
   final colon = decoded.lastIndexOf(':');

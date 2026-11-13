@@ -176,8 +176,9 @@ class _PdfViewerScreenState extends ConsumerState<PdfViewerScreen> {
       ),
     );
     unawaited(_saveThumbnail(document));
-    if (_searching && _searchField.text.isNotEmpty)
+    if (_searching && _searchField.text.isNotEmpty) {
       _runSearch(_searchField.text);
+    }
   }
 
   /// Keeps the Recents thumbnail in step with the file (BLUEPRINT 9.4).
@@ -220,11 +221,7 @@ class _PdfViewerScreenState extends ConsumerState<PdfViewerScreen> {
       _searcher.resetTextSearch();
       return;
     }
-    _searcher.startTextSearch(
-      term,
-      caseInsensitive: true,
-      goToFirstMatch: true,
-    );
+    _searcher.startTextSearch(term);
   }
 
   Future<void> _goToPage(int page) async {
@@ -391,9 +388,11 @@ class _PdfViewerScreenState extends ConsumerState<PdfViewerScreen> {
                       passwordProvider: _providePassword,
                       params: PdfViewerParams(
                         backgroundColor: background,
-                        margin: 8,
-                        maxScale: 8,
-                        minScale: 0.5,
+                        sizeDelegateProvider:
+                            const PdfViewerSizeDelegateProviderLegacy(
+                              maxScale: 8,
+                              minScale: 0.5,
+                            ),
                         pageDropShadow: _night
                             ? null
                             : BoxShadow(
@@ -405,7 +404,6 @@ class _PdfViewerScreenState extends ConsumerState<PdfViewerScreen> {
                         layoutPages: _scroll == PdfScrollMode.horizontal
                             ? _horizontalLayout
                             : null,
-                        panAxis: PanAxis.free,
                         matchTextColor: c.accent.withValues(alpha: 0.30),
                         activeMatchTextColor: c.accent.withValues(alpha: 0.60),
                         pagePaintCallbacks: [
@@ -428,8 +426,9 @@ class _PdfViewerScreenState extends ConsumerState<PdfViewerScreen> {
                         errorBannerBuilder:
                             (context, error, stackTrace, documentRef) {
                               WidgetsBinding.instance.addPostFrameCallback((_) {
-                                if (mounted && !_passwordCancelled)
+                                if (mounted && !_passwordCancelled) {
                                   setState(() => _loadError = error);
+                                }
                               });
                               return const SizedBox.shrink();
                             },

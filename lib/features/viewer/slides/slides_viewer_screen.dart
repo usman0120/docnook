@@ -265,12 +265,10 @@ class _SlidesViewerScreenState extends ConsumerState<SlidesViewerScreen> {
   void _scrollStrip(int i) {
     if (!_strip.hasClients) return;
     final target = (i * 96.0 - 120).clamp(0.0, _strip.position.maxScrollExtent);
-    unawaited(
-      _strip.animateTo(
-        target,
-        duration: Motion.of(context, Motion.fast),
-        curve: Motion.curve,
-      ),
+    _strip.animateTo(
+      target,
+      duration: Motion.of(context, Motion.fast),
+      curve: Motion.curve,
     );
   }
 

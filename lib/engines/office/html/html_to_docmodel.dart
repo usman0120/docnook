@@ -43,8 +43,9 @@ String sanitizeXhtml(String source) {
   s = s.replaceFirst(doctype, '');
   s = s.replaceAllMapped(RegExp('&([a-zA-Z]+);'), (m) {
     final name = m.group(1)!;
-    if (const {'amp', 'lt', 'gt', 'quot', 'apos'}.contains(name))
+    if (const {'amp', 'lt', 'gt', 'quot', 'apos'}.contains(name)) {
       return m.group(0)!;
+    }
     final code = _entities[name];
     return code == null ? '' : '&#$code;';
   });
@@ -292,8 +293,9 @@ final class HtmlToDocModel {
   static TextAlignment _align(HtmlElement e) {
     final css = '${e.attrs['style'] ?? ''} ${e.attrs['align'] ?? ''}'
         .toLowerCase();
-    if (e.tag == 'center' || css.contains('center'))
+    if (e.tag == 'center' || css.contains('center')) {
       return TextAlignment.center;
+    }
     if (css.contains('right')) return TextAlignment.end;
     if (css.contains('justify')) return TextAlignment.justify;
     return TextAlignment.start;
@@ -395,8 +397,10 @@ final class HtmlToDocModel {
           final cells = <TableCell>[];
           var isHeader = header;
           for (final cell in child.children) {
-            if (cell is! HtmlElement || (cell.tag != 'td' && cell.tag != 'th'))
+            if (cell is! HtmlElement ||
+                (cell.tag != 'td' && cell.tag != 'th')) {
               continue;
+            }
             if (cell.tag == 'th') isHeader = true;
             final inner = HtmlToDocModel(resolveImage: resolveImage);
             final blocks = inner.convert(

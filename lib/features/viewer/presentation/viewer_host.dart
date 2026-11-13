@@ -15,11 +15,11 @@ import 'package:docnook/features/viewer/docmodel/document_viewer_screen.dart';
 import 'package:docnook/features/viewer/epub/epub_reader_screen.dart';
 import 'package:docnook/features/viewer/image/image_viewer_screen.dart';
 import 'package:docnook/features/viewer/pdf/pdf_viewer_screen.dart';
+import 'package:docnook/features/viewer/presentation/cant_open_screen.dart';
 import 'package:docnook/features/viewer/sheet/sheet_viewer_screen.dart';
 import 'package:docnook/features/viewer/slides/slides_viewer_screen.dart';
 import 'package:docnook/features/viewer/text/markdown_viewer.dart';
 import 'package:docnook/features/viewer/text/text_viewer_screen.dart';
-import 'package:docnook/features/viewer/presentation/cant_open_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -67,7 +67,7 @@ class _ViewerHostState extends ConsumerState<ViewerHost> {
       platform.openWith(widget.request.uri, mime: widget.request.mime).then((
         ok,
       ) {
-        if (!ok && mounted) {
+        if (!ok && context.mounted) {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text(l.errNoAppToOpen)));

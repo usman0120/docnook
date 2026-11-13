@@ -156,7 +156,6 @@ class _ImageViewerScreenState extends ConsumerState<ImageViewerScreen> {
                         fit: BoxFit.contain,
                         cacheWidth: cacheWidth,
                         gaplessPlayback: true,
-                        filterQuality: FilterQuality.medium,
                         semanticLabel: p.basename(_images[i]),
                         errorBuilder: (_, _, _) => Padding(
                           padding: const EdgeInsets.all(Space.x8),

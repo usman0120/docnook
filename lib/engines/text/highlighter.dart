@@ -167,13 +167,15 @@ const _keywords = {
 };
 
 List<Token> highlightLine(String line, Syntax syntax) {
-  if (syntax == Syntax.none || line.isEmpty)
+  if (syntax == Syntax.none || line.isEmpty) {
     return [Token(line, TokenKind.plain)];
+  }
   if (syntax == Syntax.xml) return _xml(line);
   if (syntax == Syntax.ini) {
     final t = line.trimLeft();
-    if (t.startsWith(';') || t.startsWith('#'))
+    if (t.startsWith(';') || t.startsWith('#')) {
       return [Token(line, TokenKind.comment)];
+    }
     if (t.startsWith('[')) return [Token(line, TokenKind.tag)];
   }
   final out = <Token>[];
@@ -297,7 +299,9 @@ List<Token> _xml(String line) {
           out
             ..add(Token(a.group(1)!, TokenKind.plain))
             ..add(Token(a.group(2)!, TokenKind.attribute));
-          if (a.group(3) != null) out.add(Token('=', TokenKind.punctuation));
+          if (a.group(3) != null) {
+            out.add(const Token('=', TokenKind.punctuation));
+          }
           if (a.group(4) != null) out.add(Token(a.group(4)!, TokenKind.string));
         }
         if (m.group(3)!.isNotEmpty) out.add(Token(m.group(3)!, TokenKind.tag));

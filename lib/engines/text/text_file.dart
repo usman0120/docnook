@@ -89,8 +89,9 @@ LineIndex indexLines(String path, JobContext context) {
       offset += data.length;
       context.progress(offset / length);
     }
-    if (length - lineStart > longest * unit)
+    if (length - lineStart > longest * unit) {
       longest = (length - lineStart) ~/ unit;
+    }
     // A trailing newline does not start a real line.
     if (starts.length > 1 && starts.last >= length) starts.removeLast();
     return LineIndex(
@@ -152,8 +153,9 @@ class LineReader {
       );
       if (text.endsWith('\n')) text = text.substring(0, text.length - 1);
       if (text.endsWith('\r')) text = text.substring(0, text.length - 1);
-      if (text.length > maxLineChars)
+      if (text.length > maxLineChars) {
         text = '${text.substring(0, maxLineChars)}…';
+      }
       out.add(text.replaceAll('\t', '    '));
     }
     return out;

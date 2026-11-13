@@ -642,8 +642,9 @@ final class _Format {
             _T.percent ||
             _T.exponent ||
             _T.text:
-          if (token.type == _T.point || token.type == _T.comma)
+          if (token.type == _T.point || token.type == _T.comma) {
             out.write(token.text);
+          }
       }
     }
     return out.toString();

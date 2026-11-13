@@ -59,11 +59,13 @@ abstract final class EpubParser {
       }
     }
     final container = zip.text('META-INF/container.xml');
-    if (container == null)
+    if (container == null) {
       throw const DocNookFailure.corrupt(detail: 'epub: container');
+    }
     final rootfile = XmlPull(container).find('rootfile')?.attr('full-path');
-    if (rootfile == null)
+    if (rootfile == null) {
       throw const DocNookFailure.corrupt(detail: 'epub: rootfile');
+    }
     final opf = zip.text(rootfile);
     if (opf == null) throw const DocNookFailure.corrupt(detail: 'epub: opf');
     final base = rootfile.contains('/')
@@ -78,16 +80,19 @@ abstract final class EpubParser {
     String? ncxId;
     final pull = XmlPull(opf);
     final package = pull.find('package');
-    if (package == null)
+    if (package == null) {
       throw const DocNookFailure.corrupt(detail: 'epub: package');
+    }
     pull.children(package, (section) {
       switch (section.localName) {
         case 'metadata':
           pull.children(section, (m) {
-            if (m.localName == 'title' && title.isEmpty)
+            if (m.localName == 'title' && title.isEmpty) {
               title = pull.text(m).trim();
-            if (m.localName == 'creator' && author == null)
+            }
+            if (m.localName == 'creator' && author == null) {
               author = pull.text(m).trim();
+            }
           });
         case 'manifest':
           pull.children(section, (item) {
@@ -165,8 +170,9 @@ abstract final class EpubParser {
         ),
       );
     }
-    if (chapters.isEmpty)
+    if (chapters.isEmpty) {
       throw const DocNookFailure.corrupt(detail: 'epub: no chapters');
+    }
     return EpubBook(
       title: title.isEmpty ? 'Book' : title,
       author: author,
@@ -186,7 +192,7 @@ abstract final class EpubParser {
       if (xml != null) {
         try {
           for (final m in RegExp(
-            r'<a[^>]*href="([^"#]+)[^"]*"[^>]*>(.*?)</a>',
+            '<a[^>]*href="([^"#]+)[^"]*"[^>]*>(.*?)</a>',
             dotAll: true,
           ).allMatches(xml)) {
             final file = _resolve(dir, Uri.decodeFull(m.group(1)!));

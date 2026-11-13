@@ -195,7 +195,10 @@ class _SheetViewerScreenState extends ConsumerState<SheetViewerScreen> {
           out[col] = math.max(out[col], longest.toDouble());
         }
       }
-      return [for (final w in out) w == 0 ? 9.14 : w.clamp(6, 40).toDouble()];
+      return [
+        for (final w in out)
+          if (w == 0) 9.14 else w.clamp(6, 40).toDouble(),
+      ];
     });
     return c < widths.length ? widths[c] : 9.14;
   }
@@ -271,8 +274,9 @@ class _SheetViewerScreenState extends ConsumerState<SheetViewerScreen> {
           wb.styleAt(row.styleIds[i]).formatCode,
           date1904: wb.date1904,
         );
-        if (shown.toLowerCase().contains(term))
+        if (shown.toLowerCase().contains(term)) {
           found.add((row.index, row.cols[i]));
+        }
       }
     }
     setState(() {
@@ -568,13 +572,15 @@ class _CellView extends StatelessWidget {
         numeric || value is bool ? Alignment.centerRight : Alignment.centerLeft,
     };
     var fill = style.fill == null ? null : Color(style.fill!);
-    if (fill != null && c.isDark && fill.computeLuminance() > 0.6)
+    if (fill != null && c.isDark && fill.computeLuminance() > 0.6) {
       fill = fill.withValues(alpha: 0.18);
+    }
     var ink = style.color == null ? c.ink : Color(style.color!);
     if ((ink.computeLuminance() - (fill ?? c.surface).computeLuminance())
             .abs() <
-        0.25)
+        0.25) {
       ink = c.ink;
+    }
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,

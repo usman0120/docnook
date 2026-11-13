@@ -103,8 +103,9 @@ class _TextViewerScreenState extends ConsumerState<TextViewerScreen> {
     final saved = await _repo.position(widget.document.documentId);
     setState(() {
       _indexed = result;
-      if (result case Ok(:final value))
+      if (result case Ok(:final value)) {
         _reader = LineReader(widget.document.path, value);
+      }
       _wrap = (prefs['wrap'] as bool?) ?? _wrap;
       _numbers = (prefs['numbers'] as bool?) ?? _numbers;
       _fontSize = ((prefs['font'] as num?)?.toDouble() ?? _fontSize).clamp(
@@ -391,10 +392,11 @@ class _TextViewerScreenState extends ConsumerState<TextViewerScreen> {
       itemBuilder: line,
     );
 
-    if (_wrap)
+    if (_wrap) {
       return SelectionArea(
         child: Scrollbar(controller: _scroll, child: list),
       );
+    }
     final width =
         numberWidth +
         Space.x3 +
@@ -442,8 +444,9 @@ class _TextViewerScreenState extends ConsumerState<TextViewerScreen> {
     var at = lower.indexOf(term);
     final bg = c.accent.withValues(alpha: active ? 0.6 : 0.28);
     while (at >= 0) {
-      if (at > pos)
+      if (at > pos) {
         out.add(TextSpan(text: text.substring(pos, at), style: base));
+      }
       out.add(
         TextSpan(
           text: text.substring(at, at + term.length),
@@ -453,8 +456,9 @@ class _TextViewerScreenState extends ConsumerState<TextViewerScreen> {
       pos = at + term.length;
       at = lower.indexOf(term, pos);
     }
-    if (pos < text.length)
+    if (pos < text.length) {
       out.add(TextSpan(text: text.substring(pos), style: base));
+    }
     return out;
   }
 }

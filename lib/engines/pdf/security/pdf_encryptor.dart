@@ -103,8 +103,9 @@ abstract final class PdfEncryptor {
           ? value.dict
           : (value is PdfDict ? value : null);
       final type = dict?.nameOf('/Type');
-      if (value is PdfStream && (type == '/XRef' || type == '/ObjStm'))
+      if (value is PdfStream && (type == '/XRef' || type == '/ObjStm')) {
         continue;
+      }
 
       if (rootRef is PdfRef && rootRef.number == number && value is PdfDict) {
         value = _withExtension(value);

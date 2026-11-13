@@ -367,13 +367,15 @@ final class DocxStyles {
         pull.children(child, (d) {
           if (d.localName == 'rPrDefault') {
             pull.children(d, (r) {
-              if (r.localName == 'rPr')
+              if (r.localName == 'rPr') {
                 styles.defaultRun = RunProps.read(pull, r);
+              }
             });
           } else if (d.localName == 'pPrDefault') {
             pull.children(d, (p) {
-              if (p.localName == 'pPr')
+              if (p.localName == 'pPr') {
                 styles.defaultPara = ParaProps.read(pull, p);
+              }
             });
           }
         });

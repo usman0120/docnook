@@ -99,8 +99,11 @@ abstract final class CsvParser {
         endField();
       } else if (c == 0x0A || c == 0x0D) {
         endRow();
-        if (c == 0x0D && i + 1 < text.length && text.codeUnitAt(i + 1) == 0x0A)
+        if (c == 0x0D &&
+            i + 1 < text.length &&
+            text.codeUnitAt(i + 1) == 0x0A) {
           i++;
+        }
         if (cells >= maxCells) {
           truncated = true;
           break;
@@ -110,8 +113,9 @@ abstract final class CsvParser {
       }
       i++;
     }
-    if (!truncated && (field.isNotEmpty || cols.isNotEmpty || fieldWasQuoted))
+    if (!truncated && (field.isNotEmpty || cols.isNotEmpty || fieldWasQuoted)) {
       endRow();
+    }
 
     final sheet = Sheet(
       name: name,

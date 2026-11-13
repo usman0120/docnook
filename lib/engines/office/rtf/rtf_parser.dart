@@ -207,8 +207,9 @@ final class _RtfReader {
               radix: 16,
             );
             _pos += 2;
-            if (hex != null && !_state.skip)
+            if (hex != null && !_state.skip) {
               _text.writeCharCode(_decodeByte(hex));
+            }
           }
         case 0x7E: // non-breaking space
           if (!_state.skip) _text.write(' ');

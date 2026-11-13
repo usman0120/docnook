@@ -172,12 +172,8 @@ class _DocumentViewerScreenState extends ConsumerState<DocumentViewerScreen> {
     for (var attempt = 0; attempt < 6; attempt++) {
       final key = _keys[index];
       final context = key?.currentContext;
-      if (context != null) {
-        await Scrollable.ensureVisible(
-          context,
-          duration: Duration.zero,
-          alignment: 0.05,
-        );
+      if (context != null && context.mounted) {
+        await Scrollable.ensureVisible(context, alignment: 0.05);
         return;
       }
       final measured = _heights.values;
@@ -205,7 +201,8 @@ class _DocumentViewerScreenState extends ConsumerState<DocumentViewerScreen> {
       return;
     }
     _blockText ??= [
-      for (final b in _blocks) b is Paragraph ? b.plainText : _deepText(b),
+      for (final b in _blocks)
+        if (b is Paragraph) b.plainText else _deepText(b),
     ];
     final found = <BlockMatch>[];
     for (var i = 0; i < _blockText!.length && found.length < 2000; i++) {
@@ -438,8 +435,9 @@ class _DocumentViewerScreenState extends ConsumerState<DocumentViewerScreen> {
                         0.7,
                         2.2,
                       );
-                      if ((next - _textScale).abs() > 0.02)
+                      if ((next - _textScale).abs() > 0.02) {
                         setState(() => _textScale = next);
+                      }
                     },
                     onScaleEnd: (_) => unawaited(_save()),
                     onTap: () => setState(() => _chrome = !_chrome),

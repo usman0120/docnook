@@ -31,12 +31,14 @@ final class OleFile {
     }
     final h = ByteData.sublistView(bytes);
     final shift = h.getUint16(30, Endian.little);
-    if (shift != 9 && shift != 12)
+    if (shift != 9 && shift != 12) {
       throw const DocNookFailure.corrupt(detail: 'ole: sector size');
+    }
     final sectorSize = 1 << shift;
     final miniShift = h.getUint16(32, Endian.little);
-    if (miniShift != 6)
+    if (miniShift != 6) {
       throw const DocNookFailure.corrupt(detail: 'ole: mini sector');
+    }
     final fatSectors = h.getUint32(44, Endian.little);
     final firstDir = h.getUint32(48, Endian.little);
     final firstMiniFat = h.getUint32(60, Endian.little);
@@ -162,8 +164,9 @@ final class OleFile {
   Uint8List? stream(String name) {
     final e = _entries[name];
     if (e == null || e.type != 2) return null;
-    if (e.size > _bytes.length * 4)
+    if (e.size > _bytes.length * 4) {
       throw const DocNookFailure.corrupt(detail: 'ole: stream size');
+    }
     if (e.size < 4096) {
       final out = BytesBuilder(copy: false);
       var s = e.start;
@@ -203,8 +206,9 @@ abstract final class LegacyText {
   static List<String> doc(Uint8List bytes) {
     final ole = OleFile.parse(bytes);
     final word = ole.stream('WordDocument');
-    if (word == null || word.length < 0x1A2)
+    if (word == null || word.length < 0x1A2) {
       throw const DocNookFailure.corrupt(detail: 'doc: stream');
+    }
     final fib = ByteData.sublistView(word);
     final flags = fib.getUint16(0x0A, Endian.little);
     if (flags & 0x0100 != 0) throw const DocNookFailure.passwordRequired();
@@ -277,8 +281,9 @@ abstract final class LegacyText {
   static List<String> ppt(Uint8List bytes) {
     final ole = OleFile.parse(bytes);
     final stream = ole.stream('PowerPoint Document');
-    if (stream == null)
+    if (stream == null) {
       throw const DocNookFailure.corrupt(detail: 'ppt: stream');
+    }
     final out = <String>[];
     final d = ByteData.sublistView(stream);
     void walk(int start, int end, int depth) {
@@ -320,8 +325,9 @@ abstract final class LegacyText {
   static List<String> xls(Uint8List bytes) {
     final ole = OleFile.parse(bytes);
     final stream = ole.stream('Workbook') ?? ole.stream('Book');
-    if (stream == null)
+    if (stream == null) {
       throw const DocNookFailure.corrupt(detail: 'xls: stream');
+    }
     final d = ByteData.sublistView(stream);
     final sst = <String>[];
     final cells = <int, Map<int, Map<int, String>>>{}; // sheet → row → col
@@ -355,8 +361,9 @@ abstract final class LegacyText {
           }
           sst.addAll(_readSst(parts));
         case 0x0809: // BOF
-          if (len >= 4 && d.getUint16(body + 2, Endian.little) == 0x0010)
+          if (len >= 4 && d.getUint16(body + 2, Endian.little) == 0x0010) {
             sheet++;
+          }
         case 0x00FD: // LABELSST
           if (sheet >= 0 && len >= 10) {
             final idx = d.getUint32(body + 6, Endian.little);
@@ -539,8 +546,9 @@ abstract final class LegacyText {
     final out = StringBuffer();
     for (var i = 0x600; i < word.length; i++) {
       final b = word[i];
-      if (b == 0x0D || b == 0x09 || (b >= 0x20 && b < 0x7F) || b >= 0xA0)
+      if (b == 0x0D || b == 0x09 || (b >= 0x20 && b < 0x7F) || b >= 0xA0) {
         out.writeCharCode(_cp1252(b));
+      }
     }
     return out.toString();
   }

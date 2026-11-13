@@ -167,10 +167,7 @@ class Indexer {
   Future<List<IndexChunk>?> _pdfChunks(String path) async {
     // No password provider: encrypted PDFs throw and are marked failed,
     // so their text never enters the index (passwords are never stored).
-    final document = await PdfDocument.openFile(
-      path,
-      firstAttemptByEmptyPassword: true,
-    );
+    final document = await PdfDocument.openFile(path);
     try {
       final chunks = <IndexChunk>[];
       var total = 0;
