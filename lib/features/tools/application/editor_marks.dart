@@ -84,6 +84,9 @@ const penColors = [0x1B1B1F, 0x1A3A8F, 0xC0392B, 0x1E7A46, 0xE07B00, 0x7B3FA0];
 const markupColors = [0xFFE066, 0x8FD18F, 0x8EC5FF, 0xFF9AA2];
 const penWidths = [1.0, 2.5, 5.0];
 
+/// Underline and strike-through need strong colours to show.
+const lineColors = [0xC0392B, 0x1A3A8F, 0x1B1B1F, 0x1E7A46];
+
 /// Converts editor marks to PDF annotations in page space (FR-PDF-02).
 List<PdfMark> toPdfMarks(List<EditorMark> marks, PdfInfo info) {
   final out = <PdfMark>[];

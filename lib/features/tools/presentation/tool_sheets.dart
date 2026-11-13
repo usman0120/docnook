@@ -56,12 +56,16 @@ IconData toolIcon(ToolId tool) => switch (tool) {
 /// Runs a tool job with the S10 progress sheet, then shows S11. Returns
 /// true when the job produced a result (so the caller can close its
 /// screen).
+///
+/// With [closeTools] (the default) the tool screens close once the result
+/// is shown, so Open or Do more lands on top of the app, not the editor.
 Future<bool> runToolJob(
   BuildContext context,
   WidgetRef ref,
   ToolId tool,
-  Future<ToolResult> Function(EditControl control) body,
-) async {
+  Future<ToolResult> Function(EditControl control) body, {
+  bool closeTools = true,
+}) async {
   final l = AppLocalizations.of(context);
   final jobs = ref.read(toolJobProvider.notifier);
   if (jobs.busy) {
@@ -73,11 +77,15 @@ Future<bool> runToolJob(
   if (!context.mounted) return false;
   final state = ref.read(toolJobProvider);
   if (state == null || state.running || !state.watched) return false;
-  return await showToolOutcome(context, ref);
+  return await showToolOutcome(context, ref, closeTools: closeTools);
 }
 
 /// Shows the finished job's result or failure, then forgets the job.
-Future<bool> showToolOutcome(BuildContext context, WidgetRef ref) async {
+Future<bool> showToolOutcome(
+  BuildContext context,
+  WidgetRef ref, {
+  bool closeTools = true,
+}) async {
   final l = AppLocalizations.of(context);
   final state = ref.read(toolJobProvider);
   if (state == null || state.running) return false;
@@ -104,7 +112,7 @@ Future<bool> showToolOutcome(BuildContext context, WidgetRef ref) async {
     }
     return false;
   }
-  await showToolResult(context, ref, state.result!);
+  await showToolResult(context, ref, state.result!, closeTools: closeTools);
   return true;
 }
 
@@ -200,8 +208,9 @@ class _ProgressBody extends ConsumerWidget {
 Future<void> showToolResult(
   BuildContext context,
   WidgetRef ref,
-  ToolResult result,
-) async {
+  ToolResult result, {
+  bool closeTools = true,
+}) async {
   final l = AppLocalizations.of(context);
   final router = GoRouter.of(context);
   final platform = ref.read(platformProvider);
@@ -212,6 +221,11 @@ Future<void> showToolResult(
     builder: (context, _) => _ResultBody(result: result),
   );
   if (!context.mounted) return;
+  // Tool screens sit on the root navigator above the tabs.
+  final nav = Navigator.of(context, rootNavigator: true);
+  if (closeTools) nav.popUntil((route) => route.isFirst);
+  final here = closeTools ? nav.context : context;
+  if (!here.mounted) return;
   switch (action) {
     case 'open':
       unawaited(
@@ -236,19 +250,19 @@ Future<void> showToolResult(
       final doc = id == null
           ? null
           : await ref.read(documentRepositoryProvider).byId(id);
-      if (doc != null && context.mounted) {
-        await renameDocument(context, ref, doc);
+      if (doc != null && here.mounted) {
+        await renameDocument(here, ref, doc);
       }
     case 'folder':
       final shown = await platform.openFolder(
         'Documents/DocNook/${PdfToolsService.subdir}',
       );
-      if (!shown && context.mounted) {
-        _snack(context, l.toolFolderHint(PdfToolsService.subdir));
+      if (!shown && here.mounted) {
+        _snack(here, l.toolFolderHint(PdfToolsService.subdir));
       }
     case 'more':
-      final next = await pickNextTool(context);
-      if (next != null && context.mounted) {
+      final next = await pickNextTool(here);
+      if (next != null && here.mounted) {
         unawaited(router.push('/tool/${next.name}', extra: [first.asInput]));
       }
   }
@@ -273,9 +287,7 @@ class _ResultBody extends StatelessWidget {
         l.toolSizeChange(
           l.fileSize(before),
           l.fileSize(result.totalBytes),
-          before == 0
-              ? 0
-              : ((result.totalBytes - before) * 100 / before).round(),
+          _percent(before, result.totalBytes),
         )
       else
         l.fileSize(result.totalBytes),
@@ -388,6 +400,12 @@ Future<void> openPdfTools(BuildContext context, DocumentInfo doc) async {
   );
 }
 
+/// "−73%" / "+4%": a typographic minus, as on S11.
+String _percent(int before, int after) {
+  final change = before == 0 ? 0 : ((after - before) * 100 / before).round();
+  return change < 0 ? '−${-change}%' : '+$change%';
+}
+
 /// "Do more": the PDF tools, to chain the output into the next one.
 Future<ToolId?> pickNextTool(
   BuildContext context, {
@@ -396,7 +414,7 @@ Future<ToolId?> pickNextTool(
   final l = AppLocalizations.of(context);
   return showDocNookSheet<ToolId>(
     context,
-    title: l.toolDoMore,
+    title: includeMerge ? l.actionPdfTools : l.toolDoMore,
     expand: true,
     builder: (context, scroll) => ListView(
       controller: scroll,

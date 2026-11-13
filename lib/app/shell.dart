@@ -26,7 +26,20 @@ class AppShell extends ConsumerWidget {
     final showScan = shell.currentIndex != 2 && !selecting;
 
     return Scaffold(
-      body: shell,
+      // Tabs scroll edge to edge; a paper strip keeps content from showing
+      // through the status bar.
+      body: Stack(
+        children: [
+          shell,
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: MediaQuery.paddingOf(context).top,
+            child: ColoredBox(color: context.colors.paper),
+          ),
+        ],
+      ),
       floatingActionButton: showScan
           ? _ScanButton(
               label: l.actionScan,

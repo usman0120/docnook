@@ -350,3 +350,23 @@ ask first). Fallback path still needs an emulator without Play services.
   was read (a password-protected file looked damaged); the code is now read right
   after the failed call, with a retry, as pdfrx does. `FPDFImageObj_GetImageMetadata`
   needs the page handle to report colour depth.
+- **Device check, Galaxy A06 (2026-11-13):** every PDF tool ran on the phone with
+  generated files: merge (PDF + photo + form, drag to reorder), split into ranges,
+  organize (rotate, delete, drag to move, blank page, save as copy), Balanced
+  compression (332 KB → 160 KB), protect (wrong password refused, right one opens),
+  unlock, red 45° watermark, "Page 1 of 12", highlight / strike / pen / note,
+  signature (drawn, moved, resized, saved for reuse, deleted), form fill (text,
+  checkbox, radio, dropdown, flattened) and redact. Pulled back to the PC and read
+  with PDFium: annotations carry appearance streams; the protected copy is
+  encrypted; on the redacted page the title and the marked line are gone from the
+  text while the rest came back through OCR.
+- Fixed during that check: Open / Do more on the result sheet landed under the
+  closing tool screen (tool screens now close first); a new PDF reference on every
+  rebuild made pdfrx reload and cancel drawing gestures (one reference per screen);
+  drags started where they were recognised, cutting off the first letters (now
+  where the finger touched down); the palette changed height when a tool was
+  picked, so the page jumped; Discard left the editor open; scrolled tabs showed
+  through the status bar; segmented controls had double margins; chained tools
+  stacked name suffixes; underline and strike now default to red.
+- Still open for Phase 6 "Done when": opening the outputs in Adobe Acrobat Reader
+  and Chrome (no Chrome or Adobe Reader check was done on this shared phone).

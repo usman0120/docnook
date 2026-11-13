@@ -37,6 +37,11 @@ class PdfToolsService {
 
   JobRunner get _jobs => _ref.read(jobRunnerProvider);
 
+  static final _toolSuffixes = RegExp(
+    '(_(merged|organized|compressed|protected|unlocked|watermarked|'
+    r'numbered|signed|annotated|filled|redacted))+$',
+  );
+
   /// `Merged_2026-11-11_1432` for Merge; `name_suffix` otherwise.
   static String defaultName(ToolId tool, String? inputName, DateTime now) {
     final stamp = DateFormat('yyyy-MM-dd_HHmm').format(now);
@@ -47,7 +52,11 @@ class PdfToolsService {
       };
       return '${label}_$stamp';
     }
-    final base = p.basenameWithoutExtension(inputName);
+    // A chained result keeps one suffix: "Report_unlocked", not
+    // "Report_protected_unlocked".
+    final base = p
+        .basenameWithoutExtension(inputName)
+        .replaceFirst(_toolSuffixes, '');
     final suffix = switch (tool) {
       ToolId.merge => 'merged',
       ToolId.split => 'part',
@@ -543,6 +552,7 @@ class PdfToolsService {
       output: plain,
       removeSecurity: currentPassword != null,
     );
+    final pages = (await PdfiumEditor.inspect(PdfSource(plain))).pageCount;
     control.report(0.3);
     final out = p.join(work.path, 'out.pdf');
     (await _jobs
@@ -557,7 +567,7 @@ class PdfToolsService {
     control.report(0.9);
     return ToolResult(
       tool: ToolId.protect,
-      outputs: [await _publish(out, name)],
+      outputs: [await _publish(out, name, pages: pages)],
     );
   });
 

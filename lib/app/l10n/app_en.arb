@@ -492,8 +492,8 @@
   "@toolFilesCount": {"placeholders": {"n": {"type": "int"}}},
   "toolFilesNamed": "{name} and {more, plural, =1{1 more} other{{more} more}}",
   "@toolFilesNamed": {"placeholders": {"name": {"type": "String"}, "more": {"type": "int"}}},
-  "toolSizeChange": "{before} → {after} ({percent}%)",
-  "@toolSizeChange": {"placeholders": {"before": {"type": "String"}, "after": {"type": "String"}, "percent": {"type": "int"}}},
+  "toolSizeChange": "{before} → {after} ({change})",
+  "@toolSizeChange": {"placeholders": {"before": {"type": "String"}, "after": {"type": "String"}, "change": {"type": "String"}}},
   "toolSavedIn": "In Documents/DocNook/{folder}",
   "@toolSavedIn": {"placeholders": {"folder": {"type": "String"}}},
   "toolOverwritten": "The original file was replaced",
@@ -640,5 +640,8 @@
   "redactConfirmTitle": "Remove marked content?",
   "redactConfirmBody": "Marked content will be permanently removed. Text on redacted pages is rebuilt using OCR. The original file stays as it was.",
   "redactConfirmAction": "Remove",
-  "actionPdfTools": "PDF tools"
+  "actionPdfTools": "PDF tools",
+  "annotHintNone": "Pick a tool, then draw on the page. Swipe to turn pages.",
+  "annotHintNote": "Tap where the note should go.",
+  "annotHintEraser": "Tap a mark to remove it."
 }

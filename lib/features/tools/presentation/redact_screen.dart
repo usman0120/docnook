@@ -17,6 +17,7 @@ import 'package:docnook/features/tools/presentation/edit_pages.dart';
 import 'package:docnook/features/tools/presentation/tool_flow_screen.dart';
 import 'package:docnook/features/tools/presentation/tool_scaffold.dart';
 import 'package:docnook/features/tools/presentation/tool_sheets.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pdfrx/pdfrx.dart';
@@ -186,7 +187,7 @@ class _RedactScreenState extends ConsumerState<RedactScreen> {
     if (ok != true || !mounted) return;
     final service = ref.read(pdfToolsServiceProvider);
     final boxes = [..._boxes];
-    final done = await runToolJob(
+    await runToolJob(
       context,
       ref,
       ToolId.redact,
@@ -203,7 +204,6 @@ class _RedactScreenState extends ConsumerState<RedactScreen> {
         control: control,
       ),
     );
-    if (done && mounted) Navigator.of(context).maybePop();
   }
 
   Future<bool> _confirmLeave() async {
@@ -258,12 +258,7 @@ class _RedactScreenState extends ConsumerState<RedactScreen> {
         children: [
           EditPageBar(controller: _pages, page: _page, count: _info.pageCount),
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              Space.screen,
-              Space.x2,
-              Space.screen,
-              0,
-            ),
+            padding: const EdgeInsets.only(top: Space.x2),
             child: SegmentedChoice<_Mode>(
               values: _Mode.values,
               selected: _mode,
@@ -296,6 +291,7 @@ class _RedactScreenState extends ConsumerState<RedactScreen> {
               onPageChanged: (p) => setState(() => _page = p),
               overlay: (context, index, size, doc) => GestureDetector(
                 behavior: HitTestBehavior.opaque,
+                dragStartBehavior: DragStartBehavior.down,
                 onPanStart: (d) {
                   unawaited(_loadChars(doc, index));
                   _start = size.toFraction(d.localPosition);

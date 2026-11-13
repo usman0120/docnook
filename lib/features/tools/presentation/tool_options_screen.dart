@@ -164,7 +164,7 @@ class _ToolOptionsScreenState extends ConsumerState<ToolOptionsScreen> {
     final name = _name.text.trim();
     final first = _first;
     final tool = widget.tool;
-    final done = await runToolJob(context, ref, tool, (control) {
+    await runToolJob(context, ref, tool, (control) {
       switch (tool) {
         case ToolId.merge:
           return service.merge(
@@ -249,7 +249,6 @@ class _ToolOptionsScreenState extends ConsumerState<ToolOptionsScreen> {
           throw StateError('not an options tool');
       }
     });
-    if (done && mounted) Navigator.of(context).maybePop();
   }
 
   StampSpec _watermarkSpec() {
@@ -443,17 +442,15 @@ class _ToolOptionsScreenState extends ConsumerState<ToolOptionsScreen> {
         final groups = _splitGroups;
         return [
           OptionLabel(l.toolSplitHow),
-          OptionPad(
-            SegmentedChoice<_SplitMode>(
-              values: _SplitMode.values,
-              selected: _splitMode,
-              label: (m) => switch (m) {
-                _SplitMode.ranges => l.toolSplitRanges,
-                _SplitMode.every => l.toolSplitEvery,
-                _SplitMode.extract => l.toolSplitExtract,
-              },
-              onSelected: (m) => setState(() => _splitMode = m),
-            ),
+          SegmentedChoice<_SplitMode>(
+            values: _SplitMode.values,
+            selected: _splitMode,
+            label: (m) => switch (m) {
+              _SplitMode.ranges => l.toolSplitRanges,
+              _SplitMode.every => l.toolSplitEvery,
+              _SplitMode.extract => l.toolSplitExtract,
+            },
+            onSelected: (m) => setState(() => _splitMode = m),
           ),
           if (_splitMode == _SplitMode.every) ...[
             OptionLabel(l.toolSplitEveryLabel),
@@ -591,15 +588,13 @@ class _ToolOptionsScreenState extends ConsumerState<ToolOptionsScreen> {
       case ToolId.watermark:
         return [
           OptionLabel(l.toolWatermarkKind),
-          OptionPad(
-            SegmentedChoice<_WatermarkKind>(
-              values: _WatermarkKind.values,
-              selected: _wmKind,
-              label: (k) => k == _WatermarkKind.text
-                  ? l.toolWatermarkText
-                  : l.toolWatermarkImage,
-              onSelected: (k) => setState(() => _wmKind = k),
-            ),
+          SegmentedChoice<_WatermarkKind>(
+            values: _WatermarkKind.values,
+            selected: _wmKind,
+            label: (k) => k == _WatermarkKind.text
+                ? l.toolWatermarkText
+                : l.toolWatermarkImage,
+            onSelected: (k) => setState(() => _wmKind = k),
           ),
           const SizedBox(height: Space.x3),
           if (_wmKind == _WatermarkKind.text) ...[
@@ -611,17 +606,15 @@ class _ToolOptionsScreenState extends ConsumerState<ToolOptionsScreen> {
               ),
             ),
             OptionLabel(l.toolWatermarkColor),
-            OptionPad(
-              SegmentedChoice<int>(
-                values: const [0x808080, 0xC0392B, 0x1A3A8F],
-                selected: _color,
-                label: (v) => switch (v) {
-                  0xC0392B => l.colorRed,
-                  0x1A3A8F => l.colorBlue,
-                  _ => l.colorGrey,
-                },
-                onSelected: (v) => setState(() => _color = v),
-              ),
+            SegmentedChoice<int>(
+              values: const [0x808080, 0xC0392B, 0x1A3A8F],
+              selected: _color,
+              label: (v) => switch (v) {
+                0xC0392B => l.colorRed,
+                0x1A3A8F => l.colorBlue,
+                _ => l.colorGrey,
+              },
+              onSelected: (v) => setState(() => _color = v),
             ),
           ] else
             OptionPad(
@@ -636,26 +629,22 @@ class _ToolOptionsScreenState extends ConsumerState<ToolOptionsScreen> {
               ),
             ),
           OptionLabel(l.toolWatermarkSize),
-          OptionPad(
-            SegmentedChoice<_StampSize>(
-              values: _StampSize.values,
-              selected: _size,
-              label: (s) => switch (s) {
-                _StampSize.small => l.sizeSmall,
-                _StampSize.medium => l.sizeMedium,
-                _StampSize.large => l.sizeLarge,
-              },
-              onSelected: (s) => setState(() => _size = s),
-            ),
+          SegmentedChoice<_StampSize>(
+            values: _StampSize.values,
+            selected: _size,
+            label: (s) => switch (s) {
+              _StampSize.small => l.sizeSmall,
+              _StampSize.medium => l.sizeMedium,
+              _StampSize.large => l.sizeLarge,
+            },
+            onSelected: (s) => setState(() => _size = s),
           ),
           OptionLabel(l.toolWatermarkAngle),
-          OptionPad(
-            SegmentedChoice<double>(
-              values: const [0, 45, 90],
-              selected: _angle,
-              label: (a) => '${a.round()}°',
-              onSelected: (a) => setState(() => _angle = a),
-            ),
+          SegmentedChoice<double>(
+            values: const [0, 45, 90],
+            selected: _angle,
+            label: (a) => '${a.round()}°',
+            onSelected: (a) => setState(() => _angle = a),
           ),
           OptionLabel(l.toolWatermarkOpacity((_opacity * 100).round())),
           Slider(
@@ -670,39 +659,29 @@ class _ToolOptionsScreenState extends ConsumerState<ToolOptionsScreen> {
       case ToolId.pageNumbers:
         return [
           OptionLabel(l.toolNumbersPosition),
-          OptionPad(
-            Wrap(
-              spacing: Space.x2,
-              runSpacing: Space.x2,
-              children: [
-                for (final pos in const [
-                  StampPosition.bottomCenter,
-                  StampPosition.bottomRight,
-                  StampPosition.bottomLeft,
-                  StampPosition.topCenter,
-                  StampPosition.topRight,
-                  StampPosition.topLeft,
-                ])
-                  ChoiceChip(
-                    label: Text(_positionLabel(l, pos)),
-                    selected: _position == pos,
-                    onSelected: (_) => setState(() => _position = pos),
-                  ),
-              ],
-            ),
+          FilterChips<StampPosition>(
+            values: const [
+              StampPosition.bottomCenter,
+              StampPosition.bottomRight,
+              StampPosition.bottomLeft,
+              StampPosition.topCenter,
+              StampPosition.topRight,
+              StampPosition.topLeft,
+            ],
+            selected: _position,
+            label: (pos) => _positionLabel(l, pos),
+            onSelected: (pos) => setState(() => _position = pos),
           ),
           OptionLabel(l.toolNumbersFormat),
-          OptionPad(
-            SegmentedChoice<_NumberFormat>(
-              values: _NumberFormat.values,
-              selected: _format,
-              label: (f) => switch (f) {
-                _NumberFormat.plain => '1',
-                _NumberFormat.pageOfTotal => l.toolNumbersPageOf,
-                _NumberFormat.slash => '1 / N',
-              },
-              onSelected: (f) => setState(() => _format = f),
-            ),
+          SegmentedChoice<_NumberFormat>(
+            values: _NumberFormat.values,
+            selected: _format,
+            label: (f) => switch (f) {
+              _NumberFormat.plain => '1',
+              _NumberFormat.pageOfTotal => l.toolNumbersPageOf,
+              _NumberFormat.slash => '1 / N',
+            },
+            onSelected: (f) => setState(() => _format = f),
           ),
           OptionLabel(l.toolNumbersStart),
           OptionPad(
@@ -738,13 +717,11 @@ class _ToolOptionsScreenState extends ConsumerState<ToolOptionsScreen> {
     final l = AppLocalizations.of(context);
     return [
       OptionLabel(l.toolPages),
-      OptionPad(
-        SegmentedChoice<bool>(
-          values: const [true, false],
-          selected: _allPages,
-          label: (all) => all ? l.toolPagesAll : l.toolPagesSome,
-          onSelected: (all) => setState(() => _allPages = all),
-        ),
+      SegmentedChoice<bool>(
+        values: const [true, false],
+        selected: _allPages,
+        label: (all) => all ? l.toolPagesAll : l.toolPagesSome,
+        onSelected: (all) => setState(() => _allPages = all),
       ),
       if (!_allPages) ...[
         const SizedBox(height: Space.x3),

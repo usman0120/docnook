@@ -51,7 +51,7 @@ class _OrganizeScreenState extends ConsumerState<OrganizeScreen> {
   final _selected = <Key>{};
   final _images = <ToolInput>[];
   final _history = <List<_Tile>>[];
-  String? _path;
+  PdfDocumentRef? _doc;
 
   PdfInfo get _info => widget.input.info!;
 
@@ -65,7 +65,15 @@ class _OrganizeScreenState extends ConsumerState<OrganizeScreen> {
     final path = await ref
         .read(pdfToolsServiceProvider)
         .localPath(widget.input.input);
-    if (mounted) setState(() => _path = path);
+    if (!mounted) return;
+    final password = widget.input.password;
+    setState(() {
+      // Created once: a new reference per rebuild reloads the document.
+      _doc = PdfDocumentRefFile(
+        path,
+        passwordProvider: password == null ? null : () => password,
+      );
+    });
   }
 
   bool get _changed => _history.isNotEmpty;
@@ -223,6 +231,7 @@ class _OrganizeScreenState extends ConsumerState<OrganizeScreen> {
         ),
         control: control,
       ),
+      closeTools: false,
     );
   }
 
@@ -269,7 +278,7 @@ class _OrganizeScreenState extends ConsumerState<OrganizeScreen> {
     }
     final service = ref.read(pdfToolsServiceProvider);
     final pages = [for (final t in _tiles) t.spec];
-    final done = await runToolJob(
+    await runToolJob(
       context,
       ref,
       ToolId.organize,
@@ -287,7 +296,6 @@ class _OrganizeScreenState extends ConsumerState<OrganizeScreen> {
         control: control,
       ),
     );
-    if (done && mounted) Navigator.of(context).maybePop();
   }
 
   Future<bool> _confirmLeave() async {
@@ -330,7 +338,7 @@ class _OrganizeScreenState extends ConsumerState<OrganizeScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final c = context.colors;
-    final path = _path;
+    final doc = _doc;
     final selecting = _selected.isNotEmpty;
     return ToolScaffold(
       title: toolTitle(l, ToolId.organize),
@@ -388,13 +396,10 @@ class _OrganizeScreenState extends ConsumerState<OrganizeScreen> {
           ),
         ],
       ),
-      body: path == null
+      body: doc == null
           ? const LoadingState()
-          : PdfDocumentViewBuilder.file(
-              path,
-              passwordProvider: widget.input.password == null
-                  ? null
-                  : () => widget.input.password,
+          : PdfDocumentViewBuilder(
+              documentRef: doc,
               loadingBuilder: (_) => const LoadingState(),
               errorBuilder: (_, _, _) => ErrorState(
                 title: l.toolPickErrorTitle,

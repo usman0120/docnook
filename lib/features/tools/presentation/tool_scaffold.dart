@@ -38,7 +38,8 @@ class ToolScaffold extends StatelessWidget {
     final c = context.colors;
     Future<void> back() async {
       final leave = onBack == null || await onBack!();
-      if (leave && context.mounted) Navigator.of(context).maybePop();
+      // pop, not maybePop: the PopScope below would block it again.
+      if (leave && context.mounted) Navigator.of(context).pop();
     }
 
     return PopScope(

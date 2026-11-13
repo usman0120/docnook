@@ -1524,8 +1524,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String toolSizeChange(String before, String after, int percent) {
-    return '$before → $after ($percent%)';
+  String toolSizeChange(String before, String after, String change) {
+    return '$before → $after ($change)';
   }
 
   @override
@@ -1998,4 +1998,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get actionPdfTools => 'PDF tools';
+
+  @override
+  String get annotHintNone =>
+      'Pick a tool, then draw on the page. Swipe to turn pages.';
+
+  @override
+  String get annotHintNote => 'Tap where the note should go.';
+
+  @override
+  String get annotHintEraser => 'Tap a mark to remove it.';
 }

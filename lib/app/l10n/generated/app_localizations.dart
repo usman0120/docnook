@@ -2731,8 +2731,8 @@ abstract class AppLocalizations {
   /// No description provided for @toolSizeChange.
   ///
   /// In en, this message translates to:
-  /// **'{before} → {after} ({percent}%)'**
-  String toolSizeChange(String before, String after, int percent);
+  /// **'{before} → {after} ({change})'**
+  String toolSizeChange(String before, String after, String change);
 
   /// No description provided for @toolSavedIn.
   ///
@@ -3513,6 +3513,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'PDF tools'**
   String get actionPdfTools;
+
+  /// No description provided for @annotHintNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a tool, then draw on the page. Swipe to turn pages.'**
+  String get annotHintNone;
+
+  /// No description provided for @annotHintNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap where the note should go.'**
+  String get annotHintNote;
+
+  /// No description provided for @annotHintEraser.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a mark to remove it.'**
+  String get annotHintEraser;
 }
 
 class _AppLocalizationsDelegate

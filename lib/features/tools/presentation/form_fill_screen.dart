@@ -231,7 +231,7 @@ class _FormFillScreenState extends ConsumerState<FormFillScreen> {
     if (flatten == null || !mounted) return;
     final service = ref.read(pdfToolsServiceProvider);
     final values = _changes;
-    final done = await runToolJob(
+    await runToolJob(
       context,
       ref,
       ToolId.fillForms,
@@ -248,7 +248,6 @@ class _FormFillScreenState extends ConsumerState<FormFillScreen> {
         control: control,
       ),
     );
-    if (done && mounted) Navigator.of(context).maybePop();
   }
 
   Future<bool> _confirmLeave() async {

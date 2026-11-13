@@ -5,6 +5,7 @@ import 'package:docnook/design_system/components/buttons.dart';
 import 'package:docnook/design_system/tokens.dart';
 import 'package:docnook/design_system/typography.dart';
 import 'package:docnook/features/tools/application/signature_store.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -106,6 +107,7 @@ class _SignaturePadState extends State<SignaturePad> {
                     child: Semantics(
                       label: l.signDrawArea,
                       child: GestureDetector(
+                        dragStartBehavior: DragStartBehavior.down,
                         onPanStart: (d) =>
                             setState(() => _strokes.add([d.localPosition])),
                         onPanUpdate: (d) =>

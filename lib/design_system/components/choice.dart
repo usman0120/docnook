@@ -9,6 +9,7 @@ class FilterChips<T> extends StatelessWidget {
     required this.selected,
     required this.label,
     required this.onSelected,
+    this.icon,
     super.key,
   });
 
@@ -16,6 +17,9 @@ class FilterChips<T> extends StatelessWidget {
   final T selected;
   final String Function(T) label;
   final ValueChanged<T> onSelected;
+
+  /// Optional leading icon per chip (editor tool palettes).
+  final IconData? Function(T)? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -48,11 +52,24 @@ class FilterChips<T> extends StatelessWidget {
                       horizontal: Space.x3,
                       vertical: Space.x2 - 2,
                     ),
-                    child: Text(
-                      label(value),
-                      style: DocNookText.label.copyWith(
-                        color: active ? c.paper : c.ink,
-                      ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (icon?.call(value) case final glyph?) ...[
+                          Icon(
+                            glyph,
+                            size: Sizes.iconSmall,
+                            color: active ? c.paper : c.ink,
+                          ),
+                          const SizedBox(width: Space.x1 + 2),
+                        ],
+                        Text(
+                          label(value),
+                          style: DocNookText.label.copyWith(
+                            color: active ? c.paper : c.ink,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

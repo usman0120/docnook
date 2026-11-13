@@ -20,7 +20,7 @@ typedef PageOverlayBuilder =
 /// One page at a time, fitted to the screen, with an editing layer on top.
 /// Swiping turns pages unless [swipe] is off (while a drawing tool is
 /// active); [EditPageBar] turns them in every mode.
-class EditPages extends StatelessWidget {
+class EditPages extends StatefulWidget {
   const EditPages({
     required this.path,
     required this.password,
@@ -41,25 +41,37 @@ class EditPages extends StatelessWidget {
   final ValueChanged<int>? onPageChanged;
 
   @override
+  State<EditPages> createState() => _EditPagesState();
+}
+
+class _EditPagesState extends State<EditPages> {
+  /// One reference for the screen's life: a new one on every rebuild would
+  /// make pdfrx reload the document and cancel the gesture in progress.
+  late final PdfDocumentRef _doc = PdfDocumentRefFile(
+    widget.path,
+    passwordProvider: widget.password == null ? null : () => widget.password,
+  );
+
+  @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final c = context.colors;
+    final info = widget.info;
     return ColoredBox(
       color: c.surfaceSunken,
-      child: PdfDocumentViewBuilder.file(
-        path,
-        passwordProvider: password == null ? null : () => password,
+      child: PdfDocumentViewBuilder(
+        documentRef: _doc,
         loadingBuilder: (_) => const LoadingState(),
         errorBuilder: (_, _, _) =>
             ErrorState(title: l.toolPickErrorTitle, body: l.errCorruptBody),
         builder: (context, document) {
           if (document == null) return const LoadingState();
           return PageView.builder(
-            controller: controller,
-            physics: swipe
+            controller: widget.controller,
+            physics: widget.swipe
                 ? const PageScrollPhysics()
                 : const NeverScrollableScrollPhysics(),
-            onPageChanged: onPageChanged,
+            onPageChanged: widget.onPageChanged,
             itemCount: info.pageCount,
             itemBuilder: (context, i) {
               final page = info.pages[i];
@@ -91,7 +103,7 @@ class EditPages extends StatelessWidget {
                             maximumDpi: 200,
                             decoration: const BoxDecoration(),
                           ),
-                          overlay(context, i, size, document),
+                          widget.overlay(context, i, size, document),
                         ],
                       ),
                     ),

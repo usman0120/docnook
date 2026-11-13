@@ -3,10 +3,12 @@ import 'dart:math' as math;
 
 import 'package:docnook/app/l10n/generated/app_localizations.dart';
 import 'package:docnook/design_system/components/buttons.dart';
+import 'package:docnook/design_system/components/choice.dart';
 import 'package:docnook/design_system/components/sheets.dart';
 import 'package:docnook/design_system/components/states.dart';
 import 'package:docnook/design_system/icons.dart';
 import 'package:docnook/design_system/tokens.dart';
+import 'package:docnook/design_system/typography.dart';
 import 'package:docnook/domain/pdf/pdf_edit_models.dart';
 import 'package:docnook/features/library/presentation/file_sheets.dart';
 import 'package:docnook/features/tools/application/editor_marks.dart';
@@ -18,11 +20,12 @@ import 'package:docnook/features/tools/presentation/signature_pad.dart';
 import 'package:docnook/features/tools/presentation/tool_flow_screen.dart';
 import 'package:docnook/features/tools/presentation/tool_scaffold.dart';
 import 'package:docnook/features/tools/presentation/tool_sheets.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pdfrx/pdfrx.dart';
 
-enum _Tool { none, highlight, underline, strike, pen, note, eraser }
+enum _Tool { none, highlight, underline, strike, pen, note, signature, eraser }
 
 /// S14 Annotate and sign. In [signMode] only signatures are offered.
 class AnnotateScreen extends ConsumerStatefulWidget {
@@ -41,6 +44,7 @@ class _AnnotateScreenState extends ConsumerState<AnnotateScreen> {
   var _tool = _Tool.none;
   var _penColor = penColors.first;
   var _markColor = markupColors.first;
+  var _lineColor = lineColors.first;
   var _penWidth = penWidths[1];
   var _marks = <EditorMark>[];
   final _undo = <List<EditorMark>>[];
@@ -163,7 +167,8 @@ class _AnnotateScreenState extends ConsumerState<AnnotateScreen> {
         PenMark(page, _penColor, _penWidth, [_stroke!]),
       ]);
     } else if (kind != null && _preview.isNotEmpty) {
-      _commit([..._marks, MarkupMark(page, kind, _markColor, _preview)]);
+      final color = kind == MarkupKind.highlight ? _markColor : _lineColor;
+      _commit([..._marks, MarkupMark(page, kind, color, _preview)]);
     }
     setState(() {
       _dragStart = null;
@@ -267,7 +272,7 @@ class _AnnotateScreenState extends ConsumerState<AnnotateScreen> {
     final service = ref.read(pdfToolsServiceProvider);
     final tool = widget.signMode ? ToolId.sign : ToolId.annotate;
     final marks = toPdfMarks(_marks, _info);
-    final done = await runToolJob(
+    await runToolJob(
       context,
       ref,
       tool,
@@ -284,7 +289,6 @@ class _AnnotateScreenState extends ConsumerState<AnnotateScreen> {
         control: control,
       ),
     );
-    if (done && mounted) Navigator.of(context).maybePop();
   }
 
   Future<bool> _confirmLeave() async {
@@ -387,6 +391,9 @@ class _AnnotateScreenState extends ConsumerState<AnnotateScreen> {
           ignoring: !drawing,
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
+            // Start where the finger touched, not where the drag was
+            // recognised, so a highlight covers the first letters too.
+            dragStartBehavior: DragStartBehavior.down,
             onPanStart: (d) =>
                 _panStart(doc, index, size.toFraction(d.localPosition)),
             onPanUpdate: (d) =>
@@ -402,7 +409,9 @@ class _AnnotateScreenState extends ConsumerState<AnnotateScreen> {
                 strokeColor: _penColor,
                 strokeWidth: _penWidth,
                 preview: _preview,
-                previewColor: _markColor,
+                previewColor: _markupKind == MarkupKind.highlight
+                    ? _markColor
+                    : _lineColor,
                 previewKind: _markupKind,
               ),
             ),
@@ -437,16 +446,6 @@ class _AnnotateScreenState extends ConsumerState<AnnotateScreen> {
   Widget _palette(BuildContext context) {
     final l = AppLocalizations.of(context);
     final c = context.colors;
-    Widget tool(_Tool t, IconData icon, String label) => Padding(
-      padding: const EdgeInsets.only(right: Space.x2),
-      child: ChoiceChip(
-        avatar: Icon(icon, size: Sizes.iconSmall),
-        label: Text(label),
-        selected: _tool == t,
-        showCheckmark: false,
-        onSelected: (on) => setState(() => _tool = on ? t : _Tool.none),
-      ),
-    );
     Widget swatch(int rgb, bool selected, VoidCallback onTap, String label) =>
         Semantics(
           selected: selected,
@@ -480,94 +479,119 @@ class _AnnotateScreenState extends ConsumerState<AnnotateScreen> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (showPen || showMarkup)
-          SizedBox(
-            height: Sizes.touch,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: Space.x2),
-              children: [
-                if (showPen)
-                  for (final w in penWidths)
-                    Semantics(
-                      selected: _penWidth == w,
-                      button: true,
-                      label: l.annotWidth(w.toString()),
-                      child: InkWell(
-                        onTap: () => setState(() => _penWidth = w),
-                        child: SizedBox.square(
-                          dimension: Sizes.touch,
-                          child: Center(
-                            child: Container(
-                              width: 22,
-                              height: w * 1.6,
-                              decoration: BoxDecoration(
-                                color: _penWidth == w ? c.ink : c.inkMuted,
-                                borderRadius: Radii.chipAll,
+        // Always the same height, so the page never jumps when a tool is
+        // picked: colours for pen and markup, a one-line hint otherwise.
+        SizedBox(
+          height: Sizes.touch,
+          child: !(showPen || showMarkup)
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: Space.screen),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      switch (_tool) {
+                        _Tool.note => l.annotHintNote,
+                        _Tool.eraser => l.annotHintEraser,
+                        _ => l.annotHintNone,
+                      },
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: DocNookText.caption.copyWith(color: c.inkMuted),
+                    ),
+                  ),
+                )
+              : ListView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: Space.x2),
+                  children: [
+                    if (showPen)
+                      for (final w in penWidths)
+                        Semantics(
+                          selected: _penWidth == w,
+                          button: true,
+                          label: l.annotWidth(w.toString()),
+                          child: InkWell(
+                            onTap: () => setState(() => _penWidth = w),
+                            child: SizedBox.square(
+                              dimension: Sizes.touch,
+                              child: Center(
+                                child: Container(
+                                  width: 22,
+                                  height: w * 1.6,
+                                  decoration: BoxDecoration(
+                                    color: _penWidth == w ? c.ink : c.inkMuted,
+                                    borderRadius: Radii.chipAll,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
                         ),
+                    for (final rgb
+                        in showPen
+                            ? penColors
+                            : _tool == _Tool.highlight
+                            ? markupColors
+                            : lineColors)
+                      swatch(
+                        rgb,
+                        switch (_tool) {
+                          _Tool.pen => _penColor == rgb,
+                          _Tool.highlight => _markColor == rgb,
+                          _ => _lineColor == rgb,
+                        },
+                        () => setState(() {
+                          if (_tool == _Tool.pen) {
+                            _penColor = rgb;
+                          } else if (_tool == _Tool.highlight) {
+                            _markColor = rgb;
+                          } else {
+                            _lineColor = rgb;
+                          }
+                        }),
+                        l.annotColor,
                       ),
-                    ),
-                for (final rgb in showPen ? penColors : markupColors)
-                  swatch(
-                    rgb,
-                    showPen ? _penColor == rgb : _markColor == rgb,
-                    () => setState(() {
-                      if (showPen) {
-                        _penColor = rgb;
-                      } else {
-                        _markColor = rgb;
-                      }
-                    }),
-                    l.annotColor,
-                  ),
-              ],
-            ),
-          ),
-        SizedBox(
-          height: Sizes.touch + Space.x2,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.fromLTRB(
-              Space.screen,
-              Space.x1,
-              Space.screen,
-              0,
-            ),
-            children: [
-              tool(
-                _Tool.highlight,
-                PhosphorIconsRegular.highlighterCircle,
-                l.annotHighlight,
-              ),
-              tool(
-                _Tool.underline,
-                PhosphorIconsRegular.textUnderline,
-                l.annotUnderline,
-              ),
-              tool(
-                _Tool.strike,
-                PhosphorIconsRegular.textStrikethrough,
-                l.annotStrike,
-              ),
-              tool(_Tool.pen, PhosphorIconsRegular.pencilSimple, l.annotPen),
-              tool(_Tool.note, PhosphorIconsRegular.note, l.annotNote),
-              Padding(
-                padding: const EdgeInsets.only(right: Space.x2),
-                child: ActionChip(
-                  avatar: const Icon(
-                    PhosphorIconsRegular.signature,
-                    size: Sizes.iconSmall,
-                  ),
-                  label: Text(l.annotSignature),
-                  onPressed: () => unawaited(_addSignature()),
+                  ],
                 ),
-              ),
-              tool(_Tool.eraser, PhosphorIconsRegular.eraser, l.annotEraser),
-            ],
-          ),
+        ),
+        FilterChips<_Tool>(
+          values: const [
+            _Tool.highlight,
+            _Tool.underline,
+            _Tool.strike,
+            _Tool.pen,
+            _Tool.note,
+            _Tool.signature,
+            _Tool.eraser,
+          ],
+          selected: _tool,
+          icon: (t) => switch (t) {
+            _Tool.highlight => PhosphorIconsRegular.highlighterCircle,
+            _Tool.underline => PhosphorIconsRegular.textUnderline,
+            _Tool.strike => PhosphorIconsRegular.textStrikethrough,
+            _Tool.pen => PhosphorIconsRegular.pencilSimple,
+            _Tool.note => PhosphorIconsRegular.note,
+            _Tool.signature => PhosphorIconsRegular.signature,
+            _Tool.eraser => PhosphorIconsRegular.eraser,
+            _Tool.none => null,
+          },
+          label: (t) => switch (t) {
+            _Tool.highlight => l.annotHighlight,
+            _Tool.underline => l.annotUnderline,
+            _Tool.strike => l.annotStrike,
+            _Tool.pen => l.annotPen,
+            _Tool.note => l.annotNote,
+            _Tool.signature => l.annotSignature,
+            _Tool.eraser => l.annotEraser,
+            _Tool.none => '',
+          },
+          onSelected: (t) {
+            if (t == _Tool.signature) {
+              unawaited(_addSignature());
+              return;
+            }
+            setState(() => _tool = _tool == t ? _Tool.none : t);
+          },
         ),
       ],
     );
@@ -788,10 +812,29 @@ class _PlacedSignature extends StatelessWidget {
               top: 0,
               width: handle,
               height: handle,
-              child: IconAction(
-                icon: PhosphorIconsRegular.x,
+              child: Semantics(
+                button: true,
                 label: l.actionRemove,
-                onPressed: onRemove,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: onRemove,
+                  child: Center(
+                    child: Container(
+                      width: 26,
+                      height: 26,
+                      decoration: BoxDecoration(
+                        color: c.paper,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: c.hairline),
+                      ),
+                      child: Icon(
+                        PhosphorIconsRegular.x,
+                        size: 14,
+                        color: c.ink,
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
           ],
