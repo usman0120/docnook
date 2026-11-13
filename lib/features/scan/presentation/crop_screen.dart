@@ -111,21 +111,16 @@ class _CropScreenState extends ConsumerState<CropScreen> {
                 ),
               ),
               Expanded(
+                // With the editor's own 24 dp margin, the photo sits 48 dp
+                // from the screen sides, clear of Android's back-gesture zone.
                 child: Padding(
-                  // 48 dp at the sides keeps the corner handles out of
-                  // Android's edge back-gesture zone, which would eat drags.
                   padding: const EdgeInsets.symmetric(
-                    horizontal: Space.x12,
-                    vertical: Space.x6,
+                    horizontal: Space.x6,
+                    vertical: Space.x2,
                   ),
-                  child: Center(
-                    child: aspect == null
-                        ? const CircularProgressIndicator()
-                        : AspectRatio(
-                            aspectRatio: aspect,
-                            child: _editor(context),
-                          ),
-                  ),
+                  child: aspect == null
+                      ? const Center(child: CircularProgressIndicator())
+                      : _editor(context, aspect),
                 ),
               ),
               Padding(
@@ -163,7 +158,9 @@ class _CropScreenState extends ConsumerState<CropScreen> {
     );
   }
 
-  Widget _editor(BuildContext context) {
+  /// The photo with a margin of half a handle on every side, so each handle
+  /// is touchable all round (a Stack ignores touches outside its own box).
+  Widget _editor(BuildContext context, double aspect) {
     final l = AppLocalizations.of(context);
     final labels = [
       l.scanCornerTopLeft,
@@ -171,79 +168,102 @@ class _CropScreenState extends ConsumerState<CropScreen> {
       l.scanCornerBottomRight,
       l.scanCornerBottomLeft,
     ];
+    const margin = Sizes.touch / 2;
     return LayoutBuilder(
       builder: (context, box) {
-        final size = box.biggest;
-        Offset at(NPoint p) => Offset(p.x * size.width, p.y * size.height);
+        final room = Size(
+          box.maxWidth - margin * 2,
+          box.maxHeight - margin * 2,
+        );
+        final size = room.width / room.height > aspect
+            ? Size(room.height * aspect, room.height)
+            : Size(room.width, room.width / aspect);
+        Offset at(NPoint p) =>
+            Offset(margin + p.x * size.width, margin + p.y * size.height);
         final finger = _finger;
-        return Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Positioned.fill(
-              child: Image.file(
-                File(widget.page.originalPath),
-                fit: BoxFit.fill,
-                cacheWidth: 1400,
-                semanticLabel: l.scanPageLabel(widget.page.position + 1),
-              ),
-            ),
-            Positioned.fill(
-              child: CustomPaint(
-                painter: _QuadPainter([
-                  for (final p in _quad.points) at(p),
-                ], valid: _quad.isConvex),
-              ),
-            ),
-            for (var i = 0; i < 4; i++)
-              Positioned(
-                left: at(_quad.points[i]).dx - Sizes.touch / 2,
-                top: at(_quad.points[i]).dy - Sizes.touch / 2,
-                width: Sizes.touch,
-                height: Sizes.touch,
-                child: Semantics(
-                  label: labels[i],
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onPanStart: (_) => setState(() {
-                      _dragging = i;
-                      _finger = at(_quad.points[i]);
-                    }),
-                    onPanUpdate: (d) {
-                      final p = _quad.points[i];
-                      final next = NPoint(
-                        p.x + d.delta.dx / size.width,
-                        p.y + d.delta.dy / size.height,
-                      );
-                      setState(() {
-                        _quad = _quad.withPoint(i, next);
-                        _finger = at(_quad.points[i]);
-                      });
-                    },
-                    onPanEnd: (_) => setState(() {
-                      _dragging = null;
-                      _finger = null;
-                    }),
-                    // The dragged handle hides itself, so the magnifier
-                    // shows the page edge under the finger, not the dot.
-                    child: Center(
-                      child: Opacity(
-                        opacity: _dragging == i ? 0 : 1,
-                        child: Container(
-                          width: 22,
-                          height: 22,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: _stageInk,
-                            border: Border.all(color: _stage, width: 2),
+        return Center(
+          child: SizedBox(
+            width: size.width + margin * 2,
+            height: size.height + margin * 2,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Positioned(
+                  left: margin,
+                  top: margin,
+                  width: size.width,
+                  height: size.height,
+                  child: Image.file(
+                    File(widget.page.originalPath),
+                    fit: BoxFit.fill,
+                    cacheWidth: 1400,
+                    semanticLabel: l.scanPageLabel(widget.page.position + 1),
+                  ),
+                ),
+                Positioned(
+                  left: margin,
+                  top: margin,
+                  width: size.width,
+                  height: size.height,
+                  child: CustomPaint(
+                    painter: _QuadPainter([
+                      for (final p in _quad.points)
+                        at(p) - const Offset(margin, margin),
+                    ], valid: _quad.isConvex),
+                  ),
+                ),
+                for (var i = 0; i < 4; i++)
+                  Positioned(
+                    left: at(_quad.points[i]).dx - Sizes.touch / 2,
+                    top: at(_quad.points[i]).dy - Sizes.touch / 2,
+                    width: Sizes.touch,
+                    height: Sizes.touch,
+                    child: Semantics(
+                      label: labels[i],
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onPanStart: (_) => setState(() {
+                          _dragging = i;
+                          _finger = at(_quad.points[i]);
+                        }),
+                        onPanUpdate: (d) {
+                          final p = _quad.points[i];
+                          final next = NPoint(
+                            p.x + d.delta.dx / size.width,
+                            p.y + d.delta.dy / size.height,
+                          );
+                          setState(() {
+                            _quad = _quad.withPoint(i, next);
+                            _finger = at(_quad.points[i]);
+                          });
+                        },
+                        onPanEnd: (_) => setState(() {
+                          _dragging = null;
+                          _finger = null;
+                        }),
+                        // The dragged handle hides itself, so the magnifier
+                        // shows the page edge under the finger, not the dot.
+                        child: Center(
+                          child: Opacity(
+                            opacity: _dragging == i ? 0 : 1,
+                            child: Container(
+                              width: 22,
+                              height: 22,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: _stageInk,
+                                border: Border.all(color: _stage, width: 2),
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ),
-            if (finger != null) _loupe(finger),
-          ],
+                if (finger != null) _loupe(finger),
+              ],
+            ),
+          ),
         );
       },
     );

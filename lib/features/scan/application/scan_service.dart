@@ -56,7 +56,7 @@ class _RenderingPages extends Notifier<Set<int>> {
 }
 
 /// Preview images: big enough to read on a phone, small enough to be quick.
-const _previewEdge = 1600;
+const _previewEdge = 1280;
 const _previewQuality = 82;
 
 /// What an export produced.

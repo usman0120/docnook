@@ -262,7 +262,9 @@ ask first). Fallback path still needs an emulator without Play services.
 - Fixed after the check: Document filter turned pages red (one-channel JPEG
   encoding; now three channels, test checks all channels); review opened on the last
   page; crop handles at the screen edge were swallowed by Android's back gesture
-  (48 dp side margin now); the dragged handle hid the corner in the magnifier (it
+  (48 dp side margin now), and the outer half of each handle sat outside the
+  editor box, where Flutter ignores touches (the editor now has a half-handle margin
+  all round); the dragged handle hid the corner in the magnifier (it
   now hides itself); size estimate used the quality's maximum instead of each page's
   real size (now within ~3 %); the export screen briefly said "saved or discarded"
   behind the result sheet; the ID card back sits 20 mm below the front.
@@ -271,3 +273,5 @@ ask first). Fallback path still needs an emulator without Play services.
 - Privacy note: with Auto capture on, the scanner took a photo of whatever was in
   front of the camera during testing; it was discarded unsaved. Tests then used
   Manual mode and generated pages only.
+- Re-rendering a page preview after a crop took about 4 s on the A06; previews are
+  now 1280 px on the long edge (was 1600), still sharper than the 720 px screen.
