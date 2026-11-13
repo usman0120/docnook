@@ -788,12 +788,14 @@ Claude Code writes all the code in ten phases; you install each phase's build on
 - [x] Lints (`very_good_analysis`), folder skeleton from 5.1, `tool/check.sh` (format, analyze, test, **merged-manifest check for INTERNET**).
 - [ ] Spike A: open a 500-page PDF and a password PDF with pdfrx; measure first-page time.
 - [ ] Spike B: through PDFium FFI, merge two PDFs, add a highlight annotation, a text watermark and an image (signature); open the result in Chrome and Adobe Reader.
+  - 2026-11-13: PDFium part passed on desktop (unit tests); Chrome/Adobe check on the phone still open.
 - [ ] Spike C: ML Kit document scanner returns pages on the reference phone; fallback camera + crop works on an emulator without Play services; Tesseract English OCR works there too.
   - 2026-11-13: ML Kit part passed on the Galaxy A06; emulator part still open.
 - [x] Spike D: parse a real 30-page DOCX into a throwaway DocModel and render paragraphs + one table.
 - [x] Spike E: stream-parse a 50k-cell XLSX in an isolate under 3 s.
 - [x] Spike F: Dart security writer encrypts a PDFium-saved PDF with AES-256; Chrome and Adobe Reader ask for the password and open it correctly.
 - [ ] Spike G: fill one text field and one checkbox in an AcroForm PDF via PDFium and save; values show in Chrome.
+  - 2026-11-13: fill and flatten passed on desktop (unit tests); Chrome check still open.
 
 **Done when:** all seven spikes pass, or an alternative is chosen and recorded in `docs/decisions.md` (never one that needs an account or key).
 
@@ -852,12 +854,12 @@ Claude Code writes all the code in ten phases; you install each phase's build on
 
 ### Phase 6 — PDF tools (4 weeks)
 
-- [ ] Shared tool flow: S07 hub, S08 select, S09 options template, S10 progress, S11 result, "Do more" chaining.
-- [ ] Merge (PDFs + images), Split, S13 Organize pages.
-- [ ] Compress (Light, Balanced, Strong), Watermark, Page numbers.
-- [ ] Protect (Dart security writer) and Unlock (PDFium save without security).
-- [ ] S14 Annotate and Sign; saved signatures.
-- [ ] S33 Fill forms; S34 Redact.
+- [x] Shared tool flow: S07 hub, S08 select, S09 options template, S10 progress, S11 result, "Do more" chaining.
+- [x] Merge (PDFs + images), Split, S13 Organize pages.
+- [x] Compress (Light, Balanced, Strong), Watermark, Page numbers.
+- [x] Protect (Dart security writer) and Unlock (PDFium save without security).
+- [x] S14 Annotate and Sign; saved signatures.
+- [x] S33 Fill forms; S34 Redact.
 
 **Done when:** every tool's output opens correctly in Adobe Acrobat Reader and Chrome; redacted text cannot be found by search or copy; originals are never modified unless overwrite was chosen.
 

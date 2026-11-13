@@ -8,8 +8,10 @@ import 'package:docnook/design_system/typography.dart';
 import 'package:docnook/domain/entities/doc_type.dart';
 import 'package:docnook/domain/entities/document_info.dart';
 import 'package:docnook/features/library/presentation/file_sheets.dart';
+import 'package:docnook/features/tools/application/tool_models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 /// Replaces the large title while documents are selected.
 class SelectionHeader extends StatelessWidget {
@@ -108,7 +110,29 @@ class SelectionActionBar extends ConsumerWidget {
           onDone();
         },
       ),
-      if (mergeable) (l.actionMerge, PhosphorIconsRegular.stack, later),
+      if (mergeable)
+        (
+          l.actionMerge,
+          PhosphorIconsRegular.stack,
+          () {
+            onDone();
+            unawaited(
+              context.push(
+                '/tool/merge',
+                extra: [
+                  for (final d in docs)
+                    ToolInput(
+                      uri: d.uri,
+                      name: d.name,
+                      mime: d.mime,
+                      size: d.sizeBytes,
+                      documentId: d.id,
+                    ),
+                ],
+              ),
+            );
+          },
+        ),
       (l.actionConvert, PhosphorIconsRegular.arrowsLeftRight, later),
       (
         l.actionDelete,

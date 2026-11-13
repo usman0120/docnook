@@ -441,7 +441,7 @@ class ScanService {
 
       // 3. Write outputs.
       final outputs = <(String, String, List<IndexChunk>)>[];
-      final baseName = _safeName(options.name);
+      final baseName = safeName(options.name);
       if (options.asPdf) {
         final plans = <PdfPagePlan>[];
         var start = 0;
@@ -606,7 +606,7 @@ class ScanService {
   }
 
   /// A file name without characters Android or other systems reject.
-  static String _safeName(String name) {
+  static String safeName(String name) {
     final cleaned = name
         .replaceAll(RegExp(r'[\\/:*?"<>|\x00-\x1F]'), ' ')
         .replaceAll(RegExp(r'\s+'), ' ')

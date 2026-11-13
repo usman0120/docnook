@@ -33,9 +33,6 @@ class HomeScreen extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     final recent = ref.watch(recentDocumentsProvider);
     final drafts = ref.watch(scanDraftsProvider).value ?? const <ScanSession>[];
-    void later() => ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(l.comingInPhase)));
     void open() => unawaited(pickAndOpen(context, ref));
 
     final docs = recent.value ?? const <DocumentInfo>[];
@@ -106,7 +103,7 @@ class HomeScreen extends ConsumerWidget {
                   child: QuickAction(
                     icon: PhosphorIconsRegular.stack,
                     label: l.quickMerge,
-                    onTap: later,
+                    onTap: () => unawaited(context.push('/tool/merge')),
                   ),
                 ),
                 Expanded(

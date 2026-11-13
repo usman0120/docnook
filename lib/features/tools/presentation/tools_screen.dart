@@ -8,8 +8,11 @@ import 'package:docnook/design_system/tokens.dart';
 import 'package:docnook/domain/entities/doc_type.dart';
 import 'package:docnook/domain/scan/scan_models.dart';
 import 'package:docnook/features/scan/presentation/scan_launcher.dart';
+import 'package:docnook/features/tools/application/tool_models.dart';
+import 'package:docnook/features/tools/presentation/tool_sheets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 /// One entry of the Tools hub.
 final class ToolEntry {
@@ -243,6 +246,9 @@ class ToolsScreen extends ConsumerWidget {
       'scanOcr' => () => unawaited(
         startScan(context, ref, ScanMode.document, ocr: true),
       ),
+      _ when ToolId.byName(id) != null => () => unawaited(
+        context.push('/tool/$id'),
+      ),
       _ => later,
     };
 
@@ -257,6 +263,7 @@ class ToolsScreen extends ConsumerWidget {
           bottom: false,
           sliver: SliverToBoxAdapter(child: LargeTitle(l.toolsTitle)),
         ),
+        const SliverToBoxAdapter(child: ToolJobChip()),
         for (final (title, tools) in groups(l)) ...[
           SliverToBoxAdapter(child: SectionHeader(title)),
           SliverPadding(

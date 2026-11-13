@@ -5,6 +5,10 @@ import 'package:flutter/widgets.dart';
 
 abstract final class PhosphorIconsRegular {
   static const arrowClockwise = IconData(0xe036, fontFamily: 'PhosphorRegular');
+  static const arrowCounterClockwise = IconData(
+    0xe038,
+    fontFamily: 'PhosphorRegular',
+  );
   static const arrowLeft = IconData(0xe058, fontFamily: 'PhosphorRegular');
   static const arrowLineDown = IconData(0xe05c, fontFamily: 'PhosphorRegular');
   static const arrowLineUp = IconData(0xe066, fontFamily: 'PhosphorRegular');
@@ -25,9 +29,11 @@ abstract final class PhosphorIconsRegular {
   static const bookmarkSimple = IconData(0xe0ea, fontFamily: 'PhosphorRegular');
   static const camera = IconData(0xe10e, fontFamily: 'PhosphorRegular');
   static const caretDown = IconData(0xe136, fontFamily: 'PhosphorRegular');
+  static const caretLeft = IconData(0xe138, fontFamily: 'PhosphorRegular');
   static const caretRight = IconData(0xe13a, fontFamily: 'PhosphorRegular');
   static const caretUp = IconData(0xe13c, fontFamily: 'PhosphorRegular');
   static const check = IconData(0xe182, fontFamily: 'PhosphorRegular');
+  static const checkCircle = IconData(0xe184, fontFamily: 'PhosphorRegular');
   static const checkSquare = IconData(0xe186, fontFamily: 'PhosphorRegular');
   static const circle = IconData(0xe18a, fontFamily: 'PhosphorRegular');
   static const clockCounterClockwise = IconData(
@@ -38,14 +44,20 @@ abstract final class PhosphorIconsRegular {
   static const copy = IconData(0xe1ca, fontFamily: 'PhosphorRegular');
   static const cornersOut = IconData(0xe1d0, fontFamily: 'PhosphorRegular');
   static const crop = IconData(0xe1d4, fontFamily: 'PhosphorRegular');
+  static const dotsSixVertical = IconData(
+    0xeae2,
+    fontFamily: 'PhosphorRegular',
+  );
   static const dotsThreeVertical = IconData(
     0xe208,
     fontFamily: 'PhosphorRegular',
   );
   static const drop = IconData(0xe210, fontFamily: 'PhosphorRegular');
+  static const eraser = IconData(0xe21e, fontFamily: 'PhosphorRegular');
   static const export = IconData(0xeaf0, fontFamily: 'PhosphorRegular');
   static const eye = IconData(0xe220, fontFamily: 'PhosphorRegular');
   static const eyeSlash = IconData(0xe224, fontFamily: 'PhosphorRegular');
+  static const file = IconData(0xe230, fontFamily: 'PhosphorRegular');
   static const fileDoc = IconData(0xeb1e, fontFamily: 'PhosphorRegular');
   static const filePdf = IconData(0xe702, fontFamily: 'PhosphorRegular');
   static const filePpt = IconData(0xeb20, fontFamily: 'PhosphorRegular');
@@ -87,6 +99,7 @@ abstract final class PhosphorIconsRegular {
     0xe30c,
     fontFamily: 'PhosphorRegular',
   );
+  static const minus = IconData(0xe32a, fontFamily: 'PhosphorRegular');
   static const moon = IconData(0xe330, fontFamily: 'PhosphorRegular');
   static const note = IconData(0xe348, fontFamily: 'PhosphorRegular');
   static const pencilSimple = IconData(0xe3b4, fontFamily: 'PhosphorRegular');
@@ -110,9 +123,15 @@ abstract final class PhosphorIconsRegular {
   static const table = IconData(0xe476, fontFamily: 'PhosphorRegular');
   static const textAa = IconData(0xe6ee, fontFamily: 'PhosphorRegular');
   static const textAlignLeft = IconData(0xe484, fontFamily: 'PhosphorRegular');
+  static const textStrikethrough = IconData(
+    0xe5c2,
+    fontFamily: 'PhosphorRegular',
+  );
   static const textT = IconData(0xe48a, fontFamily: 'PhosphorRegular');
+  static const textUnderline = IconData(0xe5c4, fontFamily: 'PhosphorRegular');
   static const textbox = IconData(0xeb0a, fontFamily: 'PhosphorRegular');
   static const trash = IconData(0xe4a6, fontFamily: 'PhosphorRegular');
+  static const warningCircle = IconData(0xe4e2, fontFamily: 'PhosphorRegular');
   static const wifiSlash = IconData(0xe4f2, fontFamily: 'PhosphorRegular');
   static const wrench = IconData(0xe5d4, fontFamily: 'PhosphorRegular');
   static const x = IconData(0xe4f6, fontFamily: 'PhosphorRegular');
@@ -123,6 +142,7 @@ abstract final class PhosphorIconsFill {
   static const checkCircle = IconData(0xe184, fontFamily: 'PhosphorFill');
   static const folder = IconData(0xe24a, fontFamily: 'PhosphorFill');
   static const house = IconData(0xe2c2, fontFamily: 'PhosphorFill');
+  static const note = IconData(0xe348, fontFamily: 'PhosphorFill');
   static const star = IconData(0xe46a, fontFamily: 'PhosphorFill');
   static const wrench = IconData(0xe5d4, fontFamily: 'PhosphorFill');
 }

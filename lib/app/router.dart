@@ -9,6 +9,8 @@ import 'package:docnook/features/scan/presentation/scan_launcher.dart';
 import 'package:docnook/features/scan/presentation/scan_review_screen.dart';
 import 'package:docnook/features/search/presentation/search_screen.dart';
 import 'package:docnook/features/settings/presentation/settings_screen.dart';
+import 'package:docnook/features/tools/application/tool_models.dart';
+import 'package:docnook/features/tools/presentation/tool_flow_screen.dart';
 import 'package:docnook/features/tools/presentation/tools_screen.dart';
 import 'package:docnook/features/viewer/application/open_document.dart';
 import 'package:docnook/features/viewer/presentation/viewer_host.dart';
@@ -94,6 +96,20 @@ GoRouter buildRouter({bool onboarded = true}) => GoRouter(
         final args = state.extra;
         if (args is! ScanCameraArgs) return const _BadRoute();
         return ScanCameraScreen(args: args);
+      },
+    ),
+    GoRoute(
+      path: '/tool/:id',
+      parentNavigatorKey: rootNavigatorKey,
+      builder: (context, state) {
+        final tool = ToolId.byName(state.pathParameters['id'] ?? '');
+        if (tool == null) return const _BadRoute();
+        final extra = state.extra;
+        return ToolFlowScreen(
+          key: ValueKey(state.pageKey),
+          tool: tool,
+          initial: extra is List<ToolInput> ? extra : const [],
+        );
       },
     ),
     GoRoute(

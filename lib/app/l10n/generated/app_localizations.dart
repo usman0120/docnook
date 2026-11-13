@@ -2445,6 +2445,1074 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Resume'**
   String get homeDraftResume;
+
+  /// No description provided for @actionAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get actionAdd;
+
+  /// No description provided for @actionClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get actionClear;
+
+  /// No description provided for @actionDecrease.
+  ///
+  /// In en, this message translates to:
+  /// **'Fewer'**
+  String get actionDecrease;
+
+  /// No description provided for @actionIncrease.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get actionIncrease;
+
+  /// No description provided for @actionDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get actionDiscard;
+
+  /// No description provided for @actionOk.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get actionOk;
+
+  /// No description provided for @actionUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get actionUndo;
+
+  /// No description provided for @actionRedo.
+  ///
+  /// In en, this message translates to:
+  /// **'Redo'**
+  String get actionRedo;
+
+  /// No description provided for @actionRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get actionRemove;
+
+  /// No description provided for @editDiscardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard your changes?'**
+  String get editDiscardTitle;
+
+  /// No description provided for @editDiscardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing has been saved yet. The original file stays as it was.'**
+  String get editDiscardBody;
+
+  /// No description provided for @pageOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} / {total}'**
+  String pageOf(int n, int total);
+
+  /// No description provided for @pageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {n}'**
+  String pageLabel(int n);
+
+  /// No description provided for @passwordShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get passwordShow;
+
+  /// No description provided for @passwordHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get passwordHide;
+
+  /// No description provided for @colorGrey.
+  ///
+  /// In en, this message translates to:
+  /// **'Grey'**
+  String get colorGrey;
+
+  /// No description provided for @colorRed.
+  ///
+  /// In en, this message translates to:
+  /// **'Red'**
+  String get colorRed;
+
+  /// No description provided for @colorBlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue'**
+  String get colorBlue;
+
+  /// No description provided for @sizeSmall.
+  ///
+  /// In en, this message translates to:
+  /// **'Small'**
+  String get sizeSmall;
+
+  /// No description provided for @sizeMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get sizeMedium;
+
+  /// No description provided for @sizeLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Large'**
+  String get sizeLarge;
+
+  /// No description provided for @posBottomCenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottom centre'**
+  String get posBottomCenter;
+
+  /// No description provided for @posBottomLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottom left'**
+  String get posBottomLeft;
+
+  /// No description provided for @posBottomRight.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottom right'**
+  String get posBottomRight;
+
+  /// No description provided for @posTopCenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Top centre'**
+  String get posTopCenter;
+
+  /// No description provided for @posTopLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Top left'**
+  String get posTopLeft;
+
+  /// No description provided for @posTopRight.
+  ///
+  /// In en, this message translates to:
+  /// **'Top right'**
+  String get posTopRight;
+
+  /// No description provided for @posCenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Centre'**
+  String get posCenter;
+
+  /// No description provided for @toolOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening…'**
+  String get toolOpening;
+
+  /// No description provided for @toolBrowseDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse device'**
+  String get toolBrowseDevice;
+
+  /// No description provided for @toolPickOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a PDF'**
+  String get toolPickOne;
+
+  /// No description provided for @toolPickMany.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose files in the order you want them'**
+  String get toolPickMany;
+
+  /// No description provided for @toolPickNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose files'**
+  String get toolPickNone;
+
+  /// No description provided for @toolContinueWith.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{Continue with 1 file} other{Continue with {n} files}}'**
+  String toolContinueWith(int n);
+
+  /// No description provided for @toolPickEmptyPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'No PDFs in your library yet'**
+  String get toolPickEmptyPdf;
+
+  /// No description provided for @toolPickEmptyAny.
+  ///
+  /// In en, this message translates to:
+  /// **'No PDFs or pictures in your library yet'**
+  String get toolPickEmptyAny;
+
+  /// No description provided for @toolPickEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick one from your phone instead.'**
+  String get toolPickEmptyBody;
+
+  /// No description provided for @toolPickErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t load your files'**
+  String get toolPickErrorTitle;
+
+  /// No description provided for @toolPickErrorBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the file from your phone instead.'**
+  String get toolPickErrorBody;
+
+  /// No description provided for @toolBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'Another tool is still working. Try again when it’s done.'**
+  String get toolBusy;
+
+  /// No description provided for @toolCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled. Nothing was saved.'**
+  String get toolCancelled;
+
+  /// No description provided for @toolStepWorking.
+  ///
+  /// In en, this message translates to:
+  /// **'Working…'**
+  String get toolStepWorking;
+
+  /// No description provided for @toolStepPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {n} of {total}'**
+  String toolStepPage(int n, int total);
+
+  /// No description provided for @toolKeepsRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'You can close this. The job keeps running and shows on the Tools tab.'**
+  String get toolKeepsRunning;
+
+  /// No description provided for @toolDoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get toolDoneTitle;
+
+  /// No description provided for @toolFilesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 file} other{{n} files}}'**
+  String toolFilesCount(int n);
+
+  /// No description provided for @toolFilesNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} and {more, plural, =1{1 more} other{{more} more}}'**
+  String toolFilesNamed(String name, int more);
+
+  /// No description provided for @toolSizeChange.
+  ///
+  /// In en, this message translates to:
+  /// **'{before} → {after} ({percent}%)'**
+  String toolSizeChange(String before, String after, int percent);
+
+  /// No description provided for @toolSavedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'In Documents/DocNook/{folder}'**
+  String toolSavedIn(String folder);
+
+  /// No description provided for @toolOverwritten.
+  ///
+  /// In en, this message translates to:
+  /// **'The original file was replaced'**
+  String get toolOverwritten;
+
+  /// No description provided for @toolSomeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Some files couldn’t be used'**
+  String get toolSomeFailed;
+
+  /// No description provided for @toolShowInFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Show in folder'**
+  String get toolShowInFolder;
+
+  /// No description provided for @toolDoMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Do more'**
+  String get toolDoMore;
+
+  /// No description provided for @toolFolderHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Find it in Documents/DocNook/{folder} with your Files app.'**
+  String toolFolderHint(String folder);
+
+  /// No description provided for @toolChipRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'{tool}: {percent}%'**
+  String toolChipRunning(String tool, int percent);
+
+  /// No description provided for @toolChipDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{tool} finished. Tap to see the result.'**
+  String toolChipDone(String tool);
+
+  /// No description provided for @toolChipFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'{tool} didn’t finish. Tap for details.'**
+  String toolChipFailed(String tool);
+
+  /// No description provided for @toolPrevPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous page'**
+  String get toolPrevPage;
+
+  /// No description provided for @toolNextPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Next page'**
+  String get toolNextPage;
+
+  /// No description provided for @toolOutputName.
+  ///
+  /// In en, this message translates to:
+  /// **'File name'**
+  String get toolOutputName;
+
+  /// No description provided for @toolMergeOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Order'**
+  String get toolMergeOrder;
+
+  /// No description provided for @toolDragToReorder.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag to reorder'**
+  String get toolDragToReorder;
+
+  /// No description provided for @toolImagePage.
+  ///
+  /// In en, this message translates to:
+  /// **'Picture, 1 page'**
+  String get toolImagePage;
+
+  /// No description provided for @toolAddFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Add files'**
+  String get toolAddFiles;
+
+  /// No description provided for @toolMergeNeedTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least two files to merge.'**
+  String get toolMergeNeedTwo;
+
+  /// No description provided for @toolMergeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{Merge 1 file} other{Merge {n} files}}'**
+  String toolMergeAction(int n);
+
+  /// No description provided for @toolSplitHow.
+  ///
+  /// In en, this message translates to:
+  /// **'How to split'**
+  String get toolSplitHow;
+
+  /// No description provided for @toolSplitRanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Ranges'**
+  String get toolSplitRanges;
+
+  /// No description provided for @toolSplitEvery.
+  ///
+  /// In en, this message translates to:
+  /// **'Every N pages'**
+  String get toolSplitEvery;
+
+  /// No description provided for @toolSplitExtract.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick pages'**
+  String get toolSplitExtract;
+
+  /// No description provided for @toolSplitRangesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'One file for each range'**
+  String get toolSplitRangesLabel;
+
+  /// No description provided for @toolSplitExtractLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages to keep, in one file'**
+  String get toolSplitExtractLabel;
+
+  /// No description provided for @toolSplitEveryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages per file'**
+  String get toolSplitEveryLabel;
+
+  /// No description provided for @toolRangesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 1-3, 5, 8-'**
+  String get toolRangesHint;
+
+  /// No description provided for @toolRangesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages 1 to {total}. Use commas between ranges.'**
+  String toolRangesHelp(int total);
+
+  /// No description provided for @toolRangesInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the page numbers. This PDF has {total} pages.'**
+  String toolRangesInvalid(int total);
+
+  /// No description provided for @toolSplitResult.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{Makes 1 file} other{Makes {n} files}}'**
+  String toolSplitResult(int n);
+
+  /// No description provided for @toolSplitAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Split'**
+  String get toolSplitAction;
+
+  /// No description provided for @toolSplitActionMany.
+  ///
+  /// In en, this message translates to:
+  /// **'Split into {n} files'**
+  String toolSplitActionMany(int n);
+
+  /// No description provided for @toolCompressLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Compression'**
+  String get toolCompressLevel;
+
+  /// No description provided for @toolCompressLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get toolCompressLight;
+
+  /// No description provided for @toolCompressLightDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-saves the file and drops unused data. Nothing visible changes.'**
+  String get toolCompressLightDesc;
+
+  /// No description provided for @toolCompressBalanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Balanced'**
+  String get toolCompressBalanced;
+
+  /// No description provided for @toolCompressBalancedDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Makes large photos smaller. Text stays sharp and selectable.'**
+  String get toolCompressBalancedDesc;
+
+  /// No description provided for @toolCompressStrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Strong'**
+  String get toolCompressStrong;
+
+  /// No description provided for @toolCompressStrongDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Turns every page into a compact picture. Smallest file; text stays selectable only with the option below.'**
+  String get toolCompressStrongDesc;
+
+  /// No description provided for @toolCompressOcrHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Reads the pages so text can still be searched and copied. Takes longer.'**
+  String get toolCompressOcrHelp;
+
+  /// No description provided for @toolCompressAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Compress'**
+  String get toolCompressAction;
+
+  /// No description provided for @toolProtectPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get toolProtectPassword;
+
+  /// No description provided for @toolPasswordNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get toolPasswordNew;
+
+  /// No description provided for @toolPasswordConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Type it again'**
+  String get toolPasswordConfirm;
+
+  /// No description provided for @toolPasswordMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The passwords don’t match.'**
+  String get toolPasswordMismatch;
+
+  /// No description provided for @toolPasswordShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Use at least 4 characters.'**
+  String get toolPasswordShort;
+
+  /// No description provided for @toolProtectWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'DocNook doesn’t keep this password. If you forget it, the copy can’t be opened.'**
+  String get toolProtectWarning;
+
+  /// No description provided for @toolProtectAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Protect'**
+  String get toolProtectAction;
+
+  /// No description provided for @toolUnlockHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The copy will open without a password. The original keeps its password.'**
+  String get toolUnlockHelp;
+
+  /// No description provided for @toolUnlockNotLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'This PDF has no password, so there is nothing to remove.'**
+  String get toolUnlockNotLocked;
+
+  /// No description provided for @toolUnlockAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove password'**
+  String get toolUnlockAction;
+
+  /// No description provided for @toolWatermarkKind.
+  ///
+  /// In en, this message translates to:
+  /// **'Watermark'**
+  String get toolWatermarkKind;
+
+  /// No description provided for @toolWatermarkText.
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get toolWatermarkText;
+
+  /// No description provided for @toolWatermarkImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Picture'**
+  String get toolWatermarkImage;
+
+  /// No description provided for @toolWatermarkHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. CONFIDENTIAL'**
+  String get toolWatermarkHint;
+
+  /// No description provided for @toolWatermarkColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Colour'**
+  String get toolWatermarkColor;
+
+  /// No description provided for @toolWatermarkPickImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a picture'**
+  String get toolWatermarkPickImage;
+
+  /// No description provided for @toolWatermarkSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get toolWatermarkSize;
+
+  /// No description provided for @toolWatermarkAngle.
+  ///
+  /// In en, this message translates to:
+  /// **'Angle'**
+  String get toolWatermarkAngle;
+
+  /// No description provided for @toolWatermarkOpacity.
+  ///
+  /// In en, this message translates to:
+  /// **'Opacity {percent}%'**
+  String toolWatermarkOpacity(int percent);
+
+  /// No description provided for @toolWatermarkAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add watermark'**
+  String get toolWatermarkAction;
+
+  /// No description provided for @toolPages.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages'**
+  String get toolPages;
+
+  /// No description provided for @toolPagesAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All pages'**
+  String get toolPagesAll;
+
+  /// No description provided for @toolPagesSome.
+  ///
+  /// In en, this message translates to:
+  /// **'Some pages'**
+  String get toolPagesSome;
+
+  /// No description provided for @toolNumbersPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Position'**
+  String get toolNumbersPosition;
+
+  /// No description provided for @toolNumbersFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Format'**
+  String get toolNumbersFormat;
+
+  /// No description provided for @toolNumbersPageOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Page 1 of N'**
+  String get toolNumbersPageOf;
+
+  /// No description provided for @toolNumbersStart.
+  ///
+  /// In en, this message translates to:
+  /// **'First number'**
+  String get toolNumbersStart;
+
+  /// No description provided for @toolNumbersSkipFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip the first page (cover)'**
+  String get toolNumbersSkipFirst;
+
+  /// No description provided for @toolPageNumbersAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add page numbers'**
+  String get toolPageNumbersAction;
+
+  /// No description provided for @organizeSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 page selected} other{{n} pages selected}}'**
+  String organizeSelected(int n);
+
+  /// No description provided for @organizeRotate.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotate'**
+  String get organizeRotate;
+
+  /// No description provided for @organizeDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'Duplicate'**
+  String get organizeDuplicate;
+
+  /// No description provided for @organizeExtract.
+  ///
+  /// In en, this message translates to:
+  /// **'Extract'**
+  String get organizeExtract;
+
+  /// No description provided for @organizeInsert.
+  ///
+  /// In en, this message translates to:
+  /// **'Insert'**
+  String get organizeInsert;
+
+  /// No description provided for @organizeInsertBlank.
+  ///
+  /// In en, this message translates to:
+  /// **'Blank page'**
+  String get organizeInsertBlank;
+
+  /// No description provided for @organizeInsertImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Picture from your phone'**
+  String get organizeInsertImage;
+
+  /// No description provided for @organizeKeepOne.
+  ///
+  /// In en, this message translates to:
+  /// **'A PDF needs at least one page.'**
+  String get organizeKeepOne;
+
+  /// No description provided for @organizeSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get organizeSave;
+
+  /// No description provided for @organizeSaveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get organizeSaveTitle;
+
+  /// No description provided for @organizeSaveCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as a copy'**
+  String get organizeSaveCopy;
+
+  /// No description provided for @organizeOverwrite.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace the original'**
+  String get organizeOverwrite;
+
+  /// No description provided for @organizeOverwriteHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Replacing can’t be undone. A copy keeps the original as it is.'**
+  String get organizeOverwriteHelp;
+
+  /// No description provided for @organizePageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {n}'**
+  String organizePageLabel(int n);
+
+  /// No description provided for @organizeTapHint.
+  ///
+  /// In en, this message translates to:
+  /// **'select. Long-press and drag to move'**
+  String get organizeTapHint;
+
+  /// No description provided for @annotHighlight.
+  ///
+  /// In en, this message translates to:
+  /// **'Highlight'**
+  String get annotHighlight;
+
+  /// No description provided for @annotUnderline.
+  ///
+  /// In en, this message translates to:
+  /// **'Underline'**
+  String get annotUnderline;
+
+  /// No description provided for @annotStrike.
+  ///
+  /// In en, this message translates to:
+  /// **'Strike'**
+  String get annotStrike;
+
+  /// No description provided for @annotPen.
+  ///
+  /// In en, this message translates to:
+  /// **'Pen'**
+  String get annotPen;
+
+  /// No description provided for @annotNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get annotNote;
+
+  /// No description provided for @annotSignature.
+  ///
+  /// In en, this message translates to:
+  /// **'Signature'**
+  String get annotSignature;
+
+  /// No description provided for @annotEraser.
+  ///
+  /// In en, this message translates to:
+  /// **'Eraser'**
+  String get annotEraser;
+
+  /// No description provided for @annotColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Colour'**
+  String get annotColor;
+
+  /// No description provided for @annotWidth.
+  ///
+  /// In en, this message translates to:
+  /// **'Line width {width}'**
+  String annotWidth(String width);
+
+  /// No description provided for @annotNoteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a note'**
+  String get annotNoteTitle;
+
+  /// No description provided for @annotNoteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get annotNoteLabel;
+
+  /// No description provided for @annotSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save copy'**
+  String get annotSave;
+
+  /// No description provided for @signAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add signature'**
+  String get signAdd;
+
+  /// No description provided for @signChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a signature'**
+  String get signChoose;
+
+  /// No description provided for @signNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New signature'**
+  String get signNew;
+
+  /// No description provided for @signSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved signature'**
+  String get signSaved;
+
+  /// No description provided for @signDrawTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign here'**
+  String get signDrawTitle;
+
+  /// No description provided for @signDrawArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Signature drawing area'**
+  String get signDrawArea;
+
+  /// No description provided for @signKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep for next time (up to 3)'**
+  String get signKeep;
+
+  /// No description provided for @signPlaced.
+  ///
+  /// In en, this message translates to:
+  /// **'Signature. Drag to move'**
+  String get signPlaced;
+
+  /// No description provided for @signResize.
+  ///
+  /// In en, this message translates to:
+  /// **'Resize signature'**
+  String get signResize;
+
+  /// No description provided for @formChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose'**
+  String get formChoose;
+
+  /// No description provided for @formNoFields.
+  ///
+  /// In en, this message translates to:
+  /// **'This PDF has no fillable fields'**
+  String get formNoFields;
+
+  /// No description provided for @formNoFieldsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You can still write on it with Annotate.'**
+  String get formNoFieldsBody;
+
+  /// No description provided for @formLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t read the form'**
+  String get formLoadFailed;
+
+  /// No description provided for @formFieldsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 field} other{{n} fields}}'**
+  String formFieldsCount(int n);
+
+  /// No description provided for @formPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get formPrevious;
+
+  /// No description provided for @formNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get formNext;
+
+  /// No description provided for @formSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save copy'**
+  String get formSave;
+
+  /// No description provided for @formSaveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save the filled form'**
+  String get formSaveTitle;
+
+  /// No description provided for @formSaveEditable.
+  ///
+  /// In en, this message translates to:
+  /// **'Save copy (still editable)'**
+  String get formSaveEditable;
+
+  /// No description provided for @formSaveFlat.
+  ///
+  /// In en, this message translates to:
+  /// **'Save flattened copy'**
+  String get formSaveFlat;
+
+  /// No description provided for @formSaveHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'A flattened copy can’t be changed again, and looks the same in every app.'**
+  String get formSaveHelp;
+
+  /// No description provided for @redactArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Draw box'**
+  String get redactArea;
+
+  /// No description provided for @redactText.
+  ///
+  /// In en, this message translates to:
+  /// **'Select text'**
+  String get redactText;
+
+  /// No description provided for @redactAreaHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag over anything you want removed.'**
+  String get redactAreaHint;
+
+  /// No description provided for @redactTextHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Drag across the words you want removed.'**
+  String get redactTextHint;
+
+  /// No description provided for @redactMarked.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked areas'**
+  String get redactMarked;
+
+  /// No description provided for @redactNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing marked yet.'**
+  String get redactNone;
+
+  /// No description provided for @redactAreas.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 area} other{{n} areas}}'**
+  String redactAreas(int n);
+
+  /// No description provided for @redactClearPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear this page'**
+  String get redactClearPage;
+
+  /// No description provided for @redactSave.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =0{Redact} =1{Redact 1 area} other{Redact {n} areas}}'**
+  String redactSave(int n);
+
+  /// No description provided for @redactConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove marked content?'**
+  String get redactConfirmTitle;
+
+  /// No description provided for @redactConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked content will be permanently removed. Text on redacted pages is rebuilt using OCR. The original file stays as it was.'**
+  String get redactConfirmBody;
+
+  /// No description provided for @redactConfirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get redactConfirmAction;
+
+  /// No description provided for @actionPdfTools.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF tools'**
+  String get actionPdfTools;
 }
 
 class _AppLocalizationsDelegate

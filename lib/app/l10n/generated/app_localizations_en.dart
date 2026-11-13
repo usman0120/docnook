@@ -1348,4 +1348,654 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeDraftResume => 'Resume';
+
+  @override
+  String get actionAdd => 'Add';
+
+  @override
+  String get actionClear => 'Clear';
+
+  @override
+  String get actionDecrease => 'Fewer';
+
+  @override
+  String get actionIncrease => 'More';
+
+  @override
+  String get actionDiscard => 'Discard';
+
+  @override
+  String get actionOk => 'OK';
+
+  @override
+  String get actionUndo => 'Undo';
+
+  @override
+  String get actionRedo => 'Redo';
+
+  @override
+  String get actionRemove => 'Remove';
+
+  @override
+  String get editDiscardTitle => 'Discard your changes?';
+
+  @override
+  String get editDiscardBody =>
+      'Nothing has been saved yet. The original file stays as it was.';
+
+  @override
+  String pageOf(int n, int total) {
+    return '$n / $total';
+  }
+
+  @override
+  String pageLabel(int n) {
+    return 'Page $n';
+  }
+
+  @override
+  String get passwordShow => 'Show password';
+
+  @override
+  String get passwordHide => 'Hide password';
+
+  @override
+  String get colorGrey => 'Grey';
+
+  @override
+  String get colorRed => 'Red';
+
+  @override
+  String get colorBlue => 'Blue';
+
+  @override
+  String get sizeSmall => 'Small';
+
+  @override
+  String get sizeMedium => 'Medium';
+
+  @override
+  String get sizeLarge => 'Large';
+
+  @override
+  String get posBottomCenter => 'Bottom centre';
+
+  @override
+  String get posBottomLeft => 'Bottom left';
+
+  @override
+  String get posBottomRight => 'Bottom right';
+
+  @override
+  String get posTopCenter => 'Top centre';
+
+  @override
+  String get posTopLeft => 'Top left';
+
+  @override
+  String get posTopRight => 'Top right';
+
+  @override
+  String get posCenter => 'Centre';
+
+  @override
+  String get toolOpening => 'Opening…';
+
+  @override
+  String get toolBrowseDevice => 'Browse device';
+
+  @override
+  String get toolPickOne => 'Choose a PDF';
+
+  @override
+  String get toolPickMany => 'Choose files in the order you want them';
+
+  @override
+  String get toolPickNone => 'Choose files';
+
+  @override
+  String toolContinueWith(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Continue with $n files',
+      one: 'Continue with 1 file',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get toolPickEmptyPdf => 'No PDFs in your library yet';
+
+  @override
+  String get toolPickEmptyAny => 'No PDFs or pictures in your library yet';
+
+  @override
+  String get toolPickEmptyBody => 'Pick one from your phone instead.';
+
+  @override
+  String get toolPickErrorTitle => 'Couldn’t load your files';
+
+  @override
+  String get toolPickErrorBody => 'Pick the file from your phone instead.';
+
+  @override
+  String get toolBusy =>
+      'Another tool is still working. Try again when it’s done.';
+
+  @override
+  String get toolCancelled => 'Cancelled. Nothing was saved.';
+
+  @override
+  String get toolStepWorking => 'Working…';
+
+  @override
+  String toolStepPage(int n, int total) {
+    return 'Page $n of $total';
+  }
+
+  @override
+  String get toolKeepsRunning =>
+      'You can close this. The job keeps running and shows on the Tools tab.';
+
+  @override
+  String get toolDoneTitle => 'Saved';
+
+  @override
+  String toolFilesCount(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n files',
+      one: '1 file',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String toolFilesNamed(String name, int more) {
+    String _temp0 = intl.Intl.pluralLogic(
+      more,
+      locale: localeName,
+      other: '$more more',
+      one: '1 more',
+    );
+    return '$name and $_temp0';
+  }
+
+  @override
+  String toolSizeChange(String before, String after, int percent) {
+    return '$before → $after ($percent%)';
+  }
+
+  @override
+  String toolSavedIn(String folder) {
+    return 'In Documents/DocNook/$folder';
+  }
+
+  @override
+  String get toolOverwritten => 'The original file was replaced';
+
+  @override
+  String get toolSomeFailed => 'Some files couldn’t be used';
+
+  @override
+  String get toolShowInFolder => 'Show in folder';
+
+  @override
+  String get toolDoMore => 'Do more';
+
+  @override
+  String toolFolderHint(String folder) {
+    return 'Find it in Documents/DocNook/$folder with your Files app.';
+  }
+
+  @override
+  String toolChipRunning(String tool, int percent) {
+    return '$tool: $percent%';
+  }
+
+  @override
+  String toolChipDone(String tool) {
+    return '$tool finished. Tap to see the result.';
+  }
+
+  @override
+  String toolChipFailed(String tool) {
+    return '$tool didn’t finish. Tap for details.';
+  }
+
+  @override
+  String get toolPrevPage => 'Previous page';
+
+  @override
+  String get toolNextPage => 'Next page';
+
+  @override
+  String get toolOutputName => 'File name';
+
+  @override
+  String get toolMergeOrder => 'Order';
+
+  @override
+  String get toolDragToReorder => 'Drag to reorder';
+
+  @override
+  String get toolImagePage => 'Picture, 1 page';
+
+  @override
+  String get toolAddFiles => 'Add files';
+
+  @override
+  String get toolMergeNeedTwo => 'Add at least two files to merge.';
+
+  @override
+  String toolMergeAction(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Merge $n files',
+      one: 'Merge 1 file',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get toolSplitHow => 'How to split';
+
+  @override
+  String get toolSplitRanges => 'Ranges';
+
+  @override
+  String get toolSplitEvery => 'Every N pages';
+
+  @override
+  String get toolSplitExtract => 'Pick pages';
+
+  @override
+  String get toolSplitRangesLabel => 'One file for each range';
+
+  @override
+  String get toolSplitExtractLabel => 'Pages to keep, in one file';
+
+  @override
+  String get toolSplitEveryLabel => 'Pages per file';
+
+  @override
+  String get toolRangesHint => 'e.g. 1-3, 5, 8-';
+
+  @override
+  String toolRangesHelp(int total) {
+    return 'Pages 1 to $total. Use commas between ranges.';
+  }
+
+  @override
+  String toolRangesInvalid(int total) {
+    return 'Check the page numbers. This PDF has $total pages.';
+  }
+
+  @override
+  String toolSplitResult(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Makes $n files',
+      one: 'Makes 1 file',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get toolSplitAction => 'Split';
+
+  @override
+  String toolSplitActionMany(int n) {
+    return 'Split into $n files';
+  }
+
+  @override
+  String get toolCompressLevel => 'Compression';
+
+  @override
+  String get toolCompressLight => 'Light';
+
+  @override
+  String get toolCompressLightDesc =>
+      'Re-saves the file and drops unused data. Nothing visible changes.';
+
+  @override
+  String get toolCompressBalanced => 'Balanced';
+
+  @override
+  String get toolCompressBalancedDesc =>
+      'Makes large photos smaller. Text stays sharp and selectable.';
+
+  @override
+  String get toolCompressStrong => 'Strong';
+
+  @override
+  String get toolCompressStrongDesc =>
+      'Turns every page into a compact picture. Smallest file; text stays selectable only with the option below.';
+
+  @override
+  String get toolCompressOcrHelp =>
+      'Reads the pages so text can still be searched and copied. Takes longer.';
+
+  @override
+  String get toolCompressAction => 'Compress';
+
+  @override
+  String get toolProtectPassword => 'Password';
+
+  @override
+  String get toolPasswordNew => 'New password';
+
+  @override
+  String get toolPasswordConfirm => 'Type it again';
+
+  @override
+  String get toolPasswordMismatch => 'The passwords don’t match.';
+
+  @override
+  String get toolPasswordShort => 'Use at least 4 characters.';
+
+  @override
+  String get toolProtectWarning =>
+      'DocNook doesn’t keep this password. If you forget it, the copy can’t be opened.';
+
+  @override
+  String get toolProtectAction => 'Protect';
+
+  @override
+  String get toolUnlockHelp =>
+      'The copy will open without a password. The original keeps its password.';
+
+  @override
+  String get toolUnlockNotLocked =>
+      'This PDF has no password, so there is nothing to remove.';
+
+  @override
+  String get toolUnlockAction => 'Remove password';
+
+  @override
+  String get toolWatermarkKind => 'Watermark';
+
+  @override
+  String get toolWatermarkText => 'Text';
+
+  @override
+  String get toolWatermarkImage => 'Picture';
+
+  @override
+  String get toolWatermarkHint => 'e.g. CONFIDENTIAL';
+
+  @override
+  String get toolWatermarkColor => 'Colour';
+
+  @override
+  String get toolWatermarkPickImage => 'Choose a picture';
+
+  @override
+  String get toolWatermarkSize => 'Size';
+
+  @override
+  String get toolWatermarkAngle => 'Angle';
+
+  @override
+  String toolWatermarkOpacity(int percent) {
+    return 'Opacity $percent%';
+  }
+
+  @override
+  String get toolWatermarkAction => 'Add watermark';
+
+  @override
+  String get toolPages => 'Pages';
+
+  @override
+  String get toolPagesAll => 'All pages';
+
+  @override
+  String get toolPagesSome => 'Some pages';
+
+  @override
+  String get toolNumbersPosition => 'Position';
+
+  @override
+  String get toolNumbersFormat => 'Format';
+
+  @override
+  String get toolNumbersPageOf => 'Page 1 of N';
+
+  @override
+  String get toolNumbersStart => 'First number';
+
+  @override
+  String get toolNumbersSkipFirst => 'Skip the first page (cover)';
+
+  @override
+  String get toolPageNumbersAction => 'Add page numbers';
+
+  @override
+  String organizeSelected(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n pages selected',
+      one: '1 page selected',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get organizeRotate => 'Rotate';
+
+  @override
+  String get organizeDuplicate => 'Duplicate';
+
+  @override
+  String get organizeExtract => 'Extract';
+
+  @override
+  String get organizeInsert => 'Insert';
+
+  @override
+  String get organizeInsertBlank => 'Blank page';
+
+  @override
+  String get organizeInsertImage => 'Picture from your phone';
+
+  @override
+  String get organizeKeepOne => 'A PDF needs at least one page.';
+
+  @override
+  String get organizeSave => 'Save';
+
+  @override
+  String get organizeSaveTitle => 'Save changes';
+
+  @override
+  String get organizeSaveCopy => 'Save as a copy';
+
+  @override
+  String get organizeOverwrite => 'Replace the original';
+
+  @override
+  String get organizeOverwriteHelp =>
+      'Replacing can’t be undone. A copy keeps the original as it is.';
+
+  @override
+  String organizePageLabel(int n) {
+    return 'Page $n';
+  }
+
+  @override
+  String get organizeTapHint => 'select. Long-press and drag to move';
+
+  @override
+  String get annotHighlight => 'Highlight';
+
+  @override
+  String get annotUnderline => 'Underline';
+
+  @override
+  String get annotStrike => 'Strike';
+
+  @override
+  String get annotPen => 'Pen';
+
+  @override
+  String get annotNote => 'Note';
+
+  @override
+  String get annotSignature => 'Signature';
+
+  @override
+  String get annotEraser => 'Eraser';
+
+  @override
+  String get annotColor => 'Colour';
+
+  @override
+  String annotWidth(String width) {
+    return 'Line width $width';
+  }
+
+  @override
+  String get annotNoteTitle => 'Add a note';
+
+  @override
+  String get annotNoteLabel => 'Note';
+
+  @override
+  String get annotSave => 'Save copy';
+
+  @override
+  String get signAdd => 'Add signature';
+
+  @override
+  String get signChoose => 'Choose a signature';
+
+  @override
+  String get signNew => 'New signature';
+
+  @override
+  String get signSaved => 'Saved signature';
+
+  @override
+  String get signDrawTitle => 'Sign here';
+
+  @override
+  String get signDrawArea => 'Signature drawing area';
+
+  @override
+  String get signKeep => 'Keep for next time (up to 3)';
+
+  @override
+  String get signPlaced => 'Signature. Drag to move';
+
+  @override
+  String get signResize => 'Resize signature';
+
+  @override
+  String get formChoose => 'Choose';
+
+  @override
+  String get formNoFields => 'This PDF has no fillable fields';
+
+  @override
+  String get formNoFieldsBody => 'You can still write on it with Annotate.';
+
+  @override
+  String get formLoadFailed => 'Couldn’t read the form';
+
+  @override
+  String formFieldsCount(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n fields',
+      one: '1 field',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get formPrevious => 'Previous';
+
+  @override
+  String get formNext => 'Next';
+
+  @override
+  String get formSave => 'Save copy';
+
+  @override
+  String get formSaveTitle => 'Save the filled form';
+
+  @override
+  String get formSaveEditable => 'Save copy (still editable)';
+
+  @override
+  String get formSaveFlat => 'Save flattened copy';
+
+  @override
+  String get formSaveHelp =>
+      'A flattened copy can’t be changed again, and looks the same in every app.';
+
+  @override
+  String get redactArea => 'Draw box';
+
+  @override
+  String get redactText => 'Select text';
+
+  @override
+  String get redactAreaHint => 'Drag over anything you want removed.';
+
+  @override
+  String get redactTextHint => 'Drag across the words you want removed.';
+
+  @override
+  String get redactMarked => 'Marked areas';
+
+  @override
+  String get redactNone => 'Nothing marked yet.';
+
+  @override
+  String redactAreas(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n areas',
+      one: '1 area',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get redactClearPage => 'Clear this page';
+
+  @override
+  String redactSave(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Redact $n areas',
+      one: 'Redact 1 area',
+      zero: 'Redact',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get redactConfirmTitle => 'Remove marked content?';
+
+  @override
+  String get redactConfirmBody =>
+      'Marked content will be permanently removed. Text on redacted pages is rebuilt using OCR. The original file stays as it was.';
+
+  @override
+  String get redactConfirmAction => 'Remove';
+
+  @override
+  String get actionPdfTools => 'PDF tools';
 }

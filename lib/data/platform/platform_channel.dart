@@ -153,6 +153,12 @@ class PlatformChannel {
       })).valueOrNull ??
       false;
 
+  /// Shows `relative` (e.g. `Documents/DocNook/Edited`) in the system
+  /// Files app. False when no app can show folders.
+  Future<bool> openFolder(String relative) async =>
+      (await _call<bool>('openFolder', {'relative': relative})).valueOrNull ??
+      false;
+
   Future<bool> share(List<String> pathsOrUris, {String? mime}) async =>
       (await _call<bool>('share', {
         'paths': pathsOrUris,

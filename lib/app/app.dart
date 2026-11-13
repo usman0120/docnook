@@ -11,6 +11,7 @@ import 'package:docnook/domain/scan/scan_models.dart';
 import 'package:docnook/features/library/application/library_controller.dart';
 import 'package:docnook/features/scan/presentation/scan_launcher.dart';
 import 'package:docnook/features/search/application/indexer.dart';
+import 'package:docnook/features/tools/application/tool_models.dart';
 import 'package:docnook/features/viewer/application/open_document.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -57,7 +58,25 @@ class _DocNookAppState extends ConsumerState<DocNookApp> {
           ),
         );
       case ShareEvent(:final files):
-        // One shared file opens directly; several go to Tools (Phase 6).
+        // One shared file opens directly; several go to Merge.
+        if (files.length > 1) {
+          _router.go('/tools');
+          unawaited(
+            _router.push(
+              '/tool/merge',
+              extra: [
+                for (final f in files)
+                  ToolInput(
+                    uri: f.uri,
+                    name: f.name ?? 'file',
+                    mime: f.mime,
+                    size: f.size,
+                  ),
+              ],
+            ),
+          );
+          break;
+        }
         unawaited(
           _router.push(
             '/view',
@@ -72,6 +91,7 @@ class _DocNookAppState extends ConsumerState<DocNookApp> {
           'merge' => '/tools',
           _ => '/home',
         });
+        if (id == 'merge') unawaited(_router.push('/tool/merge'));
         if (id == 'scan') {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             final context = rootNavigatorKey.currentContext;

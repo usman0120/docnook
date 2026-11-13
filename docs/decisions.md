@@ -291,3 +291,62 @@ ask first). Fallback path still needs an emulator without Play services.
   are checked then only inside Documents/DocNook and DocNook's private folders.
 - Gone documents are marked `is_missing` (schema unchanged): hidden from Files and
   search, shown greyed in Recents and collections, and restored if found again.
+
+## 2026-11-13 — Phase 6: PDF tools
+
+- **Engine:** PDFium through FFI, as BLUEPRINT 4.2 planned: `engines/pdf/pdfium_editor.dart`
+  calls the PDFium library pdfrx already ships. No new native code, no size increase.
+  Each edit runs in short steps on pdfrx's own PDFium worker isolate
+  (`PdfrxEntryFunctions.compute`), because PDFium is single-threaded and pdfrx
+  queues every call there; running it from a JobRunner isolate would race the
+  viewer. Between steps the job reports progress and checks for Cancel. Pure-Dart
+  work (AES encryption, JPEG encoding, image decoding, the scan PDF writer) runs in
+  JobRunner isolates as before.
+- **Packages** (both already in the app through pdfrx; now direct dependencies
+  because DocNook imports them):
+  | Package | Version | License | Published | Manifest permissions | Why |
+  | --- | --- | --- | --- | --- | --- |
+  | pdfium_dart | 0.4.1 | MIT (PDFium BSD-3/Apache-2.0) | 2026, pdfrx monorepo | none (pure Dart bindings) | PDFium FFI bindings for editing |
+  | ffi | 2.2.0 | BSD-3 (Dart team) | 2026 | none | native memory helpers for those bindings |
+- **What each tool does underneath:**
+  - Merge, Split, Organize, Extract: `FPDF_ImportPagesByIndex` into a new document,
+    one import per run of pages from the same file, so shared fonts and images are
+    copied once. Pages are copied, never re-rendered (FR-PDF-01). Pictures become
+    pages through the Phase 5 scan PDF writer first. Bookmarks are not carried over.
+  - Watermark and page numbers: text objects in a standard font (Helvetica), with
+    opacity written as an ExtGState; image watermarks are one shared form XObject,
+    so a 300-page watermark stores the picture once. Placement accounts for /Rotate,
+    so stamps read upright. Limit: the standard font covers Latin text only; other
+    characters are replaced by "?". Logged for Phase 7, when system fonts arrive.
+  - Annotate and Sign: standard Highlight / Underline / StrikeOut / Ink / Text
+    (note) annotations (FR-PDF-02). Signatures are Ink annotations (vector strokes),
+    so they stay sharp at any zoom. After adding them DocNook renders the page once
+    with annotations on, which makes PDFium write appearance streams (/AP) into the
+    file, so readers that don't draw annotations themselves still show them.
+    Saved signatures (max 3) are JSON stroke files in app-private storage.
+  - Fill forms: PDFium's form filler (`FORM_*`): text by focus + replace, checkboxes
+    and radios by a simulated tap, lists by `FORM_SetIndexSelected`. PDFium redraws
+    each field. "Flattened copy" runs `FPDFPage_Flatten` on every page.
+  - Compress: Light keeps the smaller of a full re-save and a page-by-page rebuild
+    (which drops unused objects). Balanced re-encodes photos over 64 KB as JPEG
+    (max 1600 px, quality 70), skipping images with transparency, 1-bit masks and
+    any image used on more than one page (replacing it per page would store copies).
+    Strong renders pages at ~115 dpi to JPEG, with an OCR text layer if chosen.
+  - Protect: a full PDFium save (classic xref, any old security removed), then the
+    Spike F AES-256 writer. Unlock: a PDFium save with `FPDF_REMOVE_SECURITY`.
+  - Redact: pages with marks are rendered at 200 dpi, the boxes are painted black
+    into the pixels, the page is rebuilt as a picture with an OCR text layer; pages
+    without marks are copied unchanged (FR-PDF-04).
+- Outputs go to `Documents/DocNook/Edited/` named like `Merged_2026-11-11_1432.pdf`
+  or `<name>_compressed.pdf` (FR-CORE-03). Only Organize can replace the original,
+  and only when the user picks "Replace the original" (CLAUDE.md rule 10).
+- One tool job at a time. Closing the progress sheet leaves it running behind a chip
+  on the Tools tab.
+- **Spikes B and G, desktop:** passed in `test/unit/pdfium_editor_test.dart` against
+  the real PDFium library (merge, highlight with /AP, text and image watermark,
+  page numbers on rotated pages, form text + checkbox fill and flatten, unlock,
+  balanced compression). Still to confirm on the phone and in Chrome / Adobe Reader.
+- Found while testing: on Windows the PDFium error code was overwritten before it
+  was read (a password-protected file looked damaged); the code is now read right
+  after the failed call, with a retry, as pdfrx does. `FPDFImageObj_GetImageMetadata`
+  needs the page handle to report colour depth.

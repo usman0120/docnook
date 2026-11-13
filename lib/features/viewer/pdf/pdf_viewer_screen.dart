@@ -11,6 +11,8 @@ import 'package:docnook/design_system/icons.dart';
 import 'package:docnook/design_system/tokens.dart';
 import 'package:docnook/domain/entities/document_info.dart';
 import 'package:docnook/features/search/application/indexer.dart';
+import 'package:docnook/features/tools/application/tool_models.dart';
+import 'package:docnook/features/tools/presentation/tool_sheets.dart';
 import 'package:docnook/features/viewer/application/open_document.dart';
 import 'package:docnook/features/viewer/pdf/pdf_panels.dart';
 import 'package:docnook/features/viewer/presentation/cant_open_screen.dart';
@@ -19,6 +21,7 @@ import 'package:docnook/features/viewer/presentation/viewer_chrome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pdfrx/pdfrx.dart';
 
 /// Inverts page colours for night reading, then rotates hue by 180° so
@@ -273,6 +276,26 @@ class _PdfViewerScreenState extends ConsumerState<PdfViewerScreen> {
     );
   }
 
+  /// Opens a PDF tool with this document (the local copy, so a file
+  /// shared from another app works too).
+  Future<void> _openTools(OpenedDocument doc) async {
+    final router = GoRouter.of(context);
+    final tool = await pickNextTool(context, includeMerge: true);
+    if (tool == null) return;
+    await router.push(
+      '/tool/${tool.name}',
+      extra: [
+        ToolInput(
+          uri: doc.path,
+          name: doc.name,
+          mime: 'application/pdf',
+          size: doc.sizeBytes,
+          documentId: doc.documentId,
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -371,6 +394,11 @@ class _PdfViewerScreenState extends ConsumerState<PdfViewerScreen> {
                       () => ref
                           .read(platformProvider)
                           .openWith(doc.request.uri, mime: 'application/pdf'),
+                    ),
+                    (
+                      l.actionPdfTools,
+                      PhosphorIconsRegular.wrench,
+                      () => unawaited(_openTools(doc)),
                     ),
                   ],
                 ),

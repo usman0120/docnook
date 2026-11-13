@@ -209,6 +209,7 @@ class DocNookChannels(
                 applySecureFlag()
                 result.success(null)
             }
+            "openFolder" -> result.success(openFolder(call.argument<String>("relative")!!))
             "sdkInt" -> result.success(Build.VERSION.SDK_INT)
             "tesseractAvailable" -> result.success(Tesseract.AVAILABLE)
             "urisExist" -> background(result) {
@@ -356,6 +357,22 @@ class DocNookChannels(
     /** A content:// URI for a file, or a MediaStore URI passed straight through. */
     private fun shareableUri(pathOrUri: String): Uri =
         if (pathOrUri.startsWith("content://")) Uri.parse(pathOrUri) else contentUri(pathOrUri)
+
+    /**
+     * Opens a folder of shared storage (e.g. "Documents/DocNook/Edited") in
+     * the system Files app. Not every Files app supports this; false then.
+     */
+    private fun openFolder(relative: String): Boolean {
+        val docId = "primary:" + relative.trim('/')
+        val uri = android.provider.DocumentsContract.buildDocumentUri(
+            "com.android.externalstorage.documents", docId,
+        )
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(uri, android.provider.DocumentsContract.Document.MIME_TYPE_DIR)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        return startSafely(intent)
+    }
 
     private fun openWith(path: String, mime: String?): Boolean {
         val uri = try {
