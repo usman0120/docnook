@@ -168,7 +168,9 @@ img.Image _flatten(img.Image src, {required bool color}) {
     luma[i] = (rgb[j] * 77 + rgb[j + 1] * 150 + rgb[j + 2] * 29) >> 8;
   }
   final bg = _Background(luma, w, h);
-  final out = Uint8List(color ? w * h * 3 : w * h);
+  // Always three channels: the JPEG encoder reads a one-channel image as
+  // red only.
+  final out = Uint8List(w * h * 3);
   for (var y = 0; y < h; y++) {
     for (var x = 0; x < w; x++) {
       final i = y * w + x;
@@ -180,7 +182,11 @@ img.Image _flatten(img.Image src, {required bool color}) {
           out[j + c] = _curve(rgb[j + c] * gain, strong: false);
         }
       } else {
-        out[i] = _curve(luma[i] * gain, strong: true);
+        final v = _curve(luma[i] * gain, strong: true);
+        final j = i * 3;
+        out[j] = v;
+        out[j + 1] = v;
+        out[j + 2] = v;
       }
     }
   }
@@ -188,7 +194,7 @@ img.Image _flatten(img.Image src, {required bool color}) {
     width: w,
     height: h,
     bytes: out.buffer,
-    numChannels: color ? 3 : 1,
+    numChannels: 3,
   );
 }
 
@@ -488,7 +494,8 @@ double detectSplit(String path, List<double> corners) {
 }
 
 /// ID-card JPG export: front and back at real size on a white A4 sheet at
-/// [dpi].
+/// [dpi], horizontally centred, the front 40 mm from the top and each next
+/// side 20 mm below the one above (FR-SCAN-04).
 ImageSize composeIdCardSheet({
   required List<String> cards,
   required String output,
@@ -498,15 +505,13 @@ ImageSize composeIdCardSheet({
   int mm(double v) => (v / 25.4 * dpi).round();
   final sheet = img.Image(width: mm(210), height: mm(297));
   img.fill(sheet, color: img.ColorRgb8(255, 255, 255));
-  final placements = idCardPlacements(cards.length);
+  var y = 40.0;
   for (var i = 0; i < cards.length; i++) {
     final card = loadUpright(cards[i]);
     final portrait = card.height > card.width;
-    final slot = placements[i];
     final wMm = portrait ? idCardHeightMm : idCardWidthMm;
     final hMm = portrait ? idCardWidthMm : idCardHeightMm;
-    final x = slot.centerXMm - wMm / 2;
-    final y = slot.topMm;
+    final x = 105 - wMm / 2;
     final resized = img.copyResize(
       card,
       width: mm(wMm),
@@ -514,17 +519,10 @@ ImageSize composeIdCardSheet({
       interpolation: img.Interpolation.average,
     );
     img.compositeImage(sheet, resized, dstX: mm(x), dstY: mm(y));
+    y += hMm + 20;
   }
   File('$output.part')
     ..writeAsBytesSync(img.encodeJpg(sheet, quality: jpegQuality), flush: true)
     ..renameSync(output);
   return (width: sheet.width, height: sheet.height);
 }
-
-/// Where ID-card images go on an A4 sheet, in millimetres from the top-left:
-/// horizontally centred, the front 40 mm from the top and the back 20 mm
-/// below it (BLUEPRINT FR-SCAN-04).
-List<({double centerXMm, double topMm})> idCardPlacements(int count) => [
-  for (var i = 0; i < count; i++)
-    (centerXMm: 105.0, topMm: 40 + i * (idCardWidthMm + 20)),
-];

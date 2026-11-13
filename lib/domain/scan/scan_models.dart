@@ -46,9 +46,9 @@ enum ScanPageSize {
 
 /// Output quality (S25): longest image edge and JPEG quality.
 enum ScanQuality {
-  small(1600, 60, 0.09),
-  balanced(2200, 75, 0.14),
-  best(3000, 88, 0.24);
+  small(1600, 60, 0.07),
+  balanced(2200, 75, 0.11),
+  best(3000, 88, 0.2);
 
   const ScanQuality(this.maxEdge, this.jpegQuality, this.bytesPerPixel);
 

@@ -789,6 +789,7 @@ Claude Code writes all the code in ten phases; you install each phase's build on
 - [ ] Spike A: open a 500-page PDF and a password PDF with pdfrx; measure first-page time.
 - [ ] Spike B: through PDFium FFI, merge two PDFs, add a highlight annotation, a text watermark and an image (signature); open the result in Chrome and Adobe Reader.
 - [ ] Spike C: ML Kit document scanner returns pages on the reference phone; fallback camera + crop works on an emulator without Play services; Tesseract English OCR works there too.
+  - 2026-11-13: ML Kit part passed on the Galaxy A06; emulator part still open.
 - [x] Spike D: parse a real 30-page DOCX into a throwaway DocModel and render paragraphs + one table.
 - [x] Spike E: stream-parse a 50k-cell XLSX in an isolate under 3 s.
 - [x] Spike F: Dart security writer encrypts a PDFium-saved PDF with AES-256; Chrome and Adobe Reader ask for the password and open it correctly.

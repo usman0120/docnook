@@ -143,12 +143,14 @@ PdfPagePlan planIdCardPage({
   final pw = size == ScanPageSize.letter ? size.width : ScanPageSize.a4.width;
   final ph = size == ScanPageSize.letter ? size.height : ScanPageSize.a4.height;
   final images = <PlacedImage>[];
+  var topMm = 40.0;
   for (var i = 0; i < cards.length; i++) {
     final card = cards[i];
     final portrait = card.height > card.width;
     final w = (portrait ? idCardHeightMm : idCardWidthMm) * pointsPerMm;
     final h = (portrait ? idCardWidthMm : idCardHeightMm) * pointsPerMm;
-    final top = (40 + i * (idCardWidthMm + 20)) * pointsPerMm;
+    final top = topMm * pointsPerMm;
+    topMm += (portrait ? idCardWidthMm : idCardHeightMm) + 20;
     images.add(
       PlacedImage(
         path: card.path,

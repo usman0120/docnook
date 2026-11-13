@@ -248,3 +248,26 @@ Design:
 
 Spike C status: ML Kit path builds; device test pending (owner's phone is shared;
 ask first). Fallback path still needs an emulator without Play services.
+
+## 2026-11-13 — Phase 5 device check (Galaxy A06)
+
+- Spike C, ML Kit half: Google's document scanner opens from DocNook (Scan button and
+  Tools tiles), imports from the gallery, finds and straightens pages, and hands
+  JPEGs back. Cancelling returns to Home with no draft.
+- 10-page scan with OCR saved in 8.4 s (target < 20 s); every page's text extracts
+  with pypdf, and DocNook's search finds a word on page 2. 2.3 MB at Balanced.
+- ID card: one A4 page, both sides exactly 85.6 × 54 mm, centred, 40 mm from the top.
+- Book: the fold was found exactly; one spread saved as two pages.
+- Killing the app during review keeps the draft; Home shows "Unfinished scan".
+- Fixed after the check: Document filter turned pages red (one-channel JPEG
+  encoding; now three channels, test checks all channels); review opened on the last
+  page; crop handles at the screen edge were swallowed by Android's back gesture
+  (48 dp side margin now); the dragged handle hid the corner in the magnifier (it
+  now hides itself); size estimate used the quality's maximum instead of each page's
+  real size (now within ~3 %); the export screen briefly said "saved or discarded"
+  behind the result sheet; the ID card back sits 20 mm below the front.
+- Not yet tested: the fallback camera and Tesseract on a phone without Google
+  services (needs an emulator without Play services).
+- Privacy note: with Auto capture on, the scanner took a photo of whatever was in
+  front of the camera during testing; it was discarded unsaved. Tests then used
+  Manual mode and generated pages only.

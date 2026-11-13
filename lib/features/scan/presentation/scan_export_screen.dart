@@ -43,6 +43,12 @@ class _ScanExportScreenState extends ConsumerState<ScanExportScreen> {
   bool _ocr = false;
   int? _collection;
   bool _saving = false;
+
+  /// Set once the scan is saved: the draft is gone, but the form stays on
+  /// screen behind the result sheet.
+  bool _finished = false;
+  ScanSession? _last;
+  List<(int, int)?>? _dims;
   bool _cancelled = false;
   double _progress = 0;
 
@@ -53,8 +59,10 @@ class _ScanExportScreenState extends ConsumerState<ScanExportScreen> {
   }
 
   void _load(ScanSession s) {
+    if (s.pages.isNotEmpty) _last = s;
     if (_loaded) return;
     _loaded = true;
+    _dims = ScanService.pageDimensions(s);
     _name.text = s.title;
     _size = s.pageSize;
     _quality = s.quality;
@@ -100,6 +108,7 @@ class _ScanExportScreenState extends ConsumerState<ScanExportScreen> {
     setState(() => _saving = false);
     switch (result) {
       case Ok(:final value):
+        setState(() => _finished = true);
         await _showResult(value);
       case Err(:final failure):
         if (failure.kind == FailureKind.cancelled) return;
@@ -217,12 +226,13 @@ class _ScanExportScreenState extends ConsumerState<ScanExportScreen> {
     final l = AppLocalizations.of(context);
     final c = context.colors;
     final async = ref.watch(scanSessionProvider(widget.sessionId));
-    final session = async.value;
-    if (session != null) _load(session);
+    final live = async.value;
+    if (live != null) _load(live);
+    final session = _finished ? _last : live;
     final collections = ref.watch(collectionsProvider).value ?? const [];
 
     return PopScope(
-      canPop: !_saving,
+      canPop: !_saving && !_finished,
       child: Scaffold(
         backgroundColor: c.paper,
         body: Column(
@@ -265,7 +275,7 @@ class _ScanExportScreenState extends ConsumerState<ScanExportScreen> {
   ) {
     final l = AppLocalizations.of(context);
     final c = context.colors;
-    final estimate = ScanService.estimateBytes(session, _quality);
+    final estimate = ScanService.estimateBytes(session, _quality, _dims);
     Widget label(String text) => Padding(
       padding: const EdgeInsets.fromLTRB(
         Space.screen,
@@ -276,7 +286,7 @@ class _ScanExportScreenState extends ConsumerState<ScanExportScreen> {
       child: Text(text, style: DocNookText.label.copyWith(color: c.inkMuted)),
     );
     return AbsorbPointer(
-      absorbing: _saving,
+      absorbing: _saving || _finished,
       child: ListView(
         padding: const EdgeInsets.only(bottom: Space.x6),
         children: [
@@ -424,7 +434,7 @@ class _ScanExportScreenState extends ConsumerState<ScanExportScreen> {
                 )
               : PrimaryButton(
                   label: l.actionSave,
-                  onPressed: () => unawaited(_save(session)),
+                  onPressed: _finished ? null : () => unawaited(_save(session)),
                 ),
         ),
       ),

@@ -112,7 +112,12 @@ class _CropScreenState extends ConsumerState<CropScreen> {
               ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.all(Space.x6),
+                  // 48 dp at the sides keeps the corner handles out of
+                  // Android's edge back-gesture zone, which would eat drags.
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Space.x12,
+                    vertical: Space.x6,
+                  ),
                   child: Center(
                     child: aspect == null
                         ? const CircularProgressIndicator()
@@ -218,16 +223,19 @@ class _CropScreenState extends ConsumerState<CropScreen> {
                       _dragging = null;
                       _finger = null;
                     }),
+                    // The dragged handle hides itself, so the magnifier
+                    // shows the page edge under the finger, not the dot.
                     child: Center(
-                      child: Container(
-                        width: 22,
-                        height: 22,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: _dragging == i
-                              ? context.colors.accent
-                              : _stageInk,
-                          border: Border.all(color: _stage, width: 2),
+                      child: Opacity(
+                        opacity: _dragging == i ? 0 : 1,
+                        child: Container(
+                          width: 22,
+                          height: 22,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _stageInk,
+                            border: Border.all(color: _stage, width: 2),
+                          ),
                         ),
                       ),
                     ),

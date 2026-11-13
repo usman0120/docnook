@@ -32,6 +32,10 @@ class _ScanReviewScreenState extends ConsumerState<ScanReviewScreen> {
   int _index = 0;
   int _lastCount = 0;
 
+  /// Set when the user taps Add page, so the pager follows the new pages.
+  /// Pages that arrive with a fresh scan don't move it off page 1.
+  bool _followNew = false;
+
   @override
   void dispose() {
     _pager.dispose();
@@ -92,7 +96,7 @@ class _ScanReviewScreenState extends ConsumerState<ScanReviewScreen> {
 
     final pages = session.pages;
     // Jump to a page that was just added.
-    if (pages.length > _lastCount && _lastCount > 0) {
+    if (_followNew && pages.length > _lastCount && _lastCount > 0) {
       final target = pages.length - 1;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _goTo(target);
@@ -129,7 +133,7 @@ class _ScanReviewScreenState extends ConsumerState<ScanReviewScreen> {
                     art: EmptyArt.scannerFrame,
                     title: l.scanNoPagesTitle,
                     primaryLabel: l.scanAddPage,
-                    onPrimary: () => unawaited(addPages(context, ref, session)),
+                    onPrimary: () => unawaited(_add(session)),
                   )
                 : PageView.builder(
                     controller: _pager,
@@ -156,7 +160,7 @@ class _ScanReviewScreenState extends ConsumerState<ScanReviewScreen> {
               pages: pages,
               selected: index,
               onSelect: _goTo,
-              onAdd: () => unawaited(addPages(context, ref, session)),
+              onAdd: () => unawaited(_add(session)),
               onReorder: (ids) => unawaited(_service.reorder(session.id, ids)),
             ),
             ViewerBottomBar(
@@ -193,6 +197,11 @@ class _ScanReviewScreenState extends ConsumerState<ScanReviewScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _add(ScanSession session) async {
+    _followNew = true;
+    await addPages(context, ref, session);
   }
 
   Future<void> _crop(ScanSession session, ScanPage page) async {

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:docnook/app/providers.dart';
 import 'package:docnook/core/failures.dart';
@@ -313,14 +314,47 @@ class ScanService {
   }
 
   /// Expected output size in bytes, for S25.
-  static int estimateBytes(ScanSession session, ScanQuality quality) {
+  /// Width and height of each page's photo, read from its JPEG header
+  /// (null when unreadable). Cheap: only the first 64 KB are read.
+  static List<(int, int)?> pageDimensions(ScanSession session) => [
+    for (final page in session.pages) _jpegSize(page.originalPath),
+  ];
+
+  static (int, int)? _jpegSize(String path) {
+    try {
+      final file = File(path).openSync();
+      try {
+        final info = readJpegInfo(file.readSync(64 * 1024));
+        return (info.width, info.height);
+      } finally {
+        file.closeSync();
+      }
+    } on Object {
+      return null;
+    }
+  }
+
+  /// Expected output size in bytes, for S25: each page's cropped area,
+  /// shrunk to the quality's longest edge, times a typical JPEG rate.
+  static int estimateBytes(
+    ScanSession session,
+    ScanQuality quality, [
+    List<(int, int)?>? dimensions,
+  ]) {
     var pixels = 0.0;
-    for (final page in session.pages) {
-      final halves =
-          session.mode == ScanMode.book && page.geometry.split != null ? 2 : 1;
-      // Pages are about A4-shaped; the long edge is capped by quality.
-      final long = quality.maxEdge.toDouble();
-      pixels += halves * long * long * 0.707 / (halves == 2 ? 2 : 1);
+    for (var i = 0; i < session.pages.length; i++) {
+      final page = session.pages[i];
+      final dims = dimensions != null && i < dimensions.length
+          ? dimensions[i]
+          : null;
+      final w = (dims?.$1 ?? 1240).toDouble();
+      final h = (dims?.$2 ?? 1754).toDouble();
+      final area = quadArea(page.geometry.quad).clamp(0.05, 1.0);
+      final longEdge = math.max(w, h) * math.sqrt(area);
+      final shrink = longEdge > quality.maxEdge
+          ? quality.maxEdge / longEdge
+          : 1.0;
+      pixels += w * h * area * shrink * shrink;
     }
     return (pixels * quality.bytesPerPixel).round() + 2048;
   }

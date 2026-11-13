@@ -6,6 +6,7 @@ import 'package:docnook/data/repositories/scan_repository.dart';
 import 'package:docnook/domain/scan/scan_models.dart';
 import 'package:docnook/engines/scan/scan_image.dart';
 import 'package:docnook/engines/scan/scan_pdf_writer.dart';
+import 'package:docnook/features/scan/application/scan_service.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
@@ -140,6 +141,11 @@ void main() {
       // Document filter: paper becomes white.
       final paper = decoded.getPixel(20, size.height ~/ 2);
       expect(paper.r, greaterThan(240));
+      expect(paper.g, greaterThan(240));
+      expect(paper.b, greaterThan(240));
+      // Ink stays dark and grey (no colour cast).
+      final ink = decoded.getPixel(size.width ~/ 2, size.height ~/ 2);
+      expect((ink.r - ink.g).abs(), lessThan(12));
     });
 
     test('book spreads split at the gutter and render each half', () {
@@ -209,6 +215,10 @@ void main() {
       expect(sheet.getPixel(left + 5, top + 5).b, greaterThan(50));
       expect(sheet.getPixel(left + 5, top + 5).r, lessThan(80));
       expect(sheet.getPixel(left - 8, top + 5).r, greaterThan(240));
+      // The back starts 20 mm below the front (40 + 54 + 20 = 114 mm).
+      final backTop = (114 / 25.4 * 200).round();
+      expect(sheet.getPixel(left + 5, backTop - 8).r, greaterThan(240));
+      expect(sheet.getPixel(left + 5, backTop + 8).r, lessThan(80));
     });
   });
 
@@ -262,6 +272,9 @@ void main() {
         page.images[0].x + page.images[0].width / 2,
         closeTo(page.width / 2, 0.01),
       );
+      // Front 40 mm from the top; back 20 mm below the front's 54 mm.
+      expect(page.images[0].y, closeTo(40 * 72 / 25.4, 0.01));
+      expect(page.images[1].y, closeTo(114 * 72 / 25.4, 0.01));
     });
 
     test('writes a valid PDF with an invisible text layer', () {
@@ -327,6 +340,52 @@ void main() {
       expect(helveticaWidth('i'), closeTo(0.222, 0.001));
       expect(helveticaWidth('WW'), closeTo(1.888, 0.001));
     });
+  });
+
+  test('size estimate follows the real page size and crop', () {
+    ScanSession session(List<Quad> quads) => ScanSession(
+      id: 1,
+      title: 't',
+      mode: ScanMode.document,
+      updatedAt: DateTime(2026),
+      pages: [
+        for (var i = 0; i < quads.length; i++)
+          ScanPage(
+            id: i,
+            position: i,
+            originalPath: '',
+            geometry: PageGeometry(quad: quads[i]),
+          ),
+      ],
+    );
+    final full = session([Quad.full, Quad.full]);
+    // ML Kit pages are about 1220 x 1730; ten of them came to 2.3 MB.
+    final dims = [(1220, 1730), (1220, 1730)];
+    final balanced = ScanService.estimateBytes(
+      full,
+      ScanQuality.balanced,
+      dims,
+    );
+    expect(balanced, closeTo(2 * 232000, 30000));
+    // Small caps the long edge at 1600 px and compresses harder.
+    expect(
+      ScanService.estimateBytes(full, ScanQuality.small, dims),
+      lessThan(balanced),
+    );
+    const half = Quad(
+      NPoint(0, 0),
+      NPoint(1, 0),
+      NPoint(1, 0.5),
+      NPoint(0, 0.5),
+    );
+    expect(
+      ScanService.estimateBytes(
+        session([half, half]),
+        ScanQuality.balanced,
+        dims,
+      ),
+      lessThan(balanced * 0.6),
+    );
   });
 
   group('drafts', () {
