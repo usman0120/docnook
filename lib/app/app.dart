@@ -154,6 +154,16 @@ void registerLicenses() {
   });
   LicenseRegistry.addLicense(() async* {
     final text = await rootBundle.loadString(
+      'assets/licenses/fonts-Noto-OFL.txt',
+    );
+    yield LicenseEntryWithLineBreaks(const [
+      'Noto Sans',
+      'Noto Serif',
+      'Noto Sans Mono',
+    ], text);
+  });
+  LicenseRegistry.addLicense(() async* {
+    final text = await rootBundle.loadString(
       'assets/licenses/phosphor-MIT.txt',
     );
     yield LicenseEntryWithLineBreaks(const ['Phosphor Icons'], text);

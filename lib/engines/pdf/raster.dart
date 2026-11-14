@@ -13,7 +13,11 @@ final class RasterPageArgs {
     required this.output,
     required this.quality,
     this.boxes = const [],
+    this.png = false,
   });
+
+  /// Write a PNG instead of a JPEG (PDF → Images).
+  final bool png;
 
   /// [width] × [height] pixels, BGRA, as PDFium renders them.
   final Uint8List bgra;
@@ -65,9 +69,11 @@ int rasterPage(RasterPageArgs a, JobContext _) {
       color: img.ColorRgb8(0, 0, 0),
     );
   }
-  final jpeg = img.encodeJpg(flat, quality: a.quality);
-  File(a.output).writeAsBytesSync(jpeg, flush: true);
-  return jpeg.length;
+  final bytes = a.png
+      ? img.encodePng(flat)
+      : img.encodeJpg(flat, quality: a.quality);
+  File(a.output).writeAsBytesSync(bytes, flush: true);
+  return bytes.length;
 }
 
 /// An image file prepared for a PDF page: a baseline JPEG, upright.
@@ -80,12 +86,28 @@ final class PreparedImage {
 
 /// Decodes any supported picture, applies its EXIF orientation and writes
 /// a JPEG to [output]. Runs in a JobRunner isolate.
-PreparedImage prepareImage((String, String, int) args, JobContext _) {
-  final (input, output, quality) = args;
+PreparedImage prepareImage((String, String, int) args, JobContext context) =>
+    prepareImageMax((args.$1, args.$2, args.$3, 0), context);
+
+/// [prepareImage], shrunk to at most `maxEdge` pixels on the longer side
+/// (0 keeps the full size).
+PreparedImage prepareImageMax((String, String, int, int) args, JobContext _) {
+  final (input, output, quality, maxEdge) = args;
   final bytes = File(input).readAsBytesSync();
   final decoded = img.decodeImage(bytes);
   if (decoded == null) throw const FormatException('image');
-  final upright = img.bakeOrientation(decoded);
+  var upright = img.bakeOrientation(decoded);
+  final longest = upright.width > upright.height
+      ? upright.width
+      : upright.height;
+  if (maxEdge > 0 && longest > maxEdge) {
+    upright = img.copyResize(
+      upright,
+      width: upright.width >= upright.height ? maxEdge : null,
+      height: upright.height > upright.width ? maxEdge : null,
+      interpolation: img.Interpolation.average,
+    );
+  }
   final flat = upright.hasAlpha
       ? (img.Image(width: upright.width, height: upright.height)
           ..clear(img.ColorRgb8(255, 255, 255)))

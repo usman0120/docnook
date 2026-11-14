@@ -1,8 +1,9 @@
 import 'package:docnook/core/failures.dart';
+import 'package:docnook/data/files/file_type_detector.dart';
 import 'package:docnook/domain/entities/doc_type.dart';
 import 'package:meta/meta.dart';
 
-/// Every tool in the Tools hub (S07).
+/// Every tool in the Tools hub (S07) that runs through the tool flow.
 enum ToolId {
   merge,
   split,
@@ -15,7 +16,17 @@ enum ToolId {
   sign,
   annotate,
   fillForms,
-  redact;
+  redact,
+  imagesToPdf,
+  pdfToImages,
+  pdfToText,
+  wordToPdf,
+  excelToPdf,
+  pptToPdf,
+  textToPdf,
+  pdfToWord,
+  csvExcel,
+  extractText;
 
   static ToolId? byName(String name) {
     for (final t in values) {
@@ -24,9 +35,56 @@ enum ToolId {
     return null;
   }
 
-  /// Merge takes several files and accepts pictures too.
-  bool get multiple => this == merge;
-  bool get acceptsImages => this == merge;
+  static const _images = {
+    DocFormat.jpeg,
+    DocFormat.png,
+    DocFormat.webp,
+    DocFormat.gif,
+    DocFormat.bmp,
+  };
+
+  /// The formats this tool takes (BLUEPRINT 2.3, 2.4).
+  Set<DocFormat> get accepts => switch (this) {
+    merge => {DocFormat.pdf, ..._images},
+    imagesToPdf || extractText => _images,
+    wordToPdf => {DocFormat.docx, DocFormat.dotx, DocFormat.odt, DocFormat.rtf},
+    excelToPdf => {
+      DocFormat.xlsx,
+      DocFormat.xlsm,
+      DocFormat.ods,
+      DocFormat.csv,
+      DocFormat.tsv,
+    },
+    pptToPdf => {DocFormat.pptx},
+    textToPdf => {DocFormat.plainText, DocFormat.code, DocFormat.markdown},
+    csvExcel => {
+      DocFormat.csv,
+      DocFormat.tsv,
+      DocFormat.xlsx,
+      DocFormat.xlsm,
+      DocFormat.ods,
+    },
+    _ => {DocFormat.pdf},
+  };
+
+  /// MIME types for the system picker.
+  List<String> get pickerMimes => {
+    for (final f in accepts) f.mime,
+    if (accepts.any(_images.contains)) 'image/*',
+  }.toList();
+
+  /// Several files at once: Merge and Images → PDF combine them; the
+  /// converters run them as a batch (BLUEPRINT 2.3).
+  bool get multiple =>
+      this == merge ||
+      this == imagesToPdf ||
+      this == pdfToImages ||
+      this == wordToPdf ||
+      this == excelToPdf ||
+      this == pptToPdf;
+
+  /// Batch converters: one output per input.
+  bool get batch => multiple && this != merge && this != imagesToPdf;
 
   /// Tools with their own full-screen editor instead of an options form.
   bool get visual =>
@@ -35,6 +93,19 @@ enum ToolId {
       this == annotate ||
       this == fillForms ||
       this == redact;
+
+  bool get converts => index >= imagesToPdf.index;
+
+  /// Where the output goes inside Documents/DocNook.
+  String get subdir => converts ? 'Converted' : 'Edited';
+
+  /// How faithful the result is, shown before starting (FR-CONV-01).
+  Fidelity? get fidelity => switch (this) {
+    imagesToPdf || pdfToImages || textToPdf || pdfToText => Fidelity.full,
+    wordToPdf || excelToPdf || csvExcel => Fidelity.good,
+    pptToPdf || pdfToWord => Fidelity.basic,
+    _ => null,
+  };
 }
 
 /// A file a tool works on: what the picker or "Do more" hands over.
@@ -55,14 +126,17 @@ final class ToolInput {
   final int? size;
   final int? documentId;
 
-  DocType get type {
-    final lower = name.toLowerCase();
-    if ((mime ?? '').startsWith('image/') ||
-        RegExp(r'\.(jpe?g|png|webp|gif|bmp|heic|heif)$').hasMatch(lower)) {
-      return DocType.image;
-    }
-    return DocType.pdf;
+  DocFormat get format {
+    final byName = FileTypeDetector.formatForExtension(
+      FileTypeDetector.extensionOf(name),
+    );
+    if (byName != null) return byName;
+    if ((mime ?? '').startsWith('image/')) return DocFormat.jpeg;
+    if (mime == 'application/pdf') return DocFormat.pdf;
+    return DocFormat.unknown;
   }
+
+  DocType get type => format.docType;
 
   /// True when the original can be replaced in place ("overwrite").
   bool get overwritable => !uri.startsWith('content://');
@@ -77,6 +151,7 @@ final class ToolOutput {
     required this.bytes,
     this.pages,
     this.documentId,
+    this.mime = 'application/pdf',
   });
 
   final String uri;
@@ -84,11 +159,12 @@ final class ToolOutput {
   final int bytes;
   final int? pages;
   final int? documentId;
+  final String mime;
 
   ToolInput get asInput => ToolInput(
     uri: uri,
     name: name,
-    mime: 'application/pdf',
+    mime: mime,
     size: bytes,
     documentId: documentId,
   );

@@ -865,11 +865,11 @@ Claude Code writes all the code in ten phases; you install each phase's build on
 
 ### Phase 7 — Convert (2.5 weeks)
 
-- [ ] Images → PDF, PDF → images, PDF → text (OCR fallback).
-- [ ] DocModel → `pdf` renderer: DOCX/ODT/RTF → PDF, text/markdown → PDF, with system-font fallback for non-Latin text.
-- [ ] SheetModel → PDF with fit-to-width and page breaks; PPTX → PDF (one slide per page).
-- [ ] PDF → DocModel (text runs grouped into lines/paragraphs by position, headings by font size) → DOCX writer.
-- [ ] CSV ↔ XLSX; batch mode for the converters listed in 2.3.
+- [x] Images → PDF, PDF → images, PDF → text (OCR fallback).
+- [x] DocModel → `pdf` renderer: DOCX/ODT/RTF → PDF, text/markdown → PDF, with system-font fallback for non-Latin text.
+- [x] SheetModel → PDF with fit-to-width and page breaks; PPTX → PDF (one slide per page).
+- [x] PDF → DocModel (text runs grouped into lines/paragraphs by position, headings by font size) → DOCX writer.
+- [x] CSV ↔ XLSX; batch mode for the converters listed in 2.3.
 
 **Done when:** converted fixtures pass side-by-side visual review at their stated fidelity level; a batch of 20 images → PDF completes without memory warnings.
 

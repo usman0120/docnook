@@ -29,6 +29,7 @@ dependencies:
   meta: ^1.19.0
   path: ^1.9.1
   path_provider: ^2.1.6
+  pdf: ^3.13.1
   pdfium_dart: ^0.4.1
   pdfrx: ^2.12.0
   pointycastle: ^4.0.0
@@ -51,6 +52,8 @@ flutter:
 
   assets:
     - assets/licenses/
+    # Fonts embedded in converted PDFs (Latin, Greek, Cyrillic subsets).
+    - assets/docfonts/
 
   fonts:
     - family: Inter

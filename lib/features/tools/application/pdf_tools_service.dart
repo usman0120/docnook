@@ -33,9 +33,8 @@ class PdfToolsService {
 
   final Ref _ref;
 
-  static const subdir = 'Edited';
-
   JobRunner get _jobs => _ref.read(jobRunnerProvider);
+  JobRunner get jobs => _jobs;
 
   static final _toolSuffixes = RegExp(
     '(_(merged|organized|compressed|protected|unlocked|watermarked|'
@@ -45,10 +44,13 @@ class PdfToolsService {
   /// `Merged_2026-11-11_1432` for Merge; `name_suffix` otherwise.
   static String defaultName(ToolId tool, String? inputName, DateTime now) {
     final stamp = DateFormat('yyyy-MM-dd_HHmm').format(now);
-    if (tool == ToolId.merge || inputName == null) {
+    if (tool == ToolId.merge ||
+        tool == ToolId.imagesToPdf ||
+        inputName == null) {
       final label = switch (tool) {
         ToolId.merge => 'Merged',
-        _ => 'Edited',
+        ToolId.imagesToPdf => 'Images',
+        _ => tool.converts ? 'Converted' : 'Edited',
       };
       return '${label}_$stamp';
     }
@@ -70,8 +72,10 @@ class PdfToolsService {
       ToolId.annotate => 'annotated',
       ToolId.fillForms => 'filled',
       ToolId.redact => 'redacted',
+      // Converters keep the name; the new extension tells them apart.
+      _ => '',
     };
-    return '${base}_$suffix';
+    return suffix.isEmpty ? base : '${base}_$suffix';
   }
 
   /// A readable local copy of [input] (content URIs are streamed into the
@@ -109,14 +113,14 @@ class PdfToolsService {
         PdfSource(await localPath(input), password: password),
       );
 
-  Directory _workDir() =>
+  Directory workDir() =>
       Directory(_ref.read(appPathsProvider).tmp).createTempSync('tool_');
 
-  Future<ToolResult> _guarded(
+  Future<ToolResult> guarded(
     ToolId tool,
     Future<ToolResult> Function(Directory work) body,
   ) async {
-    final work = _workDir();
+    final work = workDir();
     try {
       return await body(work);
     } finally {
@@ -130,7 +134,19 @@ class PdfToolsService {
 
   /// Copies [file] to `Documents/DocNook/Edited/<name>.pdf` and registers
   /// it in the library.
-  Future<ToolOutput> _publish(String file, String name, {int? pages}) async {
+  Future<ToolOutput> _publish(String file, String name, {int? pages}) =>
+      publish(file, name, pages: pages);
+
+  /// Copies [file] to `Documents/DocNook/<subdir>/<name>.<ext>` and
+  /// registers it in the library (FR-CORE-03).
+  Future<ToolOutput> publish(
+    String file,
+    String name, {
+    int? pages,
+    String subdir = 'Edited',
+    DocFormat format = DocFormat.pdf,
+    String extension = 'pdf',
+  }) async {
     final clean = ScanService.safeName(name);
     final saved =
         (await _ref
@@ -138,8 +154,8 @@ class PdfToolsService {
                 .saveToDocuments(
                   source: file,
                   subdir: subdir,
-                  name: '$clean.pdf',
-                  mime: DocFormat.pdf.mime,
+                  name: '$clean.$extension',
+                  mime: format.mime,
                 ))
             .orThrow;
     final size = File(file).lengthSync();
@@ -148,13 +164,15 @@ class PdfToolsService {
     final id = await documents.upsert(
       uri: uri,
       name: saved.name,
-      format: DocFormat.pdf,
+      format: format,
       source: DocSource.created,
-      extension: 'pdf',
+      extension: extension,
       sizeBytes: size,
       modifiedAt: DateTime.now(),
     );
-    final count = pages ?? await _pageCount(file);
+    final count = format == DocFormat.pdf
+        ? pages ?? await _pageCount(file)
+        : pages;
     if (count != null) await documents.setPageCount(id, count);
     return ToolOutput(
       uri: uri,
@@ -162,6 +180,7 @@ class PdfToolsService {
       bytes: size,
       pages: count,
       documentId: id,
+      mime: format.mime,
     );
   }
 
@@ -182,7 +201,7 @@ class PdfToolsService {
     required Map<int, String> passwords,
     required String name,
     required EditControl control,
-  }) => _guarded(ToolId.merge, (work) async {
+  }) => guarded(ToolId.merge, (work) async {
     final sources = <PdfSource>[];
     final pages = <PageSpec>[];
     final images = <int>[];
@@ -273,7 +292,7 @@ class PdfToolsService {
     required List<List<int>> groups,
     required String name,
     required EditControl control,
-  }) => _guarded(ToolId.split, (work) async {
+  }) => guarded(ToolId.split, (work) async {
     final path = await localPath(input);
     final outputs = <ToolOutput>[];
     for (var g = 0; g < groups.length; g++) {
@@ -302,7 +321,7 @@ class PdfToolsService {
     required String name,
     required bool overwrite,
     required EditControl control,
-  }) => _guarded(ToolId.organize, (work) async {
+  }) => guarded(ToolId.organize, (work) async {
     final path = await localPath(input);
     final sources = [PdfSource(path, password: password)];
     if (extraImages.isNotEmpty) {
@@ -380,7 +399,7 @@ class PdfToolsService {
     required bool ocr,
     required String name,
     required EditControl control,
-  }) => _guarded(ToolId.compress, (work) async {
+  }) => guarded(ToolId.compress, (work) async {
     final path = await localPath(input);
     final source = PdfSource(path, password: password);
     final before = File(path).lengthSync();
@@ -542,7 +561,7 @@ class PdfToolsService {
     required String password,
     required String name,
     required EditControl control,
-  }) => _guarded(ToolId.protect, (work) async {
+  }) => guarded(ToolId.protect, (work) async {
     final path = await localPath(input);
     // A full PDFium save gives the classic cross-reference table the
     // security writer needs, and drops any old security.
@@ -576,7 +595,7 @@ class PdfToolsService {
     required String password,
     required String name,
     required EditControl control,
-  }) => _guarded(ToolId.unlock, (work) async {
+  }) => guarded(ToolId.unlock, (work) async {
     final path = await localPath(input);
     final out = p.join(work.path, 'out.pdf');
     await PdfiumEditor.resave(
@@ -605,7 +624,7 @@ class PdfToolsService {
     required EditControl control,
     ToolInput? image,
     int firstNumber = 1,
-  }) => _guarded(tool, (work) async {
+  }) => guarded(tool, (work) async {
     final path = await localPath(input);
     var spec = stamp;
     if (image != null) {
@@ -645,7 +664,7 @@ class PdfToolsService {
     required List<PdfMark> marks,
     required String name,
     required EditControl control,
-  }) => _guarded(tool, (work) async {
+  }) => guarded(tool, (work) async {
     final path = await localPath(input);
     final out = p.join(work.path, 'out.pdf');
     await PdfiumEditor.annotate(
@@ -664,7 +683,7 @@ class PdfToolsService {
     required bool flatten,
     required String name,
     required EditControl control,
-  }) => _guarded(ToolId.fillForms, (work) async {
+  }) => guarded(ToolId.fillForms, (work) async {
     final path = await localPath(input);
     final out = p.join(work.path, 'out.pdf');
     await PdfiumEditor.fillForm(
@@ -689,7 +708,7 @@ class PdfToolsService {
     required bool ocr,
     required String name,
     required EditControl control,
-  }) => _guarded(ToolId.redact, (work) async {
+  }) => guarded(ToolId.redact, (work) async {
     final path = await localPath(input);
     final info = await PdfiumEditor.inspect(
       PdfSource(path, password: password),

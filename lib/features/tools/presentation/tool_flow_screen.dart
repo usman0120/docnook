@@ -50,7 +50,9 @@ Future<List<PreparedInput>?> prepareInputs(
   final messenger = ScaffoldMessenger.of(context);
   final out = <PreparedInput>[];
   for (final input in inputs) {
-    if (input.type == DocType.image) {
+    // Only PDFs are opened here (passwords, page counts); other files
+    // are read by their converter.
+    if (input.format != DocFormat.pdf) {
       out.add(PreparedInput(input, null, null));
       continue;
     }
@@ -183,19 +185,35 @@ class _ToolPickerState extends ConsumerState<ToolPicker> {
     final files = await ref
         .read(platformProvider)
         .pickFiles(
-          mimes: ['application/pdf', if (widget.tool.acceptsImages) 'image/*'],
+          mimes: widget.tool.pickerMimes,
           multiple: widget.tool.multiple,
         );
     if (files.isEmpty || !mounted) return;
-    widget.onPicked([
+    final inputs = [
       for (final f in files)
         ToolInput(
           uri: f.uri,
-          name: f.name ?? 'file.pdf',
+          name: f.name ?? 'file',
           mime: f.mime,
           size: f.size,
         ),
-    ]);
+    ];
+    // The system picker filters by MIME type only loosely.
+    final usable = [
+      for (final i in inputs)
+        if (widget.tool.accepts.contains(i.format)) i,
+    ];
+    if (usable.length < inputs.length) {
+      final l = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(l.toolWrongType(inputs.length - usable.length)),
+          ),
+        );
+    }
+    if (usable.isNotEmpty) widget.onPicked(usable);
   }
 
   void _tap(DocumentInfo d) {
@@ -212,17 +230,18 @@ class _ToolPickerState extends ConsumerState<ToolPicker> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final c = context.colors;
+    final accepts = widget.tool.accepts;
     final query = (
-      filter: widget.tool.acceptsImages ? LibraryFilter.all : LibraryFilter.pdf,
+      filter: accepts.length == 1 && accepts.single == DocFormat.pdf
+          ? LibraryFilter.pdf
+          : LibraryFilter.all,
       sort: LibrarySort.recent,
       collection: null,
     );
     final async = ref.watch(libraryDocsProvider(query));
     final docs = [
       for (final d in async.value ?? const <DocumentInfo>[])
-        if (d.type == DocType.pdf ||
-            (widget.tool.acceptsImages && d.type == DocType.image))
-          d,
+        if (accepts.contains(_input(d).format)) d,
     ];
     final count = _selected.length;
     return Scaffold(
@@ -246,9 +265,7 @@ class _ToolPickerState extends ConsumerState<ToolPicker> {
         _ when async.isLoading && docs.isEmpty => const LoadingState(),
         _ when docs.isEmpty => EmptyState(
           art: EmptyArt.openFolder,
-          title: widget.tool.acceptsImages
-              ? l.toolPickEmptyAny
-              : l.toolPickEmptyPdf,
+          title: l.toolPickEmptyFor(toolTitle(l, widget.tool)),
           body: l.toolPickEmptyBody,
           primaryLabel: l.toolBrowseDevice,
           onPrimary: _browse,
@@ -264,7 +281,11 @@ class _ToolPickerState extends ConsumerState<ToolPicker> {
                 Space.x2,
               ),
               child: Text(
-                widget.tool.multiple ? l.toolPickMany : l.toolPickOne,
+                widget.tool.multiple
+                    ? l.toolPickMany
+                    : (accepts.length == 1 && accepts.single == DocFormat.pdf
+                          ? l.toolPickOne
+                          : l.toolPickFile),
                 style: DocNookText.caption.copyWith(color: c.inkMuted),
               ),
             ),

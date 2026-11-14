@@ -3531,6 +3531,258 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tap a mark to remove it.'**
   String get annotHintEraser;
+
+  /// No description provided for @actionTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Tools'**
+  String get actionTools;
+
+  /// No description provided for @toolWrongType.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 file can’t be used with this tool.} other{{n} files can’t be used with this tool.}}'**
+  String toolWrongType(int n);
+
+  /// No description provided for @toolPickEmptyFor.
+  ///
+  /// In en, this message translates to:
+  /// **'No files for {tool} in your library yet'**
+  String toolPickEmptyFor(String tool);
+
+  /// No description provided for @toolPickFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a file'**
+  String get toolPickFile;
+
+  /// No description provided for @toolCopyText.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy text'**
+  String get toolCopyText;
+
+  /// No description provided for @toolTextCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Text copied.'**
+  String get toolTextCopied;
+
+  /// No description provided for @toolMakePdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Make PDF'**
+  String get toolMakePdf;
+
+  /// No description provided for @toolReadText.
+  ///
+  /// In en, this message translates to:
+  /// **'Read text'**
+  String get toolReadText;
+
+  /// No description provided for @toolConvert.
+  ///
+  /// In en, this message translates to:
+  /// **'Convert'**
+  String get toolConvert;
+
+  /// No description provided for @toolConvertMany.
+  ///
+  /// In en, this message translates to:
+  /// **'Convert {n} files'**
+  String toolConvertMany(int n);
+
+  /// No description provided for @toolFilesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Files'**
+  String get toolFilesLabel;
+
+  /// No description provided for @fidelityFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Full'**
+  String get fidelityFull;
+
+  /// No description provided for @fidelityGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get fidelityGood;
+
+  /// No description provided for @fidelityBasic.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic'**
+  String get fidelityBasic;
+
+  /// No description provided for @limitImagesToPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'One picture per page, in the order shown.'**
+  String get limitImagesToPdf;
+
+  /// No description provided for @limitPdfToImages.
+  ///
+  /// In en, this message translates to:
+  /// **'Each page becomes a separate picture.'**
+  String get limitPdfToImages;
+
+  /// No description provided for @limitPdfToText.
+  ///
+  /// In en, this message translates to:
+  /// **'Text only, no layout. Scanned pages are read with OCR.'**
+  String get limitPdfToText;
+
+  /// No description provided for @limitWordToPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses DocNook’s own layout, not Word’s; complex layouts may shift.'**
+  String get limitWordToPdf;
+
+  /// No description provided for @limitExcelToPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Sheet to pages; charts and pictures in cells are left out.'**
+  String get limitExcelToPdf;
+
+  /// No description provided for @limitPptToPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'One slide per page; animations and some shapes are simplified.'**
+  String get limitPptToPdf;
+
+  /// No description provided for @limitTextToPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Plain text and Markdown, exactly as written.'**
+  String get limitTextToPdf;
+
+  /// No description provided for @limitPdfToWord.
+  ///
+  /// In en, this message translates to:
+  /// **'Paragraphs, headings and pictures; no complex layout.'**
+  String get limitPdfToWord;
+
+  /// No description provided for @limitCsvExcel.
+  ///
+  /// In en, this message translates to:
+  /// **'All data is kept; formatting is minimal.'**
+  String get limitCsvExcel;
+
+  /// No description provided for @convPageSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Page size'**
+  String get convPageSize;
+
+  /// No description provided for @convFitPicture.
+  ///
+  /// In en, this message translates to:
+  /// **'Fit picture'**
+  String get convFitPicture;
+
+  /// No description provided for @convMargins.
+  ///
+  /// In en, this message translates to:
+  /// **'Margins'**
+  String get convMargins;
+
+  /// No description provided for @convMarginNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get convMarginNone;
+
+  /// No description provided for @convMarginNormal.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal'**
+  String get convMarginNormal;
+
+  /// No description provided for @convQuality.
+  ///
+  /// In en, this message translates to:
+  /// **'Quality'**
+  String get convQuality;
+
+  /// No description provided for @convBest.
+  ///
+  /// In en, this message translates to:
+  /// **'Best'**
+  String get convBest;
+
+  /// No description provided for @convImageFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Format'**
+  String get convImageFormat;
+
+  /// No description provided for @convResolution.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolution'**
+  String get convResolution;
+
+  /// No description provided for @convDpiScreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Screen'**
+  String get convDpiScreen;
+
+  /// No description provided for @convDpiPrint.
+  ///
+  /// In en, this message translates to:
+  /// **'Print'**
+  String get convDpiPrint;
+
+  /// No description provided for @convDpiHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'High'**
+  String get convDpiHigh;
+
+  /// No description provided for @convImagesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Each PDF page is saved as its own picture.'**
+  String get convImagesHint;
+
+  /// No description provided for @convOcrScanned.
+  ///
+  /// In en, this message translates to:
+  /// **'Read scanned pages'**
+  String get convOcrScanned;
+
+  /// No description provided for @convOcrScannedHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages with no text layer are read with OCR. Takes longer.'**
+  String get convOcrScannedHelp;
+
+  /// No description provided for @convFitWidth.
+  ///
+  /// In en, this message translates to:
+  /// **'Fit columns to the page width'**
+  String get convFitWidth;
+
+  /// No description provided for @convFitWidthHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Very wide sheets continue on extra pages.'**
+  String get convFitWidthHelp;
+
+  /// No description provided for @convToExcel.
+  ///
+  /// In en, this message translates to:
+  /// **'Makes an Excel file (.xlsx).'**
+  String get convToExcel;
+
+  /// No description provided for @convToCsv.
+  ///
+  /// In en, this message translates to:
+  /// **'Makes one CSV file for each sheet.'**
+  String get convToCsv;
 }
 
 class _AppLocalizationsDelegate

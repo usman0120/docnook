@@ -12,6 +12,7 @@ import 'package:docnook/design_system/typography.dart';
 import 'package:docnook/domain/entities/doc_type.dart';
 import 'package:docnook/domain/entities/document_info.dart';
 import 'package:docnook/features/library/application/library_controller.dart';
+import 'package:docnook/features/tools/application/tool_models.dart';
 import 'package:docnook/features/tools/presentation/tool_sheets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -78,11 +79,15 @@ Future<void> showFileActions(
         () => ref.read(documentRepositoryProvider).clearRecent(doc.id),
         false,
       ),
-    if (doc.type == DocType.pdf)
+    if (toolsFor(
+      ToolInput(uri: doc.uri, name: doc.name, mime: doc.mime),
+    ).isNotEmpty)
       (
-        PhosphorIconsRegular.wrench,
-        l.actionPdfTools,
-        () => openPdfTools(context, doc),
+        doc.type == DocType.pdf
+            ? PhosphorIconsRegular.wrench
+            : PhosphorIconsRegular.arrowsLeftRight,
+        doc.type == DocType.pdf ? l.actionPdfTools : l.actionConvert,
+        () => openToolsFor(context, doc),
         false,
       ),
     (

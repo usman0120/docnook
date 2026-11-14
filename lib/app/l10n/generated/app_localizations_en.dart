@@ -2008,4 +2008,148 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get annotHintEraser => 'Tap a mark to remove it.';
+
+  @override
+  String get actionTools => 'Tools';
+
+  @override
+  String toolWrongType(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n files can’t be used with this tool.',
+      one: '1 file can’t be used with this tool.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String toolPickEmptyFor(String tool) {
+    return 'No files for $tool in your library yet';
+  }
+
+  @override
+  String get toolPickFile => 'Choose a file';
+
+  @override
+  String get toolCopyText => 'Copy text';
+
+  @override
+  String get toolTextCopied => 'Text copied.';
+
+  @override
+  String get toolMakePdf => 'Make PDF';
+
+  @override
+  String get toolReadText => 'Read text';
+
+  @override
+  String get toolConvert => 'Convert';
+
+  @override
+  String toolConvertMany(int n) {
+    return 'Convert $n files';
+  }
+
+  @override
+  String get toolFilesLabel => 'Files';
+
+  @override
+  String get fidelityFull => 'Full';
+
+  @override
+  String get fidelityGood => 'Good';
+
+  @override
+  String get fidelityBasic => 'Basic';
+
+  @override
+  String get limitImagesToPdf => 'One picture per page, in the order shown.';
+
+  @override
+  String get limitPdfToImages => 'Each page becomes a separate picture.';
+
+  @override
+  String get limitPdfToText =>
+      'Text only, no layout. Scanned pages are read with OCR.';
+
+  @override
+  String get limitWordToPdf =>
+      'Uses DocNook’s own layout, not Word’s; complex layouts may shift.';
+
+  @override
+  String get limitExcelToPdf =>
+      'Sheet to pages; charts and pictures in cells are left out.';
+
+  @override
+  String get limitPptToPdf =>
+      'One slide per page; animations and some shapes are simplified.';
+
+  @override
+  String get limitTextToPdf => 'Plain text and Markdown, exactly as written.';
+
+  @override
+  String get limitPdfToWord =>
+      'Paragraphs, headings and pictures; no complex layout.';
+
+  @override
+  String get limitCsvExcel => 'All data is kept; formatting is minimal.';
+
+  @override
+  String get convPageSize => 'Page size';
+
+  @override
+  String get convFitPicture => 'Fit picture';
+
+  @override
+  String get convMargins => 'Margins';
+
+  @override
+  String get convMarginNone => 'None';
+
+  @override
+  String get convMarginNormal => 'Normal';
+
+  @override
+  String get convQuality => 'Quality';
+
+  @override
+  String get convBest => 'Best';
+
+  @override
+  String get convImageFormat => 'Format';
+
+  @override
+  String get convResolution => 'Resolution';
+
+  @override
+  String get convDpiScreen => 'Screen';
+
+  @override
+  String get convDpiPrint => 'Print';
+
+  @override
+  String get convDpiHigh => 'High';
+
+  @override
+  String get convImagesHint => 'Each PDF page is saved as its own picture.';
+
+  @override
+  String get convOcrScanned => 'Read scanned pages';
+
+  @override
+  String get convOcrScannedHelp =>
+      'Pages with no text layer are read with OCR. Takes longer.';
+
+  @override
+  String get convFitWidth => 'Fit columns to the page width';
+
+  @override
+  String get convFitWidthHelp => 'Very wide sheets continue on extra pages.';
+
+  @override
+  String get convToExcel => 'Makes an Excel file (.xlsx).';
+
+  @override
+  String get convToCsv => 'Makes one CSV file for each sheet.';
 }

@@ -14,11 +14,12 @@ import 'package:docnook/domain/entities/doc_type.dart';
 import 'package:docnook/domain/entities/document_info.dart';
 import 'package:docnook/engines/pdf/pdfium_editor.dart';
 import 'package:docnook/features/library/presentation/file_sheets.dart';
-import 'package:docnook/features/tools/application/pdf_tools_service.dart';
+import 'package:docnook/features/tools/application/convert_service.dart';
 import 'package:docnook/features/tools/application/tool_job.dart';
 import 'package:docnook/features/tools/application/tool_models.dart';
 import 'package:docnook/features/viewer/application/open_document.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -36,6 +37,16 @@ String toolTitle(AppLocalizations l, ToolId tool) => switch (tool) {
   ToolId.annotate => l.toolAnnotate,
   ToolId.fillForms => l.toolFillForms,
   ToolId.redact => l.toolRedact,
+  ToolId.imagesToPdf => l.toolImagesToPdf,
+  ToolId.pdfToImages => l.toolPdfToImages,
+  ToolId.pdfToText => l.toolPdfToText,
+  ToolId.wordToPdf => l.toolWordToPdf,
+  ToolId.excelToPdf => l.toolExcelToPdf,
+  ToolId.pptToPdf => l.toolPptToPdf,
+  ToolId.textToPdf => l.toolTextToPdf,
+  ToolId.pdfToWord => l.toolPdfToWord,
+  ToolId.csvExcel => l.toolCsvExcel,
+  ToolId.extractText => l.toolExtractText,
 };
 
 IconData toolIcon(ToolId tool) => switch (tool) {
@@ -51,6 +62,16 @@ IconData toolIcon(ToolId tool) => switch (tool) {
   ToolId.annotate => PhosphorIconsRegular.highlighterCircle,
   ToolId.fillForms => PhosphorIconsRegular.textbox,
   ToolId.redact => PhosphorIconsRegular.rectangle,
+  ToolId.imagesToPdf => PhosphorIconsRegular.images,
+  ToolId.pdfToImages => PhosphorIconsRegular.image,
+  ToolId.pdfToText => PhosphorIconsRegular.textAa,
+  ToolId.wordToPdf => PhosphorIconsRegular.fileDoc,
+  ToolId.excelToPdf => PhosphorIconsRegular.fileXls,
+  ToolId.pptToPdf => PhosphorIconsRegular.filePpt,
+  ToolId.textToPdf => PhosphorIconsRegular.fileTxt,
+  ToolId.pdfToWord => PhosphorIconsRegular.fileText,
+  ToolId.csvExcel => PhosphorIconsRegular.table,
+  ToolId.extractText => PhosphorIconsRegular.copy,
 };
 
 /// Runs a tool job with the S10 progress sheet, then shows S11. Returns
@@ -234,16 +255,19 @@ Future<void> showToolResult(
           extra: OpenRequest(
             uri: first.uri,
             name: first.name,
-            mime: 'application/pdf',
+            mime: first.mime,
             source: DocSource.created,
           ),
         ),
       );
     case 'share':
       unawaited(
-        platform.share([
-          for (final o in result.outputs) o.uri,
-        ], mime: 'application/pdf'),
+        platform.share(
+          [for (final o in result.outputs) o.uri],
+          mime: result.outputs.every((o) => o.mime == first.mime)
+              ? first.mime
+              : '*/*',
+        ),
       );
     case 'rename':
       final id = first.documentId;
@@ -254,14 +278,19 @@ Future<void> showToolResult(
         await renameDocument(here, ref, doc);
       }
     case 'folder':
-      final shown = await platform.openFolder(
-        'Documents/DocNook/${PdfToolsService.subdir}',
-      );
-      if (!shown && here.mounted) {
-        _snack(here, l.toolFolderHint(PdfToolsService.subdir));
+      final subdir = result.tool.subdir;
+      final shown = await platform.openFolder('Documents/DocNook/$subdir');
+      if (!shown && here.mounted) _snack(here, l.toolFolderHint(subdir));
+    case 'copy':
+      try {
+        final text = await ConvertService.readText(first.uri);
+        await Clipboard.setData(ClipboardData(text: text));
+        if (here.mounted) _snack(here, l.toolTextCopied);
+      } on Object {
+        if (here.mounted) _snack(here, l.errUnknownTitle);
       }
     case 'more':
-      final next = await pickNextTool(here);
+      final next = await pickNextTool(here, input: first.asInput);
       if (next != null && here.mounted) {
         unawaited(router.push('/tool/${next.name}', extra: [first.asInput]));
       }
@@ -311,7 +340,7 @@ class _ResultBody extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const TypeSpine(DocType.pdf),
+                TypeSpine(_typeOf(first.mime)),
                 const SizedBox(width: Space.x3),
                 Expanded(
                   child: Column(
@@ -333,7 +362,7 @@ class _ResultBody extends StatelessWidget {
                       Text(
                         result.overwritten
                             ? l.toolOverwritten
-                            : l.toolSavedIn(PdfToolsService.subdir),
+                            : l.toolSavedIn(result.tool.subdir),
                         style: DocNookText.caption.copyWith(color: c.inkMuted),
                       ),
                     ],
@@ -372,7 +401,11 @@ class _ResultBody extends StatelessWidget {
               if (count == 1 && !result.overwritten)
                 quiet(l.actionRename, 'rename'),
               if (!result.overwritten) quiet(l.toolShowInFolder, 'folder'),
-              if (count == 1) quiet(l.toolDoMore, 'more'),
+              if (count == 1 && first.mime == 'text/plain')
+                quiet(l.toolCopyText, 'copy'),
+              if (count == 1 &&
+                  toolsFor(first.asInput, includeMerge: false).isNotEmpty)
+                quiet(l.toolDoMore, 'more'),
             ],
           ),
         ],
@@ -381,24 +414,33 @@ class _ResultBody extends StatelessWidget {
   }
 }
 
-/// Lets the user pick a PDF tool for [doc], then opens it with the file.
-Future<void> openPdfTools(BuildContext context, DocumentInfo doc) async {
+/// The tools that can take [input] (all PDF tools and converters for a
+/// PDF; the matching converters otherwise).
+List<ToolId> toolsFor(ToolInput input, {bool includeMerge = true}) => [
+  for (final tool in ToolId.values)
+    if (tool.accepts.contains(input.format) &&
+        (includeMerge || tool != ToolId.merge))
+      tool,
+];
+
+/// Lets the user pick a tool for [doc], then opens it with the file.
+Future<void> openToolsFor(BuildContext context, DocumentInfo doc) async {
   final router = GoRouter.of(context);
-  final tool = await pickNextTool(context, includeMerge: true);
-  if (tool == null) return;
-  await router.push(
-    '/tool/${tool.name}',
-    extra: [
-      ToolInput(
-        uri: doc.uri,
-        name: doc.name,
-        mime: doc.mime,
-        size: doc.sizeBytes,
-        documentId: doc.id,
-      ),
-    ],
+  final input = ToolInput(
+    uri: doc.uri,
+    name: doc.name,
+    mime: doc.mime,
+    size: doc.sizeBytes,
+    documentId: doc.id,
   );
+  final tool = await pickNextTool(context, input: input, includeMerge: true);
+  if (tool == null) return;
+  await router.push('/tool/${tool.name}', extra: [input]);
 }
+
+DocType _typeOf(String mime) => DocFormat.values
+    .firstWhere((f) => f.mime == mime, orElse: () => DocFormat.pdf)
+    .docType;
 
 /// "−73%" / "+4%": a typographic minus, as on S11.
 String _percent(int before, int after) {
@@ -406,26 +448,32 @@ String _percent(int before, int after) {
   return change < 0 ? '−${-change}%' : '+$change%';
 }
 
-/// "Do more": the PDF tools, to chain the output into the next one.
+/// "Do more" and the per-file tool list: the tools that take [input]
+/// (a PDF when null).
 Future<ToolId?> pickNextTool(
   BuildContext context, {
+  ToolInput? input,
   bool includeMerge = false,
 }) {
   final l = AppLocalizations.of(context);
+  final tools = toolsFor(
+    input ?? const ToolInput(uri: '', name: 'file.pdf'),
+    includeMerge: includeMerge,
+  );
   return showDocNookSheet<ToolId>(
     context,
-    title: includeMerge ? l.actionPdfTools : l.toolDoMore,
-    expand: true,
+    title: includeMerge ? l.actionTools : l.toolDoMore,
+    expand: tools.length > 6,
     builder: (context, scroll) => ListView(
       controller: scroll,
+      shrinkWrap: scroll == null,
       children: [
-        for (final tool in ToolId.values)
-          if (includeMerge || tool != ToolId.merge)
-            ListTile(
-              leading: Icon(toolIcon(tool), size: Sizes.icon),
-              title: Text(toolTitle(l, tool), style: DocNookText.body),
-              onTap: () => Navigator.of(context).pop(tool),
-            ),
+        for (final tool in tools)
+          ListTile(
+            leading: Icon(toolIcon(tool), size: Sizes.icon),
+            title: Text(toolTitle(l, tool), style: DocNookText.body),
+            onTap: () => Navigator.of(context).pop(tool),
+          ),
       ],
     ),
   );

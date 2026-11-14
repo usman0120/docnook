@@ -9,10 +9,12 @@ import 'package:docnook/design_system/icons.dart';
 import 'package:docnook/design_system/tokens.dart';
 import 'package:docnook/design_system/typography.dart';
 import 'package:docnook/domain/entities/doc_type.dart';
+import 'package:docnook/features/tools/application/tool_models.dart';
 import 'package:docnook/features/viewer/application/open_document.dart';
 import 'package:docnook/features/viewer/presentation/viewer_chrome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:path/path.dart' as p;
 
 /// S21 image viewer: pinch zoom, swipe through the folder, rotate.
@@ -90,9 +92,13 @@ class _ImageViewerScreenState extends ConsumerState<ImageViewerScreen> {
       512,
       4096,
     );
-    void later() => ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(l.notAvailableYet)));
+    // The picture on screen as a tool input (a local path).
+    void tool(ToolId id) => unawaited(
+      context.push(
+        '/tool/${id.name}',
+        extra: [ToolInput(uri: current, name: p.basename(current))],
+      ),
+    );
 
     return Scaffold(
       backgroundColor: const Color(0xFF0F0F0E),
@@ -118,8 +124,16 @@ class _ImageViewerScreenState extends ConsumerState<ImageViewerScreen> {
               ViewerOverflowMenu(
                 night: true,
                 items: [
-                  (l.imageMakePdf, PhosphorIconsRegular.filePdf, later),
-                  (l.imageExtractText, PhosphorIconsRegular.textT, later),
+                  (
+                    l.imageMakePdf,
+                    PhosphorIconsRegular.filePdf,
+                    () => tool(ToolId.imagesToPdf),
+                  ),
+                  (
+                    l.imageExtractText,
+                    PhosphorIconsRegular.textT,
+                    () => tool(ToolId.extractText),
+                  ),
                   (
                     l.actionShare,
                     PhosphorIconsRegular.shareNetwork,

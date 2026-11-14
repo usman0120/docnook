@@ -84,9 +84,6 @@ class SelectionActionBar extends ConsumerWidget {
     final mergeable =
         docs.length > 1 &&
         docs.every((d) => d.type == DocType.pdf || d.type == DocType.image);
-    void later() => ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(l.notAvailableYet)));
 
     final items = <(String, IconData, VoidCallback)>[
       (
@@ -133,7 +130,20 @@ class SelectionActionBar extends ConsumerWidget {
             );
           },
         ),
-      (l.actionConvert, PhosphorIconsRegular.arrowsLeftRight, later),
+      if (_converter(docs) case final convert?)
+        (
+          l.actionConvert,
+          PhosphorIconsRegular.arrowsLeftRight,
+          () {
+            onDone();
+            unawaited(
+              context.push(
+                '/tool/${convert.name}',
+                extra: [for (final d in docs) _input(d)],
+              ),
+            );
+          },
+        ),
       (
         l.actionDelete,
         PhosphorIconsRegular.trash,
@@ -191,4 +201,27 @@ class SelectionActionBar extends ConsumerWidget {
       ),
     );
   }
+}
+
+ToolInput _input(DocumentInfo d) => ToolInput(
+  uri: d.uri,
+  name: d.name,
+  mime: d.mime,
+  size: d.sizeBytes,
+  documentId: d.id,
+);
+
+/// The batch converter that takes every selected file, if there is one:
+/// pictures → one PDF, Word / Excel / PowerPoint → PDFs.
+ToolId? _converter(List<DocumentInfo> docs) {
+  for (final tool in const [
+    ToolId.imagesToPdf,
+    ToolId.wordToPdf,
+    ToolId.excelToPdf,
+    ToolId.pptToPdf,
+    ToolId.pdfToImages,
+  ]) {
+    if (docs.every((d) => tool.accepts.contains(_input(d).format))) return tool;
+  }
+  return null;
 }

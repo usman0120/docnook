@@ -11,6 +11,8 @@ import 'package:docnook/design_system/tokens.dart';
 import 'package:docnook/design_system/typography.dart';
 import 'package:docnook/domain/entities/doc_type.dart';
 import 'package:docnook/domain/pdf/pdf_edit_models.dart';
+import 'package:docnook/domain/scan/scan_models.dart';
+import 'package:docnook/features/tools/application/convert_service.dart';
 import 'package:docnook/features/tools/application/pdf_tools_service.dart';
 import 'package:docnook/features/tools/application/tool_models.dart';
 import 'package:docnook/features/tools/presentation/tool_flow_screen.dart';
@@ -26,6 +28,8 @@ enum _NumberFormat { plain, pageOfTotal, slash }
 enum _WatermarkKind { text, image }
 
 enum _StampSize { small, medium, large }
+
+enum _Margin { none, small, normal }
 
 /// S09: options for the form-based tools, built from one template: inputs
 /// summary, simple controls, output name, and a button naming the action.
@@ -82,7 +86,19 @@ class _ToolOptionsScreenState extends ConsumerState<ToolOptionsScreen> {
   var _skipFirst = false;
   final _start = TextEditingController(text: '1');
 
+  // Converters.
+  var _pageSize = ScanPageSize.a4;
+  var _margin = _Margin.small;
+  var _quality = ScanQuality.balanced;
+  var _png = false;
+  var _dpi = 150;
+  var _ocrText = true;
+  var _fit = true;
+
   PreparedInput get _first => _inputs.first;
+
+  /// Batch converters name each output after its input.
+  bool get _named => !widget.tool.batch;
   int get _pageCount => _first.info?.pageCount ?? 0;
 
   @override
@@ -124,7 +140,8 @@ class _ToolOptionsScreenState extends ConsumerState<ToolOptionsScreen> {
   };
 
   bool get _valid {
-    if (_name.text.trim().isEmpty) return false;
+    if (_inputs.isEmpty) return false;
+    if (_named && _name.text.trim().isEmpty) return false;
     return switch (widget.tool) {
       ToolId.merge => _inputs.length >= 2,
       ToolId.split => _splitGroups != null,
@@ -153,6 +170,10 @@ class _ToolOptionsScreenState extends ConsumerState<ToolOptionsScreen> {
     ToolId.unlock => l.toolUnlockAction,
     ToolId.watermark => l.toolWatermarkAction,
     ToolId.pageNumbers => l.toolPageNumbersAction,
+    ToolId.imagesToPdf => l.toolMakePdf,
+    ToolId.extractText => l.toolReadText,
+    _ when widget.tool.converts =>
+      _inputs.length > 1 ? l.toolConvertMany(_inputs.length) : l.toolConvert,
     _ => l.actionSave,
   };
 
@@ -161,6 +182,7 @@ class _ToolOptionsScreenState extends ConsumerState<ToolOptionsScreen> {
   Future<void> _run() async {
     FocusScope.of(context).unfocus();
     final service = ref.read(pdfToolsServiceProvider);
+    final convert = ref.read(convertServiceProvider);
     final name = _name.text.trim();
     final first = _first;
     final tool = widget.tool;
@@ -241,6 +263,67 @@ class _ToolOptionsScreenState extends ConsumerState<ToolOptionsScreen> {
             name: name,
             control: control,
           );
+        case ToolId.imagesToPdf:
+          return convert.imagesToPdf(
+            inputs: [for (final i in _inputs) i.input],
+            pageSize: _pageSize,
+            margin: switch (_margin) {
+              _Margin.none => 0,
+              _Margin.small => 18,
+              _Margin.normal => 36,
+            },
+            quality: _quality,
+            name: name,
+            control: control,
+          );
+        case ToolId.pdfToImages:
+          return convert.pdfToImages(
+            inputs: [
+              for (final i in _inputs) (input: i.input, password: i.password),
+            ],
+            png: _png,
+            dpi: _dpi,
+            control: control,
+          );
+        case ToolId.pdfToText:
+          return convert.pdfToText(
+            input: first.input,
+            password: first.password,
+            ocr: _ocrText,
+            name: name,
+            control: control,
+          );
+        case ToolId.pdfToWord:
+          return convert.pdfToWord(
+            input: first.input,
+            password: first.password,
+            name: name,
+            control: control,
+          );
+        case ToolId.wordToPdf || ToolId.pptToPdf || ToolId.textToPdf:
+          return convert.documentsToPdf(
+            tool: tool,
+            inputs: [for (final i in _inputs) i.input],
+            control: control,
+          );
+        case ToolId.excelToPdf:
+          return convert.sheetsToPdf(
+            inputs: [for (final i in _inputs) i.input],
+            fitToWidth: _fit,
+            control: control,
+          );
+        case ToolId.csvExcel:
+          return convert.csvExcel(
+            input: first.input,
+            name: name,
+            control: control,
+          );
+        case ToolId.extractText:
+          return convert.extractText(
+            input: first.input,
+            name: name,
+            control: control,
+          );
         case ToolId.organize ||
             ToolId.sign ||
             ToolId.annotate ||
@@ -281,7 +364,7 @@ class _ToolOptionsScreenState extends ConsumerState<ToolOptionsScreen> {
     final picked = await Navigator.of(context).push<List<ToolInput>>(
       MaterialPageRoute(
         builder: (context) => ToolPicker(
-          tool: ToolId.merge,
+          tool: widget.tool,
           onPicked: (inputs) => Navigator.of(context).pop(inputs),
         ),
       ),
@@ -315,28 +398,93 @@ class _ToolOptionsScreenState extends ConsumerState<ToolOptionsScreen> {
     final l = AppLocalizations.of(context);
     return ToolScaffold(
       title: toolTitle(l, widget.tool),
-      subtitle: widget.tool == ToolId.merge ? null : _first.input.name,
+      subtitle: widget.tool.multiple ? null : _first.input.name,
       actionLabel: _actionLabel(l),
       onAction: _valid ? () => unawaited(_run()) : null,
       body: ListView(
         padding: const EdgeInsets.only(bottom: Space.x6),
         children: [
-          if (widget.tool == ToolId.merge)
+          if (widget.tool.fidelity case final f?) _fidelity(context, f),
+          if (widget.tool.multiple)
             ..._mergeInputs(context)
           else
             _summary(context),
           ..._options(context),
-          OptionLabel(l.toolOutputName),
-          OptionPad(
-            TextField(
-              controller: _name,
-              textInputAction: TextInputAction.done,
-              style: DocNookText.body,
-              decoration: const InputDecoration(suffixText: '.pdf'),
-              onChanged: (_) => setState(() {}),
+          if (_named) ...[
+            OptionLabel(l.toolOutputName),
+            OptionPad(
+              TextField(
+                controller: _name,
+                textInputAction: TextInputAction.done,
+                style: DocNookText.body,
+                decoration: InputDecoration(suffixText: '.$_extension'),
+                onChanged: (_) => setState(() {}),
+              ),
             ),
-          ),
+          ],
         ],
+      ),
+    );
+  }
+
+  String get _extension => switch (widget.tool) {
+    ToolId.pdfToText || ToolId.extractText => 'txt',
+    ToolId.pdfToWord => 'docx',
+    ToolId.csvExcel =>
+      _first.input.format == DocFormat.csv ||
+              _first.input.format == DocFormat.tsv
+          ? 'xlsx'
+          : 'csv',
+    _ => 'pdf',
+  };
+
+  /// FR-CONV-01: how faithful the result is and its one-line limit,
+  /// shown before the user starts.
+  Widget _fidelity(BuildContext context, Fidelity f) {
+    final l = AppLocalizations.of(context);
+    final c = context.colors;
+    final label = switch (f) {
+      Fidelity.full => l.fidelityFull,
+      Fidelity.good => l.fidelityGood,
+      Fidelity.basic || Fidelity.text => l.fidelityBasic,
+    };
+    final limit = switch (widget.tool) {
+      ToolId.imagesToPdf => l.limitImagesToPdf,
+      ToolId.pdfToImages => l.limitPdfToImages,
+      ToolId.pdfToText => l.limitPdfToText,
+      ToolId.wordToPdf => l.limitWordToPdf,
+      ToolId.excelToPdf => l.limitExcelToPdf,
+      ToolId.pptToPdf => l.limitPptToPdf,
+      ToolId.textToPdf => l.limitTextToPdf,
+      ToolId.pdfToWord => l.limitPdfToWord,
+      ToolId.csvExcel => l.limitCsvExcel,
+      _ => '',
+    };
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        Space.screen,
+        Space.x2,
+        Space.screen,
+        Space.x2,
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(Space.x3),
+        decoration: BoxDecoration(
+          color: c.surface,
+          borderRadius: Radii.cardAll,
+          border: Border.all(color: c.hairline),
+        ),
+        child: Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(text: '$label  ', style: DocNookText.label),
+              TextSpan(
+                text: limit,
+                style: DocNookText.caption.copyWith(color: c.inkMuted),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -346,7 +494,7 @@ class _ToolOptionsScreenState extends ConsumerState<ToolOptionsScreen> {
     final info = _first.info;
     final size = _first.input.size;
     return FileRow(
-      type: DocType.pdf,
+      type: _first.input.type,
       name: _first.input.name,
       details: [
         if (info != null) l.pagesCount(info.pageCount),
@@ -359,7 +507,7 @@ class _ToolOptionsScreenState extends ConsumerState<ToolOptionsScreen> {
     final l = AppLocalizations.of(context);
     final c = context.colors;
     return [
-      OptionLabel(l.toolMergeOrder),
+      OptionLabel(widget.tool.batch ? l.toolFilesLabel : l.toolMergeOrder),
       ReorderableListView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -389,9 +537,11 @@ class _ToolOptionsScreenState extends ConsumerState<ToolOptionsScreen> {
                 child: FileRow(
                   type: p.input.type,
                   name: p.input.name,
-                  details: p.info == null
+                  details: p.info != null
+                      ? l.pagesCount(p.info!.pageCount)
+                      : p.input.type == DocType.image
                       ? l.toolImagePage
-                      : l.pagesCount(p.info!.pageCount),
+                      : (p.input.size == null ? '' : l.fileSize(p.input.size!)),
                 ),
               ),
               IconAction(
@@ -409,7 +559,7 @@ class _ToolOptionsScreenState extends ConsumerState<ToolOptionsScreen> {
           child: QuietButton(label: l.toolAddFiles, onPressed: _addFiles),
         ),
       ),
-      if (_inputs.length < 2)
+      if (widget.tool == ToolId.merge && _inputs.length < 2)
         OptionPad(
           Text(
             l.toolMergeNeedTwo,
@@ -700,12 +850,107 @@ class _ToolOptionsScreenState extends ConsumerState<ToolOptionsScreen> {
             title: Text(l.toolNumbersSkipFirst, style: DocNookText.body),
           ),
         ];
+      case ToolId.imagesToPdf:
+        return [
+          OptionLabel(l.convPageSize),
+          SegmentedChoice<ScanPageSize>(
+            values: ScanPageSize.values,
+            selected: _pageSize,
+            label: (s) => switch (s) {
+              ScanPageSize.a4 => 'A4',
+              ScanPageSize.letter => 'Letter',
+              ScanPageSize.fit => l.convFitPicture,
+            },
+            onSelected: (s) => setState(() => _pageSize = s),
+          ),
+          OptionLabel(l.convMargins),
+          SegmentedChoice<_Margin>(
+            values: _Margin.values,
+            selected: _margin,
+            label: (m) => switch (m) {
+              _Margin.none => l.convMarginNone,
+              _Margin.small => l.sizeSmall,
+              _Margin.normal => l.convMarginNormal,
+            },
+            onSelected: (m) => setState(() => _margin = m),
+          ),
+          OptionLabel(l.convQuality),
+          SegmentedChoice<ScanQuality>(
+            values: ScanQuality.values,
+            selected: _quality,
+            label: (q) => switch (q) {
+              ScanQuality.small => l.sizeSmall,
+              ScanQuality.balanced => l.toolCompressBalanced,
+              ScanQuality.best => l.convBest,
+            },
+            onSelected: (q) => setState(() => _quality = q),
+          ),
+        ];
+      case ToolId.pdfToImages:
+        return [
+          OptionLabel(l.convImageFormat),
+          SegmentedChoice<bool>(
+            values: const [false, true],
+            selected: _png,
+            label: (png) => png ? 'PNG' : 'JPG',
+            onSelected: (png) => setState(() => _png = png),
+          ),
+          OptionLabel(l.convResolution),
+          SegmentedChoice<int>(
+            values: const [96, 150, 300],
+            selected: _dpi,
+            label: (d) => switch (d) {
+              96 => l.convDpiScreen,
+              150 => l.convDpiPrint,
+              _ => l.convDpiHigh,
+            },
+            onSelected: (d) => setState(() => _dpi = d),
+          ),
+          hint(l.convImagesHint),
+        ];
+      case ToolId.pdfToText:
+        return [
+          SwitchListTile(
+            value: _ocrText,
+            onChanged: (v) => setState(() => _ocrText = v),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: Space.screen,
+            ),
+            title: Text(l.convOcrScanned, style: DocNookText.body),
+            subtitle: Text(
+              l.convOcrScannedHelp,
+              style: DocNookText.caption.copyWith(color: c.inkMuted),
+            ),
+          ),
+        ];
+      case ToolId.excelToPdf:
+        return [
+          SwitchListTile(
+            value: _fit,
+            onChanged: (v) => setState(() => _fit = v),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: Space.screen,
+            ),
+            title: Text(l.convFitWidth, style: DocNookText.body),
+            subtitle: Text(
+              l.convFitWidthHelp,
+              style: DocNookText.caption.copyWith(color: c.inkMuted),
+            ),
+          ),
+        ];
+      case ToolId.csvExcel:
+        return [hint(_extension == 'xlsx' ? l.convToExcel : l.convToCsv)];
       case ToolId.merge ||
           ToolId.organize ||
           ToolId.sign ||
           ToolId.annotate ||
           ToolId.fillForms ||
-          ToolId.redact:
+          ToolId.redact ||
+          ToolId.wordToPdf ||
+          ToolId.pptToPdf ||
+          ToolId.textToPdf ||
+          ToolId.pdfToWord ||
+          ToolId.extractText:
         return const [];
     }
   }

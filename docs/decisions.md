@@ -370,3 +370,48 @@ ask first). Fallback path still needs an emulator without Play services.
   stacked name suffixes; underline and strike now default to red.
 - Still open for Phase 6 "Done when": opening the outputs in Adobe Acrobat Reader
   and Chrome (no Chrome or Adobe Reader check was done on this shared phone).
+
+## 2026-11-14 — Phase 7: Convert
+
+- **Packages** (rule 3):
+  | Package | Version | License | Manifest permissions | Why |
+  | --- | --- | --- | --- | --- |
+  | pdf (DavBfr) | 3.13.1 | Apache-2.0 | none (pure Dart) | PDF layout for every "→ PDF" converter, as BLUEPRINT 4.2 planned. Embeds only the glyphs a document uses. |
+  | barcode, bidi, path_parsing, qr | transitive of `pdf` | Apache-2.0 / BSD | none | pulled in by `pdf`; DocNook does not use them directly |
+- **Fonts:** Noto Sans, Noto Serif (regular, bold, italic, bold italic) and Noto Sans
+  Mono (regular, bold), SIL OFL 1.1, from the Noto project, cut with fontTools to
+  Latin, Latin Extended, Greek, Cyrillic and common symbols: 1.9 MB raw, about
+  1 MB in the APK. Licence in `assets/licenses/fonts-Noto-OFL.txt`, registered with
+  LicenseRegistry. Other scripts (Arabic, Hebrew, Devanagari, Thai…) use the
+  phone's own `/system/fonts/*.ttf` at conversion time (BLUEPRINT 4.5). Limit: only
+  TrueType files are usable by the PDF writer, so scripts Android ships only as
+  `.otf`/`.ttc` (Chinese, Japanese, Korean on most phones) are not drawn.
+- **XLSX and DOCX writers are DocNook's own** (`archive` + string XML) instead of
+  the `excel` package: smaller, no extra dependency, and they only need values
+  (CSV → Excel) and paragraphs/tables/pictures (PDF → Word).
+- **How each converter works:**
+  - Word / ODT / RTF / Markdown / text → PDF: parse to DocModel and render with
+    `pdf` widgets (the second DocModel renderer, BLUEPRINT 5.5) in one JobRunner
+    isolate. Tables lose column spans (pdf tables have none); EMF/WMF pictures
+    are left out.
+  - PowerPoint → PDF: one page per slide at the slide's own size.
+  - Excel / ODS / CSV → PDF: each visible sheet on A4, landscape when wide;
+    "fit to width" scales down to 40 %, beyond that column blocks continue on
+    extra pages; frozen header rows repeat; capped at 20,000 rows per sheet.
+  - PDF → Word: text positions from PDFium grouped into lines and paragraphs,
+    larger lines become headings, pictures extracted through PDFium, a page
+    break per PDF page.
+  - PDF → images: pdfrx renders at 96 / 150 / 300 dpi (capped at 6000 px), JPG or
+    PNG, one file per page. PDF → text: the text layer, OCR for pages without one.
+  - Images → PDF: A4 / Letter (landscape pictures on landscape pages) or the
+    picture's own shape; three margins; three quality steps.
+  - CSV ↔ Excel: CSV/TSV → XLSX with a bold header row; XLSX/ODS → one UTF-8 CSV
+    (with BOM, for Excel) per visible sheet.
+  - Extract text from image: OCR to a .txt, with "Copy text" on the result.
+- Batch mode for Images → PDF (combined), PDF → images, Word / Excel / PowerPoint →
+  PDF: a failed file is listed on the result screen; the others still convert.
+- Every converter shows its fidelity label and one-line limit before it starts
+  (FR-CONV-01). Outputs go to `Documents/DocNook/Converted/`.
+- Checked on desktop: the 30-page handbook, ODT, RTF, Markdown, the slide deck and
+  the budget workbook convert; rendered pages were inspected by eye; CSV → XLSX →
+  CSV and DocModel → DOCX → DocModel round trips are unit-tested.

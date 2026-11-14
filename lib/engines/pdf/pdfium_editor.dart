@@ -243,6 +243,13 @@ abstract final class PdfiumEditor {
     return RecompressStats(seen, changed);
   }
 
+  /// Pictures on page [page] as JPEG with their place (points from the
+  /// top-left of the page), for PDF → Word. Tiny images (rules, bullets)
+  /// are skipped.
+  static Future<List<(Uint8List, double, double, double, double)>>
+  extractImages(PdfSource source, int page) =>
+      _run(_extractImages, (modulePath, source.path, source.password, page));
+
   /// A full re-save (no incremental updates). With [removeSecurity] the
   /// output has no password (Unlock).
   static Future<void> resave({
@@ -1275,3 +1282,39 @@ bool _loadJpeg(
       ..free(pages);
   }
 }
+
+Future<(String?, List<(Uint8List, double, double, double, double)>?)>
+_extractImages((String?, String, String?, int) m) => _guard(() {
+  final pdf = _pdfium(m.$1);
+  final doc = _load(pdf, m.$2, m.$3);
+  final out = <(Uint8List, double, double, double, double)>[];
+  try {
+    final page = pdf.FPDF_LoadPage(doc, m.$4);
+    if (page == nullptr) return out;
+    try {
+      final box = _box(pdf, page);
+      for (var i = 0; i < pdf.FPDFPage_CountObjects(page); i++) {
+        final obj = pdf.FPDFPage_GetObject(page, i);
+        if (pdf.FPDFPageObj_GetType(obj) != _objImage) continue;
+        final (l, b, r, t) = using((arena) {
+          final l = arena<Float>();
+          final b = arena<Float>();
+          final r = arena<Float>();
+          final t = arena<Float>();
+          pdf.FPDFPageObj_GetBounds(obj, l, b, r, t);
+          return (l.value, b.value, r.value, t.value);
+        });
+        if (r - l < 24 || t - b < 24) continue;
+        final jpeg = _encodeImageObject(pdf, page, obj, 1600, 80);
+        if (jpeg == null) continue;
+        out.add((jpeg, l - box.x0, box.y0 + box.h - t, r - l, t - b));
+        if (out.length >= 40) break;
+      }
+    } finally {
+      pdf.FPDF_ClosePage(page);
+    }
+  } finally {
+    pdf.FPDF_CloseDocument(doc);
+  }
+  return out;
+});
