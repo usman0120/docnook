@@ -304,9 +304,17 @@ class _PdfViewerScreenState extends ConsumerState<PdfViewerScreen>
       return;
     }
     final area = rects.reduce((a, b) => a.expandToInclude(b));
-    if (!_controller.visibleRect.contains(area.topLeft) ||
-        !_controller.visibleRect.contains(area.bottomRight)) {
-      unawaited(_controller.ensureVisible(area, margin: 48));
+    final visible = _controller.visibleRect;
+    if (!visible.contains(area.topLeft) ||
+        !visible.contains(area.bottomRight)) {
+      // Leave room below so the next lines are on screen too.
+      final room = Rect.fromLTRB(
+        area.left,
+        area.top,
+        area.right,
+        area.bottom + visible.height * 0.4,
+      );
+      unawaited(_controller.ensureVisible(room, margin: 24));
     }
   }
 

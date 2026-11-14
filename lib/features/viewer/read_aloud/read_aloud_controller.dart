@@ -200,6 +200,7 @@ class ReadAloudController extends ChangeNotifier {
   void _finish() {
     _playing = false;
     _finished = true;
+    _spot = null;
     _notify();
   }
 

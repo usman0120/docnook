@@ -123,6 +123,7 @@ void main() {
         expect(engine.spoken, ['One.', 'Two.', 'Three.']);
         expect(rc.finished, isTrue);
         expect(rc.playing, isFalse);
+        expect(rc.spot, isNull);
         rc.dispose();
       },
     );
