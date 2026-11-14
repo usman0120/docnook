@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:docnook/app/l10n/generated/app_localizations.dart';
+import 'package:docnook/app/perf.dart';
 import 'package:docnook/app/providers.dart';
 import 'package:docnook/core/result.dart';
 import 'package:docnook/data/repositories/document_repository.dart';
@@ -122,6 +123,7 @@ class _DocumentViewerScreenState extends ConsumerState<DocumentViewerScreen>
       );
       _bannerDismissed = prefs['bannerSeen'] == true;
       setState(() => _parsed = result);
+      Perf.contentShown(widget.document.format.name);
       final block = saved?.block;
       if (block != null && block > 0) {
         WidgetsBinding.instance.addPostFrameCallback(

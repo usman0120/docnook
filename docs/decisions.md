@@ -462,3 +462,37 @@ ask first). Fallback path still needs an emulator without Play services.
 - The temp-file sweeper now also clears share copies older than a day; vault folders
   and the "Block screenshots" setting were removed with the vault (owner decision).
 - `USE_BIOMETRIC` removed from the manifest (only the app lock used it).
+
+## 2026-11-14 — Phase 9: hardening and release preparation
+
+- **Malformed-file corpus** (`test/corpus/malformed_corpus_test.dart`, plus the PDF
+  cases in `pdfium_editor_test.dart`): empty, random, truncated and wrong-magic files
+  for every format; broken XML and DOCTYPE entity bombs inside DOCX/XLSX/PPTX/ODF/
+  EPUB; ZIPs claiming 3 GB entries; zip-slip names; renamed files; a PNG claiming
+  20,000 × 20,000 pixels; deeply nested RTF and Markdown. Each runs in its own
+  isolate like JobRunner and must succeed or fail with a recognised failure within
+  30 s. Two real problems found and fixed:
+  - Images were decoded in full whatever their declared size, so a tiny hostile
+    PNG could exhaust memory and kill the app. `engines/image/safe_decode.dart` now
+    reads the header first and refuses pictures over **52 megapixels** (`tooLarge`),
+    covering 50 MP phone photos within NFR-MEM-01. Used by image→PDF, signatures,
+    logos and the scanner.
+  - Markdown nested thousands of levels deep overflowed the parser's stack or took
+    minutes. Quote and indent nesting beyond **16 levels** is flattened before
+    parsing; the text is kept.
+- **Accessibility** (`test/widget/accessibility_test.dart`): every design-system
+  component is checked with Flutter's labelled-tap-target, 48 dp tap-target and
+  text-contrast guidelines, in light and dark themes at 1× and 2× text, and for
+  overflow. One fix: segmented-choice segments were 42 dp tall; now 48 dp
+  (`Sizes.touch`; no token changed).
+- **Performance marks** (`lib/app/perf.dart`): profile builds print
+  `DocNookPerf open <kind> <ms>` when a viewer shows its content. Release builds
+  print nothing; lines never include names or paths (rule 11).
+- **Release tooling**: `tool/make_upload_key.sh` (the owner creates the Play upload
+  key; its password is never seen by Claude Code), `tool/release.sh` (checks, refuses
+  placeholders or a debug key unless `--draft`, builds the obfuscated AAB and APKs,
+  checks NFR-SIZE-01, writes SHA-256 sums and zips symbols), `tool/check.sh` now also
+  verifies `appVersion` matches `pubspec.yaml`. `tool/make_legal_pages.py` writes the
+  web privacy policy and terms from the same ARB strings as the in-app pages;
+  `tool/make_store_graphics.py` draws the 512 px icon and feature graphic from the
+  launcher artwork. Store text and Play Console answers are in `docs/release/`.

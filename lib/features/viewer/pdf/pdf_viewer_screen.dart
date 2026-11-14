@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:docnook/app/l10n/generated/app_localizations.dart';
+import 'package:docnook/app/perf.dart';
 import 'package:docnook/app/providers.dart';
 import 'package:docnook/core/failures.dart';
 import 'package:docnook/data/repositories/document_repository.dart';
@@ -179,6 +180,7 @@ class _PdfViewerScreenState extends ConsumerState<PdfViewerScreen>
 
   void _onReady(PdfDocument document, PdfViewerController controller) {
     setState(() => _pageCount = document.pages.length);
+    Perf.contentShown('pdf');
     unawaited(
       _repo.setPageCount(
         _docId,

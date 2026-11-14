@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:docnook/app/l10n/generated/app_localizations.dart';
+import 'package:docnook/app/perf.dart';
 import 'package:docnook/app/providers.dart';
 import 'package:docnook/core/failures.dart';
 import 'package:docnook/core/result.dart';
@@ -125,6 +126,7 @@ class _SheetViewerScreenState extends ConsumerState<SheetViewerScreen> {
         );
       }
     });
+    Perf.contentShown(widget.document.format.name);
     final row = saved?.row;
     final col = saved?.col;
     if (row != null && col != null) {

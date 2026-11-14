@@ -49,3 +49,6 @@ android/key.properties
 *.jks
 *.keystore
 build/symbols*/
+
+# Release output (tool/release.sh)
+/release/

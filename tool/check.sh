@@ -11,6 +11,12 @@ FAST=0
 
 step() { printf '\n== %s ==\n' "$1"; }
 
+step "Version"
+PUB=$(sed -n 's/^version: *\([^+ ]*\).*/\1/p' pubspec.yaml)
+APP=$(sed -n "s/^const appVersion = '\(.*\)';/\1/p" lib/app/version.dart)
+[[ "$PUB" == "$APP" ]] || { echo "FAIL: pubspec $PUB != version.dart $APP"; exit 1; }
+echo "ok: $PUB"
+
 step "Format"
 dart format --output=none --set-exit-if-changed lib test tool integration_test 2>/dev/null \
   || dart format --output=none --set-exit-if-changed lib test

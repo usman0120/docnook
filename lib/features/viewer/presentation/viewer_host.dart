@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:docnook/app/formatters.dart';
 import 'package:docnook/app/l10n/generated/app_localizations.dart';
+import 'package:docnook/app/perf.dart';
 import 'package:docnook/app/providers.dart';
 import 'package:docnook/core/failures.dart';
 import 'package:docnook/core/result.dart';
@@ -71,6 +72,7 @@ class _ViewerHostState extends ConsumerState<ViewerHost> {
   }
 
   Future<void> _open() async {
+    Perf.openStarted();
     final result = await ref.read(openDocumentProvider).call(widget.request);
     if (mounted) setState(() => _result = result);
   }
