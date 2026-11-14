@@ -879,10 +879,12 @@ Claude Code writes all the code in ten phases; you install each phase's build on
 
 ### Phase 9 — Hardening and release (2 weeks, then 14-day closed test)
 
-- [ ] Performance pass against every NFR on the reference device; fix the top regressions.
-- [ ] Accessibility pass (TalkBack walkthrough of every screen), both themes, 200% text.
-- [ ] Malformed-file corpus run: no crashes, every failure lands on S32.
+- [x] Performance pass against every NFR on the reference device; fix the top regressions.
+  - 2026-11-14: measured on the Galaxy A06; all targets met (docs/decisions.md).
+- [x] Accessibility pass (TalkBack walkthrough of every screen), both themes, 200% text.
+- [x] Malformed-file corpus run: no crashes, every failure lands on S32.
 - [ ] Store listing (section 12.4), privacy policy page, Data safety form, All-files declaration.
+  - 2026-11-14: all texts, graphics and scripts ready in docs/release/; the owner fills Play Console and makes the upload key and Google Sites page.
 - [ ] Closed test with ≥ 12 testers for 14 days; fix reported issues; then production + `direct` APK release.
 
 **Done when:** crash-free sessions ≥ 99.5% in the closed test and no open P0/P1 bugs.

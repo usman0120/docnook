@@ -496,3 +496,20 @@ ask first). Fallback path still needs an emulator without Play services.
   web privacy policy and terms from the same ARB strings as the in-app pages;
   `tool/make_store_graphics.py` draws the 512 px icon and feature graphic from the
   launcher artwork. Store text and Play Console answers are in `docs/release/`.
+- **Performance pass on the Galaxy A06** (Android 14, the owner's phone; generated
+  files only). Obfuscated release build:
+  | Target | Measured | Limit |
+  | --- | --- | --- |
+  | NFR-PERF-01 cold start to Home | 0.6–0.7 s (1.1–1.6 s on the first launch after an install) | 1.5 s |
+  | NFR-PERF-02 first page, 7.5 MB 100-page PDF | 0.34 s typical, one 1.6 s outlier | 1 s |
+  | NFR-PERF-03 readable, Word file of ~150 pages | 0.63 s (1.8 s the first time: copying from another app) | 2 s |
+  | NFR-PERF-04 first screen, 50k-cell XLSX | 2.5–2.7 s | 3 s |
+  | NFR-SIZE-01 APK size | 27 MB arm64, 68 MB universal | 35 / 80 MB |
+  Open times come from the profile build's marks. The spreadsheet has the least
+  margin; worth watching on slower phones in the closed test.
+- **TalkBack check on the phone** (accessibility tree, without changing the phone's
+  settings): every control on Home, Files, Tools, Settings and the sheet viewer has
+  a spoken label, but labelled controls did not report their tap action, so
+  TalkBack's double-tap could fail. Fixed in all 13 wrappers (the label now carries
+  the tap and long-press actions) and the accessibility test now fails if any
+  enabled button lacks a tap action. Confirmed on the phone afterwards.
