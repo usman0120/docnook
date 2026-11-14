@@ -2,8 +2,8 @@ import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
 
-import 'package:docnook/core/failures.dart';
 import 'package:docnook/domain/scan/scan_models.dart';
+import 'package:docnook/engines/image/safe_decode.dart';
 import 'package:image/image.dart' as img;
 
 /// Image work for scans (BLUEPRINT 4.3): perspective crop, rotation,
@@ -46,8 +46,7 @@ typedef ImageSize = ({int width, int height});
 /// Decodes a photo and turns it upright using its EXIF orientation.
 img.Image loadUpright(String path) {
   final bytes = File(path).readAsBytesSync();
-  final decoded = img.decodeImage(bytes);
-  if (decoded == null) throw const DocNookFailure.corrupt();
+  final decoded = decodeImageSafe(bytes);
   final upright = img.bakeOrientation(decoded);
   return upright.numChannels == 3 && upright.format == img.Format.uint8
       ? upright

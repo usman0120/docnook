@@ -130,7 +130,10 @@ class SegmentedChoice<T> extends StatelessWidget {
                       onTap: () => onSelected(value),
                       borderRadius: Radii.chipAll,
                       child: ConstrainedBox(
-                        constraints: const BoxConstraints(minHeight: 40),
+                        // Full 48 dp touch target (NFR-A11Y-01).
+                        constraints: const BoxConstraints(
+                          minHeight: Sizes.touch,
+                        ),
                         child: Center(
                           child: Padding(
                             padding: const EdgeInsets.symmetric(

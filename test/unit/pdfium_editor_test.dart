@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:docnook/core/failures.dart';
@@ -58,6 +59,52 @@ void main() {
       await doc.dispose();
     }
   }
+
+  test('malformed PDFs fail cleanly in the viewer engine and the editor '
+      '(Phase 9 corpus)', () async {
+    final good = File('test/fixtures/pdf/sample_120p.pdf').readAsBytesSync();
+    final random = Random(3);
+    List<int> noise(int n) => [for (var i = 0; i < n; i++) random.nextInt(256)];
+    final badHeader = Uint8List.fromList(good)..[2] = 0x58; // %PXF
+    final cases = <String, List<int>>{
+      'empty': const [],
+      'noise': noise(8192),
+      'header_then_noise': [...'%PDF-1.7\n'.codeUnits, ...noise(8192)],
+      'truncated': good.sublist(0, good.length * 2 ~/ 5),
+      'bad_header': badHeader,
+      'bad_xref': [
+        ...good.sublist(0, good.length - 40),
+        ...'startxref\n999999999\n%%EOF\n'.codeUnits,
+      ],
+    };
+    for (final MapEntry(:key, :value) in cases.entries) {
+      final file = path('$key.pdf');
+      File(file).writeAsBytesSync(value);
+
+      // Viewer engine: open and draw the first page, or throw.
+      try {
+        final doc = await PdfDocument.openFile(file);
+        try {
+          if (doc.pages.isNotEmpty) {
+            final image = await doc.pages.first.render(width: 60, height: 80);
+            image?.dispose();
+            await doc.pages.first.loadText();
+          }
+        } finally {
+          await doc.dispose();
+        }
+      } on PdfException {
+        // Shown on the S32 screen.
+      }
+
+      // Editor: a recognised failure, never an unknown error.
+      try {
+        await PdfiumEditor.inspect(PdfSource(file));
+      } on DocNookFailure catch (f) {
+        expect(f.kind, isNot(FailureKind.unknown), reason: key);
+      }
+    }
+  }, skip: skip);
 
   test('blank pages, page numbers and a merge', () async {
     final base = await blankPdf('base.pdf', 3);

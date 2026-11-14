@@ -133,7 +133,9 @@ DocModel markdownToDocModel(String source) {
     extensionSet: md.ExtensionSet.gitHubFlavored,
     encodeHtml: false,
   );
-  final nodes = document.parse(source.replaceAll('\r\n', '\n'));
+  final nodes = document.parse(
+    limitMarkdownNesting(source.replaceAll('\r\n', '\n')),
+  );
   HtmlNode convert(md.Node node) => switch (node) {
     md.Element(:final tag, :final attributes, :final children) => HtmlElement(
       tag,
@@ -145,6 +147,46 @@ DocModel markdownToDocModel(String source) {
   };
   final blocks = HtmlToDocModel().convert([for (final n in nodes) convert(n)]);
   return DocModel(sections: [DocSection(blocks: blocks)]);
+}
+
+/// Deepest quote or list nesting kept from a Markdown file. Real documents
+/// rarely nest more than a few levels; a hostile file nesting thousands of
+/// levels would overflow the parser's stack or take minutes (Phase 9 corpus).
+const maxMarkdownNesting = 16;
+
+/// Flattens quote markers and indentation beyond [maxMarkdownNesting]
+/// levels, keeping the text itself.
+String limitMarkdownNesting(String source) {
+  const maxIndent = maxMarkdownNesting * 4;
+  final out = StringBuffer();
+  var lineStart = 0;
+  while (lineStart <= source.length) {
+    var lineEnd = source.indexOf('\n', lineStart);
+    if (lineEnd < 0) lineEnd = source.length;
+    var i = lineStart;
+    var indent = 0;
+    var quotes = 0;
+    while (i < lineEnd) {
+      final ch = source.codeUnitAt(i);
+      if (ch == 0x20 || ch == 0x09) {
+        final width = ch == 0x09 ? 4 : 1;
+        if (indent + width <= maxIndent) out.writeCharCode(ch);
+        indent += width;
+      } else if (ch == 0x3E) {
+        // '>' starts a quote level; indentation restarts inside it.
+        if (quotes < maxMarkdownNesting) out.writeCharCode(ch);
+        quotes++;
+        indent = 0;
+      } else {
+        break;
+      }
+      i++;
+    }
+    out.write(source.substring(i, lineEnd));
+    if (lineEnd < source.length) out.write('\n');
+    lineStart = lineEnd + 1;
+  }
+  return out.toString();
 }
 
 /// Splits a DocModel's text into index chunks (~4 KB each, BLUEPRINT 6.1).

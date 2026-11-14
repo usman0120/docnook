@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:docnook/engines/image/safe_decode.dart';
 import 'package:docnook/engines/jobs/job_runner.dart';
 import 'package:image/image.dart' as img;
 
@@ -94,8 +95,7 @@ PreparedImage prepareImage((String, String, int) args, JobContext context) =>
 PreparedImage prepareImageMax((String, String, int, int) args, JobContext _) {
   final (input, output, quality, maxEdge) = args;
   final bytes = File(input).readAsBytesSync();
-  final decoded = img.decodeImage(bytes);
-  if (decoded == null) throw const FormatException('image');
+  final decoded = decodeImageSafe(bytes);
   var upright = img.bakeOrientation(decoded);
   final longest = upright.width > upright.height
       ? upright.width
@@ -121,8 +121,7 @@ PreparedImage prepareImageMax((String, String, int, int) args, JobContext _) {
 /// Decodes a picture (signature, logo) into BGRA pixels, at most [maxEdge]
 /// pixels on its longer side. Runs in a JobRunner isolate.
 (Uint8List, int, int) decodeBgra((String, int) args, JobContext _) {
-  final decoded = img.decodeImage(File(args.$1).readAsBytesSync());
-  if (decoded == null) throw const FormatException('image');
+  final decoded = decodeImageSafe(File(args.$1).readAsBytesSync());
   var image = img.bakeOrientation(decoded);
   final longest = image.width > image.height ? image.width : image.height;
   if (longest > args.$2) {
