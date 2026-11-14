@@ -196,6 +196,7 @@ class IconAction extends StatelessWidget {
         label: label,
         selected: selected,
         enabled: onPressed != null,
+        onTap: onPressed,
         excludeSemantics: true,
         child: InkResponse(
           onTap: onPressed,

@@ -206,6 +206,8 @@ class FileRow extends StatelessWidget {
       button: onTap != null,
       selected: selected,
       label: '$name, $details',
+      onTap: onTap,
+      onLongPress: onLongPress,
       excludeSemantics: true,
       child: Material(
         color: selected ? c.selection : Colors.transparent,
@@ -347,6 +349,8 @@ class FileTile extends StatelessWidget {
       button: onTap != null,
       selected: selected,
       label: '$name, $details',
+      onTap: onTap,
+      onLongPress: onLongPress,
       excludeSemantics: true,
       child: InkWell(
         onTap: onTap,

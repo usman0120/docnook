@@ -127,6 +127,7 @@ class ViewerBottomBar extends StatelessWidget {
                       button: true,
                       enabled: onTap != null,
                       label: label,
+                      onTap: onTap,
                       excludeSemantics: true,
                       child: InkWell(
                         onTap: onTap,

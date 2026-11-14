@@ -219,6 +219,7 @@ class _ContinueRow extends ConsumerWidget {
             child: Semantics(
               button: true,
               label: doc.name,
+              onTap: () => unawaited(openDocument(context, doc)),
               excludeSemantics: true,
               child: InkWell(
                 onTap: () => unawaited(openDocument(context, doc)),

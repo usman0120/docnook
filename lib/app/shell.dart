@@ -92,6 +92,7 @@ class _ScanButton extends StatelessWidget {
     return Semantics(
       button: true,
       label: label,
+      onTap: onPressed,
       excludeSemantics: true,
       child: Material(
         color: c.primary,

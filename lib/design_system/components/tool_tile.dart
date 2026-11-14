@@ -29,6 +29,7 @@ class ToolTile extends StatelessWidget {
       button: true,
       enabled: onTap != null,
       label: '$title. $description',
+      onTap: onTap,
       excludeSemantics: true,
       child: Material(
         color: c.surface,
@@ -91,6 +92,7 @@ class QuickAction extends StatelessWidget {
     return Semantics(
       button: true,
       label: label,
+      onTap: onTap,
       excludeSemantics: true,
       child: InkWell(
         onTap: onTap,

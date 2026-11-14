@@ -91,6 +91,7 @@ Future<int?> showPageThumbnails(
             button: true,
             selected: selected,
             label: l.pdfBookmarkLabel(page),
+            onTap: () => Navigator.of(context).pop(page),
             excludeSemantics: true,
             child: InkWell(
               onTap: () => Navigator.of(context).pop(page),

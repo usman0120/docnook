@@ -131,6 +131,7 @@ class SearchField extends StatelessWidget {
       child: Semantics(
         button: true,
         label: hint,
+        onTap: onTap,
         excludeSemantics: true,
         child: Material(
           color: c.surfaceSunken,

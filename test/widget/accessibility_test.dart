@@ -1,3 +1,5 @@
+import 'dart:ui' show Tristate;
+
 import 'package:docnook/app/theme/app_theme.dart';
 import 'package:docnook/design_system/components/buttons.dart';
 import 'package:docnook/design_system/components/choice.dart';
@@ -9,6 +11,7 @@ import 'package:docnook/design_system/components/tool_tile.dart';
 import 'package:docnook/design_system/icons.dart';
 import 'package:docnook/domain/entities/doc_type.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Accessibility pass for the design system (NFR-A11Y-01): every control has
@@ -153,6 +156,11 @@ void main() {
           expect(tester.takeException(), isNull, reason: 'overflow: $label');
           await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
           await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+          expect(
+            _buttonsWithoutTap(tester),
+            isEmpty,
+            reason: 'TalkBack double-tap needs a tap action on every button',
+          );
           if (scale == 1.0) {
             await expectLater(tester, meetsGuideline(textContrastGuideline));
           }
@@ -161,4 +169,28 @@ void main() {
       }
     }
   }
+}
+
+/// Labels of enabled buttons that TalkBack cannot activate: a label that
+/// hides its child's semantics also hides the child's tap action unless it
+/// declares its own.
+List<String> _buttonsWithoutTap(WidgetTester tester) {
+  final missing = <String>[];
+  void visit(SemanticsNode node) {
+    final data = node.getSemanticsData();
+    final button = data.flagsCollection.isButton;
+    final disabled = data.flagsCollection.isEnabled == Tristate.isFalse;
+    if (button && !disabled && !data.hasAction(SemanticsAction.tap)) {
+      missing.add(data.label);
+    }
+    node.visitChildren((child) {
+      visit(child);
+      return true;
+    });
+  }
+
+  visit(
+    tester.binding.renderViews.first.owner!.semanticsOwner!.rootSemanticsNode!,
+  );
+  return missing;
 }

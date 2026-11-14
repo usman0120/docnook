@@ -201,6 +201,7 @@ class _SpeedChip extends StatelessWidget {
     return Semantics(
       button: true,
       label: l.readAloudSpeed(text),
+      onTap: onTap,
       excludeSemantics: true,
       child: InkWell(
         onTap: onTap,
