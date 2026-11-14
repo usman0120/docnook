@@ -8,8 +8,9 @@ commands, and fix all errors. Explain results in plain English, give exact steps
 anything the owner must do on the phone, and never ask them to edit code by hand.
 
 ## Non-negotiable rules
-1. The app must never request INTERNET or ACCESS_NETWORK_STATE. tool/check.sh verifies
-   the merged release manifest.
+1. Offline first. Do not add INTERNET or ACCESS_NETWORK_STATE unless a feature truly
+   needs it and the owner approves it (none does today). tool/check.sh verifies the
+   merged release manifest; update the check only together with such an approval.
 2. No component may require an account, registration, license key or API key
    (no Syncfusion, no cloud services). Open-source packages only.
 3. Before adding a package, check pub.dev for: latest stable version, license, last

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:docnook/app/l10n/generated/app_localizations.dart';
 import 'package:docnook/app/providers.dart';
@@ -10,6 +11,7 @@ import 'package:docnook/design_system/components/states.dart';
 import 'package:docnook/design_system/icons.dart';
 import 'package:docnook/design_system/tokens.dart';
 import 'package:docnook/domain/entities/document_info.dart';
+import 'package:docnook/domain/read_aloud/read_aloud_source.dart';
 import 'package:docnook/features/search/application/indexer.dart';
 import 'package:docnook/features/tools/application/tool_models.dart';
 import 'package:docnook/features/tools/presentation/tool_sheets.dart';
@@ -18,6 +20,7 @@ import 'package:docnook/features/viewer/pdf/pdf_panels.dart';
 import 'package:docnook/features/viewer/presentation/cant_open_screen.dart';
 import 'package:docnook/features/viewer/presentation/password_dialog.dart';
 import 'package:docnook/features/viewer/presentation/viewer_chrome.dart';
+import 'package:docnook/features/viewer/read_aloud/read_aloud_host.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -43,7 +46,8 @@ class PdfViewerScreen extends ConsumerStatefulWidget {
   ConsumerState<PdfViewerScreen> createState() => _PdfViewerScreenState();
 }
 
-class _PdfViewerScreenState extends ConsumerState<PdfViewerScreen> {
+class _PdfViewerScreenState extends ConsumerState<PdfViewerScreen>
+    with ReadAloudHost {
   final _controller = PdfViewerController();
   late final PdfTextSearcher _searcher = PdfTextSearcher(_controller)
     ..addListener(_onSearchChanged);
@@ -66,6 +70,9 @@ class _PdfViewerScreenState extends ConsumerState<PdfViewerScreen> {
   Object? _loadError;
   Timer? _saveTimer;
   bool _starred = false;
+
+  /// Page text for Read Aloud, by page index; offsets match the highlight.
+  final _pageTexts = <int, PdfPageText>{};
 
   late final Indexer _indexer = ref.read(indexerProvider);
   late final void Function() _endIndexPause;
@@ -111,6 +118,7 @@ class _PdfViewerScreenState extends ConsumerState<PdfViewerScreen> {
 
   @override
   void dispose() {
+    disposeReadAloud();
     _saveTimer?.cancel();
     unawaited(_savePosition());
     unawaited(_indexAfterClose());
@@ -225,6 +233,81 @@ class _PdfViewerScreenState extends ConsumerState<PdfViewerScreen> {
       return;
     }
     _searcher.startTextSearch(term);
+  }
+
+  // ---------------------------------------------------------- read aloud
+
+  void _readAloud() {
+    if (!_controller.isReady) return;
+    unawaited(startReadAloud(_PdfSource(this), fromUnit: _page - 1));
+  }
+
+  Future<String> _pageText(int index) async {
+    final cached = _pageTexts[index];
+    if (cached != null) return cached.fullText;
+    try {
+      final text = await _controller.document.pages[index].loadStructuredText();
+      _pageTexts[index] = text;
+      return text.fullText;
+    } on Object {
+      return '';
+    }
+  }
+
+  /// One rectangle per line of the sentence, in document coordinates.
+  List<Rect> _sentenceRects(ReadAloudSpot spot, PdfPage page, Rect pageRect) {
+    final text = _pageTexts[spot.unit];
+    if (text == null) return const [];
+    final rects = <Rect>[];
+    final end = math.min(spot.end, text.charRects.length);
+    for (var i = math.max(0, spot.start); i < end; i++) {
+      final r = text.charRects[i].toRectInDocument(
+        page: page,
+        pageRect: pageRect,
+      );
+      if (r.isEmpty) continue;
+      final last = rects.isEmpty ? null : rects.last;
+      // Same line: grow the current rectangle.
+      if (last != null &&
+          (r.center.dy - last.center.dy).abs() < last.height * 0.6) {
+        rects[rects.length - 1] = last.expandToInclude(r);
+      } else {
+        rects.add(r);
+      }
+    }
+    return rects;
+  }
+
+  void _paintReadAloud(Canvas canvas, Rect pageRect, PdfPage page) {
+    final spot = readAloudSpot;
+    if (spot == null || spot.unit != page.pageNumber - 1) return;
+    final paint = Paint()
+      ..color = context.colors.accent.withValues(alpha: 0.35);
+    for (final r in _sentenceRects(spot, page, pageRect)) {
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(r.inflate(1.5), const Radius.circular(2)),
+        paint,
+      );
+    }
+  }
+
+  @override
+  void followReadAloud(ReadAloudSpot spot) {
+    if (!_controller.isReady) return;
+    _controller.invalidate();
+    final layouts = _controller.layout.pageLayouts;
+    if (spot.unit >= layouts.length) return;
+    final page = _controller.document.pages[spot.unit];
+    final rects = _sentenceRects(spot, page, layouts[spot.unit]);
+    if (rects.isEmpty) {
+      if (_page != spot.unit + 1) unawaited(_goToPage(spot.unit + 1));
+      return;
+    }
+    final area = rects.reduce((a, b) => a.expandToInclude(b));
+    if (!_controller.visibleRect.contains(area.topLeft) ||
+        !_controller.visibleRect.contains(area.bottomRight)) {
+      unawaited(_controller.ensureVisible(area, margin: 48));
+    }
   }
 
   Future<void> _goToPage(int page) async {
@@ -361,6 +444,12 @@ class _PdfViewerScreenState extends ConsumerState<PdfViewerScreen> {
                 ViewerOverflowMenu(
                   night: _night,
                   items: [
+                    if (_pageCount > 0)
+                      (
+                        l.actionReadAloud,
+                        PhosphorIconsRegular.speakerHigh,
+                        _readAloud,
+                      ),
                     (l.pdfGoToPage, PhosphorIconsRegular.hash, _askPage),
                     if (_scroll == PdfScrollMode.vertical)
                       (
@@ -436,6 +525,7 @@ class _PdfViewerScreenState extends ConsumerState<PdfViewerScreen> {
                         activeMatchTextColor: c.accent.withValues(alpha: 0.60),
                         pagePaintCallbacks: [
                           _searcher.pageTextMatchPaintCallback,
+                          _paintReadAloud,
                         ],
                         textSelectionParams: const PdfTextSelectionParams(),
                         onViewerReady: _onReady,
@@ -490,8 +580,9 @@ class _PdfViewerScreenState extends ConsumerState<PdfViewerScreen> {
                       ),
                     ),
             ),
+            readAloudBar(night: _night),
             ViewerBottomBar(
-              visible: _chrome && !_searching,
+              visible: _chrome && !_searching && !readAloudActive,
               night: _night,
               items: [
                 (
@@ -559,4 +650,16 @@ class _PdfViewerScreenState extends ConsumerState<PdfViewerScreen> {
     );
     if (page != null) await _goToPage(page);
   }
+}
+
+/// Read Aloud over the pages of the open PDF.
+class _PdfSource implements ReadAloudSource {
+  _PdfSource(this._state);
+  final _PdfViewerScreenState _state;
+
+  @override
+  int get unitCount => _state._pageCount;
+
+  @override
+  Future<String> unitText(int unit) => _state._pageText(unit);
 }

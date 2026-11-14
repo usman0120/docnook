@@ -15,6 +15,7 @@ import 'package:docnook/design_system/typography.dart';
 import 'package:docnook/domain/docmodel/doc_model.dart';
 import 'package:docnook/domain/entities/doc_type.dart';
 import 'package:docnook/domain/entities/document_info.dart';
+import 'package:docnook/domain/read_aloud/read_aloud_source.dart';
 import 'package:docnook/engines/epub/epub_parser.dart';
 import 'package:docnook/engines/jobs/job_runner.dart';
 import 'package:docnook/engines/office/parse_document.dart';
@@ -23,6 +24,7 @@ import 'package:docnook/features/viewer/application/open_document.dart';
 import 'package:docnook/features/viewer/docmodel/docmodel_view.dart';
 import 'package:docnook/features/viewer/presentation/cant_open_screen.dart';
 import 'package:docnook/features/viewer/presentation/viewer_chrome.dart';
+import 'package:docnook/features/viewer/read_aloud/read_aloud_host.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -41,7 +43,8 @@ class EpubReaderScreen extends ConsumerStatefulWidget {
   ConsumerState<EpubReaderScreen> createState() => _EpubReaderScreenState();
 }
 
-class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
+class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen>
+    with ReadAloudHost {
   Result<EpubBook>? _book;
   int _chapter = 0;
   double _textScale = 1.1;
@@ -53,6 +56,11 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
   Timer? _saveTimer;
   late final DocumentRepository _repo = ref.read(documentRepositoryProvider);
 
+  // Read Aloud: every paragraph of the book in order, as (chapter, block).
+  List<(int, int)>? _units;
+  late List<String> _unitTexts;
+  final _blockKeys = <int, GlobalKey>{};
+
   @override
   void initState() {
     super.initState();
@@ -62,6 +70,7 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
 
   @override
   void dispose() {
+    disposeReadAloud();
     _saveTimer?.cancel();
     unawaited(_save());
     _scroll.dispose();
@@ -144,6 +153,7 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
   void _goChapter(int i, {bool toEnd = false}) {
     final book = _book?.valueOrNull;
     if (book == null || i < 0 || i >= book.chapters.length) return;
+    _blockKeys.clear();
     setState(() {
       _chapter = i;
       _chapterProgress = toEnd ? 1 : 0;
@@ -154,6 +164,76 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
       }
     });
     unawaited(_save());
+  }
+
+  // ---------------------------------------------------------- read aloud
+
+  void _readAloud(EpubBook book) {
+    if (_units == null) {
+      final units = <(int, int)>[];
+      final texts = <String>[];
+      for (var c = 0; c < book.chapters.length; c++) {
+        final blocks = book.chapters[c].blocks;
+        for (var b = 0; b < blocks.length; b++) {
+          final block = blocks[b];
+          units.add((c, b));
+          texts.add(
+            block is Paragraph
+                ? block.plainText
+                : DocModel(
+                    sections: [
+                      DocSection(blocks: [block]),
+                    ],
+                  ).plainText(),
+          );
+        }
+      }
+      _units = units;
+      _unitTexts = texts;
+    }
+    // Start at the paragraph near the top of the screen.
+    final blocks = book.chapters[_chapter].blocks.length;
+    final first = (_chapterProgress * blocks).floor().clamp(0, blocks);
+    final from = _units!.indexWhere(
+      (u) => u.$1 > _chapter || (u.$1 == _chapter && u.$2 >= first),
+    );
+    unawaited(
+      startReadAloud(TextListSource(_unitTexts), fromUnit: from < 0 ? 0 : from),
+    );
+  }
+
+  @override
+  void followReadAloud(ReadAloudSpot spot) {
+    final units = _units;
+    if (units == null || spot.unit >= units.length) return;
+    final (chapter, block) = units[spot.unit];
+    final length = _unitTexts[spot.unit].length;
+    final fraction = length == 0 ? 0.0 : spot.start / length;
+    if (chapter != _chapter) {
+      _goChapter(chapter);
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => unawaited(_revealBlock(block, fraction)),
+      );
+      return;
+    }
+    unawaited(_revealBlock(block, fraction));
+  }
+
+  /// Scrolls block [index] of the current chapter into view, estimating the
+  /// position of blocks the list hasn't built yet.
+  Future<void> _revealBlock(int index, double fraction) async {
+    for (var attempt = 0; attempt < 5 && mounted; attempt++) {
+      final context = _blockKeys[index]?.currentContext;
+      if (context != null && context.mounted) {
+        await revealIfOffscreen(context, fraction: fraction);
+        return;
+      }
+      if (!_scroll.hasClients) return;
+      final count = _book?.valueOrNull?.chapters[_chapter].blocks.length ?? 1;
+      final max = _scroll.position.maxScrollExtent;
+      _scroll.jumpTo((index / math.max(1, count) * max).clamp(0, max));
+      await WidgetsBinding.instance.endOfFrame;
+    }
   }
 
   /// Page forward/back by a screenful; at the chapter edge, move chapters.
@@ -257,6 +337,12 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
               ViewerOverflowMenu(
                 night: night,
                 items: [
+                  if (book != null)
+                    (
+                      l.actionReadAloud,
+                      PhosphorIconsRegular.speakerHigh,
+                      () => _readAloud(book),
+                    ),
                   (
                     l.actionShare,
                     PhosphorIconsRegular.shareNetwork,
@@ -312,10 +398,16 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
                                 if (i == chapter.blocks.length) {
                                   return _chapterEnd(book, l, muted);
                                 }
-                                return DocBlockView(
-                                  block: chapter.blocks[i],
-                                  doc: model,
-                                  style: style,
+                                final match = _matchFor(i);
+                                return KeyedSubtree(
+                                  key: _blockKeys[i] ??= GlobalKey(),
+                                  child: DocBlockView(
+                                    block: chapter.blocks[i],
+                                    doc: model,
+                                    style: style,
+                                    matches: match == null ? const [] : [match],
+                                    activeMatch: match,
+                                  ),
                                 );
                               },
                             ),
@@ -350,9 +442,23 @@ class _EpubReaderScreenState extends ConsumerState<EpubReaderScreen> {
                 ),
               ),
             ),
+          readAloudBar(night: night),
         ],
       ),
     );
+  }
+
+  /// The sentence being read, when it is in block [block] of this chapter.
+  BlockMatch? _matchFor(int block) {
+    final spot = readAloudSpot;
+    final units = _units;
+    if (spot == null || units == null || spot.unit >= units.length) {
+      return null;
+    }
+    final (c, b) = units[spot.unit];
+    return c == _chapter && b == block
+        ? BlockMatch(block, spot.start, spot.end)
+        : null;
   }
 
   Widget _chapterEnd(EpubBook book, AppLocalizations l, Color muted) {

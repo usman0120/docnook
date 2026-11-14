@@ -8,6 +8,7 @@ import 'package:docnook/features/scan/presentation/scan_export_screen.dart';
 import 'package:docnook/features/scan/presentation/scan_launcher.dart';
 import 'package:docnook/features/scan/presentation/scan_review_screen.dart';
 import 'package:docnook/features/search/presentation/search_screen.dart';
+import 'package:docnook/features/settings/presentation/legal_screen.dart';
 import 'package:docnook/features/settings/presentation/settings_screen.dart';
 import 'package:docnook/features/tools/application/tool_models.dart';
 import 'package:docnook/features/tools/presentation/tool_flow_screen.dart';
@@ -121,6 +122,16 @@ GoRouter buildRouter({bool onboarded = true}) => GoRouter(
       path: '/settings',
       parentNavigatorKey: rootNavigatorKey,
       builder: (_, _) => const SettingsScreen(),
+    ),
+    GoRoute(
+      path: '/settings/privacy',
+      parentNavigatorKey: rootNavigatorKey,
+      builder: (_, _) => const LegalScreen(LegalPage.privacy),
+    ),
+    GoRoute(
+      path: '/settings/terms',
+      parentNavigatorKey: rootNavigatorKey,
+      builder: (_, _) => const LegalScreen(LegalPage.terms),
     ),
   ],
 );

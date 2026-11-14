@@ -38,11 +38,17 @@ class PdfToolsService {
 
   static final _toolSuffixes = RegExp(
     '(_(merged|organized|compressed|protected|unlocked|watermarked|'
-    r'numbered|signed|annotated|filled|redacted))+$',
+    r'numbered|signed|annotated|filled|redacted|\d{4}-\d{2}-\d{2}))+$',
   );
 
-  /// `Merged_2026-11-11_1432` for Merge; `name_suffix` otherwise.
-  static String defaultName(ToolId tool, String? inputName, DateTime now) {
+  /// `Merged_2026-11-11_1432` for Merge; `name_suffix` otherwise, plus
+  /// `_2026-11-11` when [dated] (Settings → Output → File naming).
+  static String defaultName(
+    ToolId tool,
+    String? inputName,
+    DateTime now, {
+    bool dated = false,
+  }) {
     final stamp = DateFormat('yyyy-MM-dd_HHmm').format(now);
     if (tool == ToolId.merge ||
         tool == ToolId.imagesToPdf ||
@@ -75,7 +81,8 @@ class PdfToolsService {
       // Converters keep the name; the new extension tells them apart.
       _ => '',
     };
-    return suffix.isEmpty ? base : '${base}_$suffix';
+    final named = suffix.isEmpty ? base : '${base}_$suffix';
+    return dated ? '${named}_${DateFormat('yyyy-MM-dd').format(now)}' : named;
   }
 
   /// A readable local copy of [input] (content URIs are streamed into the

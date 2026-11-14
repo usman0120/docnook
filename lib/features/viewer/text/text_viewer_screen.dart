@@ -12,11 +12,13 @@ import 'package:docnook/design_system/icons.dart';
 import 'package:docnook/design_system/tokens.dart';
 import 'package:docnook/design_system/typography.dart';
 import 'package:docnook/domain/entities/document_info.dart';
+import 'package:docnook/domain/read_aloud/read_aloud_source.dart';
 import 'package:docnook/engines/text/highlighter.dart';
 import 'package:docnook/engines/text/text_file.dart';
 import 'package:docnook/features/viewer/application/open_document.dart';
 import 'package:docnook/features/viewer/presentation/cant_open_screen.dart';
 import 'package:docnook/features/viewer/presentation/viewer_chrome.dart';
+import 'package:docnook/features/viewer/read_aloud/read_aloud_host.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -38,7 +40,8 @@ class TextViewerScreen extends ConsumerStatefulWidget {
   ConsumerState<TextViewerScreen> createState() => _TextViewerScreenState();
 }
 
-class _TextViewerScreenState extends ConsumerState<TextViewerScreen> {
+class _TextViewerScreenState extends ConsumerState<TextViewerScreen>
+    with ReadAloudHost {
   Result<LineIndex>? _indexed;
   LineReader? _reader;
   double _progress = 0;
@@ -62,6 +65,9 @@ class _TextViewerScreenState extends ConsumerState<TextViewerScreen> {
   String _term = '';
   int _searchGeneration = 0;
 
+  /// On the line being read aloud, so the view can follow it.
+  final _spotKey = GlobalKey();
+
   double get _lineHeight => (_fontSize * 1.55).roundToDouble();
 
   @override
@@ -75,6 +81,7 @@ class _TextViewerScreenState extends ConsumerState<TextViewerScreen> {
 
   @override
   void dispose() {
+    disposeReadAloud();
     _saveTimer?.cancel();
     unawaited(_save());
     _reader?.close();
@@ -179,6 +186,30 @@ class _TextViewerScreenState extends ConsumerState<TextViewerScreen> {
     if (hits.isNotEmpty) _jumpToLine(hits.first);
   }
 
+  // ---------------------------------------------------------- read aloud
+
+  void _readAloud(LineReader reader) => unawaited(
+    startReadAloud(_LineSource(reader), fromUnit: _firstVisibleLine),
+  );
+
+  @override
+  void followReadAloud(ReadAloudSpot spot) {
+    final context = _spotKey.currentContext;
+    final length = _reader?.line(spot.unit).length ?? 0;
+    final fraction = length == 0 ? 0.0 : spot.start / length;
+    if (context != null && context.mounted) {
+      unawaited(revealIfOffscreen(context, fraction: fraction));
+      return;
+    }
+    _jumpToLine(spot.unit);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final built = _spotKey.currentContext;
+      if (built != null && built.mounted) {
+        unawaited(revealIfOffscreen(built, fraction: fraction));
+      }
+    });
+  }
+
   void _step(int delta) {
     if (_hits.isEmpty) return;
     setState(() => _active = (_active + delta) % _hits.length);
@@ -243,6 +274,12 @@ class _TextViewerScreenState extends ConsumerState<TextViewerScreen> {
               ViewerOverflowMenu(
                 items: [
                   ...widget.extraActions,
+                  if (reader != null)
+                    (
+                      l.actionReadAloud,
+                      PhosphorIconsRegular.speakerHigh,
+                      () => _readAloud(reader),
+                    ),
                   (
                     _wrap ? l.textNoWrap : l.textWrap,
                     PhosphorIconsRegular.textAlignLeft,
@@ -313,6 +350,7 @@ class _TextViewerScreenState extends ConsumerState<TextViewerScreen> {
                     child: _lines(context, index, reader, c),
                   ),
           ),
+          readAloudBar(),
         ],
       ),
     );
@@ -338,17 +376,23 @@ class _TextViewerScreenState extends ConsumerState<TextViewerScreen> {
     final hitSet = _hits.toSet();
     final palette = _Palette.of(c);
 
+    final spot = readAloudSpot;
+
     Widget line(BuildContext context, int i) {
       final text = reader.line(i);
-      final spans = _spans(
-        text,
-        palette,
-        style,
-        hitSet.contains(i),
-        i == activeLine,
-        c,
-      );
+      final reading = spot != null && spot.unit == i;
+      final spans = reading
+          ? _readingSpans(text, spot, style, c)
+          : _spans(
+              text,
+              palette,
+              style,
+              hitSet.contains(i),
+              i == activeLine,
+              c,
+            );
       return Row(
+        key: reading ? _spotKey : null,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (_numbers)
@@ -417,6 +461,25 @@ class _TextViewerScreenState extends ConsumerState<TextViewerScreen> {
         ),
       ),
     );
+  }
+
+  /// The line being read aloud, with the sentence highlighted.
+  List<InlineSpan> _readingSpans(
+    String text,
+    ReadAloudSpot spot,
+    TextStyle base,
+    DocNookColors c,
+  ) {
+    final start = spot.start.clamp(0, text.length);
+    final end = spot.end.clamp(start, text.length);
+    return [
+      if (start > 0) TextSpan(text: text.substring(0, start), style: base),
+      TextSpan(
+        text: text.substring(start, end),
+        style: base.copyWith(backgroundColor: c.accent.withValues(alpha: 0.4)),
+      ),
+      if (end < text.length) TextSpan(text: text.substring(end), style: base),
+    ];
   }
 
   List<InlineSpan> _spans(
@@ -512,4 +575,16 @@ final class _Palette {
     TokenKind.attribute => attribute,
     TokenKind.plain || TokenKind.punctuation => ink,
   };
+}
+
+/// Read Aloud over the lines of a text file, read on demand.
+class _LineSource implements ReadAloudSource {
+  _LineSource(this.reader);
+  final LineReader reader;
+
+  @override
+  int get unitCount => reader.index.lineCount;
+
+  @override
+  Future<String> unitText(int unit) async => reader.line(unit);
 }

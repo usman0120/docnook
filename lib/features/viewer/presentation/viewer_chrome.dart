@@ -8,9 +8,9 @@ import 'package:docnook/design_system/typography.dart';
 import 'package:flutter/material.dart';
 
 /// Night viewers draw their chrome on near-black regardless of app theme.
-const _nightBar = Color(0xFF1A1A19);
-const _nightInk = Color(0xFFECE9E2);
-const _nightMuted = Color(0xFFA8A398);
+const viewerNightBar = Color(0xFF1A1A19);
+const viewerNightInk = Color(0xFFECE9E2);
+const viewerNightMuted = Color(0xFFA8A398);
 
 /// ViewerToolbar (BLUEPRINT 10.5): Back, file name, actions. Slides away
 /// when [visible] is false.
@@ -38,12 +38,12 @@ class ViewerTopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     final l = AppLocalizations.of(context);
-    final ink = night ? _nightInk : c.ink;
+    final ink = night ? viewerNightInk : c.ink;
     return _Collapsible(
       visible: visible,
       alignment: Alignment.bottomCenter,
       child: Material(
-        color: night ? _nightBar : c.paper,
+        color: night ? viewerNightBar : c.paper,
         child: DecoratedBox(
           decoration: BoxDecoration(
             border: Border(
@@ -104,13 +104,13 @@ class ViewerBottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final ink = night ? _nightInk : c.ink;
-    final muted = night ? _nightMuted : c.inkMuted;
+    final ink = night ? viewerNightInk : c.ink;
+    final muted = night ? viewerNightMuted : c.inkMuted;
     return _Collapsible(
       visible: visible,
       alignment: Alignment.topCenter,
       child: Material(
-        color: night ? _nightBar : c.paper,
+        color: night ? viewerNightBar : c.paper,
         child: DecoratedBox(
           decoration: BoxDecoration(
             border: Border(
@@ -312,7 +312,7 @@ class ViewerOverflowMenu extends StatelessWidget {
       icon: Icon(
         PhosphorIconsRegular.dotsThreeVertical,
         size: Sizes.icon,
-        color: night ? _nightInk : c.ink,
+        color: night ? viewerNightInk : c.ink,
       ),
       position: PopupMenuPosition.under,
       onSelected: (i) => unawaited(Future.sync(items[i].$3)),

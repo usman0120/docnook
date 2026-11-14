@@ -15,6 +15,7 @@ import 'package:docnook/domain/scan/scan_models.dart';
 import 'package:docnook/features/tools/application/convert_service.dart';
 import 'package:docnook/features/tools/application/pdf_tools_service.dart';
 import 'package:docnook/features/tools/application/tool_models.dart';
+import 'package:docnook/features/tools/application/tool_naming.dart';
 import 'package:docnook/features/tools/presentation/tool_flow_screen.dart';
 import 'package:docnook/features/tools/presentation/tool_scaffold.dart';
 import 'package:docnook/features/tools/presentation/tool_sheets.dart';
@@ -54,6 +55,7 @@ class _ToolOptionsScreenState extends ConsumerState<ToolOptionsScreen> {
       widget.tool,
       widget.inputs.first.input.name,
       DateTime.now(),
+      dated: ref.read(datedNamesProvider),
     ),
   );
 

@@ -107,4 +107,28 @@ void main() {
       'Report_compressed',
     );
   });
+
+  test('dated names add the day once, also when chained', () {
+    final now = DateTime(2026, 11, 14, 9, 5);
+    final signed = PdfToolsService.defaultName(
+      ToolId.sign,
+      'Report.pdf',
+      now,
+      dated: true,
+    );
+    expect(signed, 'Report_signed_2026-11-14');
+    expect(
+      PdfToolsService.defaultName(
+        ToolId.compress,
+        '$signed.pdf',
+        now,
+        dated: true,
+      ),
+      'Report_compressed_2026-11-14',
+    );
+    expect(
+      PdfToolsService.defaultName(ToolId.wordToPdf, 'Notes.docx', now),
+      'Notes',
+    );
+  });
 }

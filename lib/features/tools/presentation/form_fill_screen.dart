@@ -13,6 +13,7 @@ import 'package:docnook/domain/pdf/pdf_edit_models.dart';
 import 'package:docnook/engines/pdf/pdfium_editor.dart';
 import 'package:docnook/features/tools/application/pdf_tools_service.dart';
 import 'package:docnook/features/tools/application/tool_models.dart';
+import 'package:docnook/features/tools/application/tool_naming.dart';
 import 'package:docnook/features/tools/presentation/edit_pages.dart';
 import 'package:docnook/features/tools/presentation/tool_flow_screen.dart';
 import 'package:docnook/features/tools/presentation/tool_scaffold.dart';
@@ -244,6 +245,7 @@ class _FormFillScreenState extends ConsumerState<FormFillScreen> {
           ToolId.fillForms,
           widget.input.input.name,
           DateTime.now(),
+          dated: ref.read(datedNamesProvider),
         ),
         control: control,
       ),

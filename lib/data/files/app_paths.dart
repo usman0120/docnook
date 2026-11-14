@@ -26,13 +26,10 @@ final class AppPaths {
   /// Work-in-progress outputs; swept after 24 h.
   String get tmp => _dir(cache, 'tmp');
 
-  /// Decrypted vault files; wiped on close and on every start.
-  String get vaultTmp => _dir(cache, 'vault_tmp');
   String get thumbs => _dir(cache, 'thumbs');
   String get share => _dir(cache, 'share');
   String get scans => _dir(files, 'scans');
   String get signatures => _dir(files, 'signatures');
-  String get vault => _dir(files, 'vault');
   String get database => p.join(_dir(files, 'db'), 'docnook.db');
 
   static String _dir(String root, String name) {
@@ -41,12 +38,13 @@ final class AppPaths {
     return dir.path;
   }
 
-  /// Removes leftovers from earlier runs: old temp files and every decrypted
-  /// vault file (BLUEPRINT 8.1).
+  /// Removes leftovers from earlier runs (BLUEPRINT 8.1): temp outputs and
+  /// copies made for sharing, once they are more than a day old.
   Future<void> sweep({DateTime? now}) async {
     final cutoff = (now ?? DateTime.now()).subtract(const Duration(hours: 24));
-    await _deleteWhere(tmp, (stat) => stat.modified.isBefore(cutoff));
-    await _deleteWhere(vaultTmp, (_) => true);
+    bool old(FileStat stat) => stat.modified.isBefore(cutoff);
+    await _deleteWhere(tmp, old);
+    await _deleteWhere(share, old);
   }
 
   /// Keeps a cache folder under [maxBytes] by removing least recently used

@@ -19,7 +19,7 @@ class MainActivity : FlutterActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        channels?.applySecureFlag()
+        channels?.applyWindowFlags()
     }
 
     override fun onNewIntent(intent: Intent) {

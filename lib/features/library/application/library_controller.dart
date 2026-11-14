@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:docnook/app/providers.dart';
 import 'package:docnook/core/result.dart';
 import 'package:docnook/data/repositories/library_repository.dart';
+import 'package:docnook/data/repositories/settings_repository.dart';
 import 'package:docnook/engines/library/discovery.dart';
 import 'package:docnook/engines/library/presence.dart';
 import 'package:docnook/features/search/application/indexer.dart';
@@ -174,6 +175,9 @@ class DiscoveryController extends Notifier<DiscoveryState> {
       final found = <FoundFile>[];
       final scopes = <String>[];
 
+      final hidden = await ref
+          .read(settingsRepositoryProvider)
+          .getBool(SettingsRepository.keyShowHidden);
       if (state.hasAccess) {
         final root = await platform.storageRoot();
         if (root != null) {
@@ -181,7 +185,7 @@ class DiscoveryController extends Notifier<DiscoveryState> {
               .read(jobRunnerProvider)
               .run(
                 discoverFiles,
-                DiscoveryRequest(root: root),
+                DiscoveryRequest(root: root, includeHidden: hidden),
                 timeout: const Duration(minutes: 3),
               );
           final sub = job.progress.listen((p) {

@@ -30,8 +30,8 @@ import java.util.concurrent.Executors
 /**
  * The small Kotlin glue layer (BLUEPRINT 4.4): incoming VIEW/SEND intents,
  * copying content URIs into the cache, MediaStore saves to Documents/DocNook,
- * SAF folder grants, "open with another app", launcher shortcuts and
- * FLAG_SECURE. Everything else lives in Dart.
+ * SAF folder grants, "open with another app", launcher shortcuts, the
+ * keep-screen-on flag and text-to-speech settings. Everything else lives in Dart.
  */
 class DocNookChannels(
     private val activity: Activity,
@@ -44,7 +44,7 @@ class DocNookChannels(
     private var pendingIntent: Map<String, Any?>? = null
     private var pendingTreeResult: MethodChannel.Result? = null
     private var pendingFilesResult: MethodChannel.Result? = null
-    private var secure = false
+    private var keepScreenOn = false
 
     fun register() {
         methods.setMethodCallHandler(::handle)
@@ -204,9 +204,9 @@ class DocNookChannels(
                 renameDocument(call.argument<String>("uri")!!, call.argument<String>("name")!!)
             }
             "requestAllFilesAccess" -> result.success(requestAllFilesAccess())
-            "setSecure" -> {
-                secure = call.argument<Boolean>("on") ?: false
-                applySecureFlag()
+            "setKeepScreenOn" -> {
+                keepScreenOn = call.argument<Boolean>("on") ?: false
+                applyWindowFlags()
                 result.success(null)
             }
             "openFolder" -> result.success(openFolder(call.argument<String>("relative")!!))
@@ -224,6 +224,19 @@ class DocNookChannels(
                     .getMemoryInfo(info)
                 result.success((info.totalMem / (1024 * 1024)).toInt())
             }
+            "openStore" -> result.success(
+                startSafely(
+                    Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=${activity.packageName}"))
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                ),
+            )
+            "sendEmail" -> result.success(
+                startSafely(
+                    Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"))
+                        .putExtra(Intent.EXTRA_EMAIL, arrayOf(call.argument<String>("to")!!))
+                        .putExtra(Intent.EXTRA_SUBJECT, call.argument<String>("subject") ?: ""),
+                ),
+            )
             "openTtsSettings" -> result.success(
                 startSafely(Intent("com.android.settings.TTS_SETTINGS")),
             )
@@ -631,7 +644,7 @@ class DocNookChannels(
         return startSafely(specific) || startSafely(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION))
     }
 
-    // ------------------------------------------------- shortcuts, secure
+    // ------------------------------------------- shortcuts, window flags
 
     private fun publishShortcuts() {
         if (Build.VERSION.SDK_INT < 25) return
@@ -657,11 +670,12 @@ class DocNookChannels(
         }
     }
 
-    fun applySecureFlag() {
-        if (secure) {
-            activity.window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+    /** "Keep screen on" while a document is open (Settings → Reading). */
+    fun applyWindowFlags() {
+        if (keepScreenOn) {
+            activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         } else {
-            activity.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+            activity.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
     }
 

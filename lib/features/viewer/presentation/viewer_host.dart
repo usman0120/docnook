@@ -5,6 +5,7 @@ import 'package:docnook/app/l10n/generated/app_localizations.dart';
 import 'package:docnook/app/providers.dart';
 import 'package:docnook/core/failures.dart';
 import 'package:docnook/core/result.dart';
+import 'package:docnook/data/repositories/settings_repository.dart';
 import 'package:docnook/design_system/components/buttons.dart';
 import 'package:docnook/design_system/components/states.dart';
 import 'package:docnook/design_system/icons.dart';
@@ -39,10 +40,34 @@ class _ViewerHostState extends ConsumerState<ViewerHost> {
   Result<OpenedDocument>? _result;
   bool _sizeAccepted = false;
 
+  /// Open viewers; the screen stays awake while any is open and the
+  /// "Keep screen on" setting is enabled.
+  static int _openViewers = 0;
+
   @override
   void initState() {
     super.initState();
+    _openViewers++;
+    unawaited(_keepAwake());
     unawaited(_open());
+  }
+
+  @override
+  void dispose() {
+    _openViewers--;
+    if (_openViewers == 0) {
+      unawaited(ref.read(platformProvider).setKeepScreenOn(on: false));
+    }
+    super.dispose();
+  }
+
+  Future<void> _keepAwake() async {
+    final on = await ref
+        .read(settingsRepositoryProvider)
+        .getBool(SettingsRepository.keyKeepScreenOn);
+    if (on && mounted && _openViewers > 0) {
+      await ref.read(platformProvider).setKeepScreenOn(on: true);
+    }
   }
 
   Future<void> _open() async {

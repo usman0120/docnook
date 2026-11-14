@@ -415,3 +415,50 @@ ask first). Fallback path still needs an emulator without Play services.
 - Checked on desktop: the 30-page handbook, ODT, RTF, Markdown, the slide deck and
   the budget workbook convert; rendered pages were inspected by eye; CSV → XLSX →
   CSV and DocModel → DOCX → DocModel round trips are unit-tested.
+
+## 2026-11-14 — Owner scope changes before Phase 8
+
+- **Vault and app lock removed.** DocNook is a simple document app: no Private
+  Vault, no app lock, no PIN or biometric, no "Block screenshots" setting. FR-VAULT-01,
+  S28 and S29 are dropped. The unused `vault_items` table stays in the schema (removing
+  it would be a schema change with nothing to gain); nothing writes to it.
+- **Internet rule relaxed to "offline first".** The app stays without INTERNET; a
+  feature may add it only if it truly needs it and the owner approves. No current
+  feature does, so tool/check.sh still fails on INTERNET.
+- **No licences page in Settings.** Open-source licences (Apache-2.0, BSD, MIT, OFL)
+  require their notices to ship with the app, so the notices stay reachable through a
+  small "Open-source notices" link at the end of the Terms page (owner's choice).
+- **Privacy policy and Terms pages added** to Settings → About, bundled in the app so
+  they work offline. Publisher name and contact email are placeholders until the owner
+  provides them before release.
+
+## 2026-11-14 — Phase 8: Read Aloud and settings
+
+| Package | Version | License | Published | Manifest | Why |
+| --- | --- | --- | --- | --- | --- |
+| flutter_tts | 4.2.5 | MIT | ~10 months before (pub.dev) | no permissions; needs the `TTS_SERVICE` query DocNook already declares | Read Aloud with the phone's own voices (FR-READ-06) |
+
+- **Read Aloud** speaks one sentence at a time with the device's text-to-speech
+  engine, choosing only voices that work offline (an English one; the engine's
+  default when it qualifies). With no offline voice, the bar says so and a sheet
+  explains how to add one in Android's voice settings.
+- Sentences are found by DocNook's own splitter (`domain/read_aloud`): `.`, `!`, `?`,
+  `…`, blank lines and list items end a sentence; abbreviations, initials and
+  decimals don't; pieces over 320 characters are cut at a comma or space.
+- Each viewer reads in its own units and highlights the sentence with the same
+  mechanism as in-document search: PDF pages (highlight drawn from PDFium character
+  boxes), document blocks (Word, ODT, RTF, rendered Markdown), text lines, EPUB
+  paragraphs across chapters. The view scrolls only when the sentence leaves the
+  screen. Reading starts at the page or paragraph on screen. Speed 0.75×–2× is
+  remembered.
+- Pause stops the voice and replays the current sentence on Play (Android's engine
+  can't resume mid-sentence).
+- **Settings** gained Keep screen on (window flag while a document is open), Read
+  Aloud voice (opens Android's voice settings), File naming (name_action or
+  name_action_date), and a Library group: Find my documents, Folders, Look for new
+  documents, Show hidden files, Rebuild search index. About has Privacy policy and
+  Terms; Rate DocNook shows only in the Play build; Send feedback appears once a
+  support address is set in `lib/app/version.dart`.
+- The temp-file sweeper now also clears share copies older than a day; vault folders
+  and the "Block screenshots" setting were removed with the vault (owner decision).
+- `USE_BIOMETRIC` removed from the manifest (only the app lock used it).

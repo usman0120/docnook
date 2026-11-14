@@ -81,6 +81,15 @@ class SearchRepository {
     await _setState(doc.id, 'done');
   });
 
+  /// Empties the index and marks every document for indexing again
+  /// (Settings → Library → Rebuild search index).
+  Future<void> resetAll() => _db.transaction(() async {
+    await _db.customStatement('DELETE FROM doc_search');
+    await _db
+        .update(_db.documents)
+        .write(const DocumentsCompanion(indexState: Value('none')));
+  });
+
   Future<void> markFailed(int documentId) => _setState(documentId, 'failed');
   Future<void> markSkipped(int documentId) => _setState(documentId, 'skipped');
 

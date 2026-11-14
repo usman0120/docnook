@@ -12,6 +12,7 @@ import 'package:docnook/features/library/application/library_controller.dart';
 import 'package:docnook/features/scan/presentation/scan_launcher.dart';
 import 'package:docnook/features/search/application/indexer.dart';
 import 'package:docnook/features/tools/application/tool_models.dart';
+import 'package:docnook/features/tools/application/tool_naming.dart';
 import 'package:docnook/features/viewer/application/open_document.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -116,6 +117,8 @@ class _DocNookAppState extends ConsumerState<DocNookApp> {
   Widget build(BuildContext context) {
     final theme =
         ref.watch(themePreferenceProvider).value ?? ThemePreference.system;
+    // Loaded up front so tool screens can name outputs without waiting.
+    ref.watch(datedNamesProvider);
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appName,
       debugShowCheckedModeBanner: false,

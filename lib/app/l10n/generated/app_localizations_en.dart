@@ -813,16 +813,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsLibrary => 'Library';
 
   @override
-  String get settingsPrivacy => 'Privacy and security';
-
-  @override
-  String get settingsBlockScreenshots => 'Block screenshots';
-
-  @override
-  String get settingsBlockScreenshotsBody =>
-      'Hides DocNook in the recent apps list too';
-
-  @override
   String get settingsStorage => 'Storage';
 
   @override
@@ -839,9 +829,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsVersion => 'Version';
-
-  @override
-  String get settingsLicenses => 'Open-source licences';
 
   @override
   String get settingsPrivacyPromise => 'Privacy promise';
@@ -2173,4 +2160,251 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get convToCsv => 'Makes one CSV file for each sheet.';
+
+  @override
+  String get actionReadAloud => 'Read aloud';
+
+  @override
+  String get readAloudTitle => 'Read aloud';
+
+  @override
+  String get readAloudPlay => 'Play';
+
+  @override
+  String get readAloudPause => 'Pause';
+
+  @override
+  String get readAloudAgain => 'Read again from the start';
+
+  @override
+  String get readAloudNext => 'Next sentence';
+
+  @override
+  String get readAloudPrevious => 'Previous sentence';
+
+  @override
+  String readAloudSpeed(String speed) {
+    return 'Speed $speed';
+  }
+
+  @override
+  String get readAloudNoVoiceShort =>
+      'No offline voice is installed on this phone.';
+
+  @override
+  String get readAloudHowTo => 'How to add one';
+
+  @override
+  String get readAloudFailed =>
+      'The phone\'s voice stopped working. Close and try again.';
+
+  @override
+  String get readAloudNoVoiceTitle => 'Add a reading voice';
+
+  @override
+  String get readAloudNoVoiceBody =>
+      'Read Aloud uses your phone\'s own text-to-speech voices, so it works without internet. Open the voice settings, choose a speech engine (for example Speech Services by Google), then download an English voice under Install voice data.';
+
+  @override
+  String get readAloudOpenVoiceSettings => 'Open voice settings';
+
+  @override
+  String get readAloudNothing => 'There\'s no text to read here.';
+
+  @override
+  String get settingsReadAloudVoice => 'Read Aloud voice';
+
+  @override
+  String get settingsReadAloudVoiceBody =>
+      'Choose or download a voice in Android settings';
+
+  @override
+  String get settingsFileNaming => 'File naming';
+
+  @override
+  String get namingSuffix => 'Name and action (Report_signed)';
+
+  @override
+  String get namingDated => 'Name, action and date (Report_signed_2026-11-14)';
+
+  @override
+  String get settingsFindDocs => 'Find my documents';
+
+  @override
+  String get settingsFindDocsOn => 'On: DocNook lists documents on this phone';
+
+  @override
+  String get settingsFindDocsOff => 'Off: only documents you open appear';
+
+  @override
+  String get settingsFolders => 'Folders';
+
+  @override
+  String settingsFoldersCount(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n folders',
+      one: '1 folder',
+      zero: 'No folders added',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settingsAddFolder => 'Add';
+
+  @override
+  String get settingsRescan => 'Look for new documents';
+
+  @override
+  String get settingsRescanBody => 'Checks your phone and added folders again';
+
+  @override
+  String settingsRescanRunning(int n) {
+    return 'Looking… $n found';
+  }
+
+  @override
+  String get settingsShowHidden => 'Show hidden files';
+
+  @override
+  String get settingsShowHiddenBody =>
+      'Include files in folders whose names start with a dot';
+
+  @override
+  String get settingsRebuildIndex => 'Rebuild search index';
+
+  @override
+  String get settingsRebuildIndexBody =>
+      'Use this if search misses text you know is there';
+
+  @override
+  String get settingsRebuildIndexDone =>
+      'Search index will be rebuilt in the background.';
+
+  @override
+  String get settingsPrivacyPolicy => 'Privacy policy';
+
+  @override
+  String get settingsTerms => 'Terms of use';
+
+  @override
+  String get settingsRate => 'Rate DocNook';
+
+  @override
+  String get settingsFeedback => 'Send feedback';
+
+  @override
+  String legalUpdated(String date) {
+    return 'Last updated: $date';
+  }
+
+  @override
+  String get legalNotices => 'Open-source notices';
+
+  @override
+  String get privacyH1 => 'The short version';
+
+  @override
+  String get privacyB1 =>
+      'DocNook works entirely on your phone. There are no accounts, no ads and no tracking. DocNook does not collect, store or share personal data on any server, and it does not have permission to use the internet.';
+
+  @override
+  String get privacyH2 => 'Your documents';
+
+  @override
+  String get privacyB2 =>
+      'Files you open, scan, convert or edit stay on your phone. To show recent files, reading positions, bookmarks and search results, DocNook keeps a private list of the documents you have used and your settings in its own storage on the phone. This list never leaves your phone.';
+
+  @override
+  String get privacyH3 => 'Permissions';
+
+  @override
+  String get privacyB3 =>
+      'Storage: only if you turn on Find my documents, so DocNook can list the documents on your phone. Camera: only for DocNook\'s own scanner, used when your phone\'s document scanner is not available. You can withdraw either permission at any time in Android settings.';
+
+  @override
+  String get privacyH4 => 'Services already on your phone';
+
+  @override
+  String get privacyB4 =>
+      'Scanning and text recognition can use Google Play services, and Read Aloud uses your phone\'s text-to-speech voices. These are parts of your phone provided by Google or your phone maker, and their own terms apply to them. DocNook does not send them your documents for anything other than the task you start.';
+
+  @override
+  String get privacyH5 => 'Sharing';
+
+  @override
+  String get privacyB5 =>
+      'A file leaves DocNook only when you choose Share or Open with another app, and it goes only to the app you pick.';
+
+  @override
+  String get privacyH6 => 'Children';
+
+  @override
+  String get privacyB6 =>
+      'DocNook does not collect information from anyone, including children.';
+
+  @override
+  String get privacyH7 => 'Removing your data';
+
+  @override
+  String get privacyB7 =>
+      'Settings → Storage → Clear removes DocNook\'s cached copies. Uninstalling DocNook removes its private list and settings. Files you saved in Documents/DocNook stay until you delete them.';
+
+  @override
+  String get privacyH8 => 'Changes and contact';
+
+  @override
+  String privacyB8(String publisher, String email) {
+    return 'If this policy changes, the new version will appear here with a new date. Questions: $publisher, $email.';
+  }
+
+  @override
+  String get termsH1 => 'Using DocNook';
+
+  @override
+  String termsB1(String publisher) {
+    return 'DocNook is provided by $publisher for viewing, scanning, converting and editing documents on your phone. By using DocNook you agree to these terms.';
+  }
+
+  @override
+  String get termsH2 => 'Your files';
+
+  @override
+  String get termsB2 =>
+      'You keep all rights to your documents. You are responsible for having the right to open, convert or change the files you use, and for keeping your own copies of important files.';
+
+  @override
+  String get termsH3 => 'Converted and edited files';
+
+  @override
+  String get termsB3 =>
+      'DocNook makes converted and edited files with its own engines. Layout, fonts and formatting can differ from the original, as the quality label shows before each conversion. Check important results before you rely on them.';
+
+  @override
+  String get termsH4 => 'No warranty';
+
+  @override
+  String termsB4(String publisher) {
+    return 'DocNook is provided as is, without warranties of any kind. As far as the law allows, $publisher is not liable for lost data or any other loss that comes from using the app.';
+  }
+
+  @override
+  String get termsH5 => 'Open-source software';
+
+  @override
+  String get termsB5 =>
+      'DocNook is built with open-source software. Each component\'s licence and notice is listed under Open-source notices below.';
+
+  @override
+  String get termsH6 => 'Changes and contact';
+
+  @override
+  String termsB6(String email) {
+    return 'These terms may change in a new version of the app; using DocNook after a change means you accept the new terms. Contact: $email.';
+  }
+
+  @override
+  String get legalContactPlaceholder => '[contact email]';
 }

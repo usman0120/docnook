@@ -45,7 +45,7 @@ Most reader apps on Play are ad-heavy, ask for internet, upsell constantly and l
 
 ## 2. Feature scope
 
-DocNook has five modules — **Read, Scan, Convert, PDF Tools, Organize** — plus a **Private Vault**, and **every feature below ships in version 1.0**. Nothing is deferred to later releases.
+DocNook has five modules — **Read, Scan, Convert, PDF Tools, Organize** — and **every feature below ships in version 1.0**. Nothing is deferred to later releases.
 
 Fidelity labels used throughout: **Full** = looks like the original; **Good** = layout and styling mostly preserved, complex features simplified; **Basic** = text, headings, tables and images only; **Text** = plain text extraction.
 
@@ -120,9 +120,9 @@ Batch conversion (many files in one job) for Images→PDF, PDF→Images, Word/Ex
 - Sort by name, date, size, type; filter by type and location.
 - Launcher shortcuts (long-press the app icon): Scan, Merge PDFs, Recent.
 
-### 2.6 Private Vault
+### 2.6 Private Vault (removed)
 
-A PIN/biometric-locked area. Files moved in are encrypted on disk with AES-256-GCM and removed from their public location. Viewers decrypt to a temporary cache that is wiped on close.
+Removed by the owner on 2026-11-14: DocNook is a simple document app, so there is no vault, app lock, PIN or password protection of the app itself (see docs/decisions.md). PDF passwords (Protect / Unlock) are unaffected.
 
 ### 2.7 Language and release
 
@@ -154,8 +154,8 @@ Requirements carry IDs so Claude can reference them in commits and tests (`FR-RE
 | FR-PDF-02 | Annotations and signatures are written as standard PDF annotations readable in Adobe/Chrome. |
 | FR-ORG-01 | First launch (with permission) indexes all supported files; later changes picked up incrementally on app open and pull-to-refresh. |
 | FR-ORG-02 | Search returns results as the user types (debounced 200 ms), matching name and indexed content. |
-| FR-VAULT-01 | Vault requires PIN (4–6 digits) with optional biometric; auto-locks on app background. |
-| FR-SET-01 | Settings: theme (system/light/dark), default PDF scroll mode, default output quality, output folder, clear cache, app lock, manage index, about & licenses. |
+| FR-VAULT-01 | *Removed 2026-11-14 (owner decision).* |
+| FR-SET-01 | Settings: theme (system/light/dark), default PDF scroll mode, keep screen on, default output quality, output folder, file naming, clear cache, manage index, about, privacy policy and terms (open-source notices linked from the terms). |
 
 Additional v1.0 requirements:
 
@@ -185,7 +185,7 @@ Additional v1.0 requirements:
 | NFR-A11Y-01 | Accessibility | TalkBack labels on every control, 48 dp touch targets, text scales to 200% without clipping, WCAG AA contrast |
 | NFR-REL-01 | Stability | Crash-free sessions ≥ 99.5% in closed testing (tracked via Play Console vitals, which need no SDK) |
 | NFR-I18N-01 | Localization | English only. All strings still go in ARB files so translation remains possible later |
-| NFR-PRIV-01 | Privacy | No INTERNET permission, no analytics, no third-party data collection; Play Data Safety: "No data collected" |
+| NFR-PRIV-01 | Privacy | Offline first: no INTERNET permission unless a feature truly needs it and the owner approves it (none does today); no analytics, no third-party data collection; Play Data Safety: "No data collected" |
 
 ## 4. Technology stack
 
@@ -247,7 +247,6 @@ One Flutter codebase in Dart, with a small, isolated Kotlin glue layer (about 15
 | Share out | `share_plus` |
 | Receive "Open with" (VIEW) and "Share to" (SEND) | Kotlin glue in `MainActivity` → MethodChannel `docnook/intents` |
 | Open in another app | `open_filex` |
-| App lock | `local_auth` |
 | Key storage | `flutter_secure_storage` (Android Keystore-backed) |
 | Encryption (vault) and AES for PDF security | `cryptography` + `cryptography_flutter` (AES-256-GCM / AES-CBC, Argon2id, SHA-256/384/512) |
 | Paths | `path_provider`, `path` |
@@ -443,7 +442,6 @@ DocNook asks for the fewest permissions possible, never at launch, and works ful
 | `WRITE_EXTERNAL_STORAGE` (maxSdkVersion 28) | 7–9 | Optional | First save to `Documents/DocNook` | Save outputs on old Android; Android 10+ uses MediaStore with no permission |
 | `MANAGE_EXTERNAL_STORAGE` | 11+ | Optional | User taps "Find my documents" | Discover all PDFs/Office files; Android 11+ gives no other way to list other apps' documents |
 | `CAMERA` | all | Optional | Fallback scanner only | ML Kit scanner needs no camera permission in DocNook |
-| `USE_BIOMETRIC` | 9+ | Normal (auto-granted) | — | App lock and vault |
 
 **Explicitly removed:** `INTERNET` and `ACCESS_NETWORK_STATE`. Plugins sometimes merge these in; remove them with `tools:node="remove"` and add a CI step that fails the build if the merged release manifest contains either.
 
@@ -666,7 +664,7 @@ DocNook has three bottom tabs — **Home, Files, Tools** — plus a raised **Sca
 
 | From | To |
 | --- | --- |
-| Launcher | Home (or App lock first, if enabled) |
+| Launcher | Home |
 | "Open with" / "Share to" | The matching viewer directly; Back returns to the calling app |
 | Home, Files | Search, any viewer, Scan, Settings (Home only) |
 | Tools | Tool picker → Tool options → Progress → Result |
@@ -766,15 +764,13 @@ All viewers share a **ViewerToolbar**: Back, file name (tap → S26 info), Searc
 
 **S26 Document info** — bottom sheet: thumbnail, name, type, size, pages, created/modified, location path, collections, "Indexed for search: yes/no".
 
-**S27 File action sheet** — Open with, Share, Rename, Duplicate, Star, Add to collection, Move to Vault, relevant tools (e.g., "Convert to PDF" for DOCX), Info, Delete (confirm dialog; uses system trash on Android 11+ where available).
+**S27 File action sheet** — Open with, Share, Rename, Duplicate, Star, Add to collection, relevant tools (e.g., "Convert to PDF" for DOCX), Info, Delete (confirm dialog; uses system trash on Android 11+ where available).
 
-**S28 Vault** — entered from Files (Folders segment) and Settings; PIN pad + biometric prompt; list of vault files with same FileRow (no thumbnails cached outside the vault); actions Open, Move out, Delete permanently. First-time setup explains the no-recovery rule and asks for PIN twice.
+**S28 Vault, S29 App lock** — removed 2026-11-14 (owner decision).
 
-**S29 App lock** — full-screen PIN pad over a blurred-out paper background; biometric auto-prompt.
+**S30 Settings** — grouped list: *Appearance* (Theme), *Reading* (PDF scroll mode, keep screen on, night-mode default), *Output* (default quality, save location, file naming), *Library* (Find my documents, folders, rebuild index, show hidden files), *Storage* (cache size + Clear), *About* (version, privacy promise, privacy policy, terms of use, rate app — Play flavor only, send feedback via email intent).
 
-**S30 Settings** — grouped list: *Appearance* (Theme), *Reading* (PDF scroll mode, keep screen on, night-mode default), *Output* (default quality, save location, file naming), *Library* (Find my documents, folders, rebuild index, show hidden files), *Privacy & security* (App lock, Vault, Block screenshots), *Storage* (cache size + Clear), *About* (version, privacy promise, open-source licenses, rate app — Play flavor only, send feedback via email intent).
-
-**S31 About & licenses** — version, build flavor, privacy statement, Flutter `LicensePage`.
+**S31 Privacy policy and Terms** — plain in-app pages (bundled, readable offline). The Terms page ends with a small "Open-source notices" link to Flutter's `LicensePage`, which the open-source licences require; there is no separate licences entry in Settings.
 
 **S32 Can't open this file** — shared error screen: plain reason ("This file is password-protected", "This looks damaged", "Old .doc files can only be previewed as text"), and actions: Try text preview, Open with another app, Share, Back.
 
@@ -873,14 +869,13 @@ Claude Code writes all the code in ten phases; you install each phase's build on
 
 **Done when:** converted fixtures pass side-by-side visual review at their stated fidelity level; a batch of 20 images → PDF completes without memory warnings.
 
-### Phase 8 — Vault, app lock, Read Aloud, settings (2 weeks)
+### Phase 8 — Read Aloud, settings (2 weeks)
 
-- [ ] Crypto service (8.2) with unit tests, including tamper and wrong-key tests.
-- [ ] S28 vault, S29 app lock, `FLAG_SECURE` handling, auto-lock timer.
-- [ ] Read Aloud bar (S35) in PDF, Word, text, markdown and EPUB viewers.
-- [ ] S30 settings complete; S31 about/licenses; cache clearing; temp-file sweeper.
+- ~~Crypto service, S28 vault, S29 app lock, `FLAG_SECURE`, auto-lock~~ — removed 2026-11-14 (owner decision).
+- [x] Read Aloud bar (S35) in PDF, Word, text, markdown and EPUB viewers.
+- [x] S30 settings complete; S31 privacy policy and terms (open-source notices linked from terms); cache clearing; temp-file sweeper.
 
-**Done when:** a vault PDF is unreadable when the app's files are copied off a rooted test emulator and opens normally in-app after PIN; Read Aloud reads a PDF page in airplane mode.
+**Done when:** Read Aloud reads a PDF page in airplane mode, highlighting each sentence; every setting in S30 works; the privacy policy and terms open offline.
 
 ### Phase 9 — Hardening and release (2 weeks, then 14-day closed test)
 

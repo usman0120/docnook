@@ -12,6 +12,7 @@ import 'package:docnook/design_system/typography.dart';
 import 'package:docnook/domain/pdf/pdf_edit_models.dart';
 import 'package:docnook/features/tools/application/pdf_tools_service.dart';
 import 'package:docnook/features/tools/application/tool_models.dart';
+import 'package:docnook/features/tools/application/tool_naming.dart';
 import 'package:docnook/features/tools/presentation/tool_flow_screen.dart';
 import 'package:docnook/features/tools/presentation/tool_scaffold.dart';
 import 'package:docnook/features/tools/presentation/tool_sheets.dart';
@@ -228,6 +229,7 @@ class _OrganizeScreenState extends ConsumerState<OrganizeScreen> {
           ToolId.split,
           widget.input.input.name,
           DateTime.now(),
+          dated: ref.read(datedNamesProvider),
         ),
         control: control,
       ),
@@ -291,6 +293,7 @@ class _OrganizeScreenState extends ConsumerState<OrganizeScreen> {
           ToolId.organize,
           widget.input.input.name,
           DateTime.now(),
+          dated: ref.read(datedNamesProvider),
         ),
         overwrite: overwrite,
         control: control,

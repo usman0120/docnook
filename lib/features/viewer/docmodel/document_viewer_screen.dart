@@ -13,12 +13,14 @@ import 'package:docnook/design_system/tokens.dart';
 import 'package:docnook/design_system/typography.dart';
 import 'package:docnook/domain/docmodel/doc_model.dart';
 import 'package:docnook/domain/entities/document_info.dart';
+import 'package:docnook/domain/read_aloud/read_aloud_source.dart';
 import 'package:docnook/engines/office/parse_document.dart';
 import 'package:docnook/features/search/application/indexer.dart';
 import 'package:docnook/features/viewer/application/open_document.dart';
 import 'package:docnook/features/viewer/docmodel/docmodel_view.dart';
 import 'package:docnook/features/viewer/presentation/cant_open_screen.dart';
 import 'package:docnook/features/viewer/presentation/viewer_chrome.dart';
+import 'package:docnook/features/viewer/read_aloud/read_aloud_host.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -45,7 +47,8 @@ class DocumentViewerScreen extends ConsumerStatefulWidget {
       _DocumentViewerScreenState();
 }
 
-class _DocumentViewerScreenState extends ConsumerState<DocumentViewerScreen> {
+class _DocumentViewerScreenState extends ConsumerState<DocumentViewerScreen>
+    with ReadAloudHost {
   Result<DocModel>? _parsed;
   List<Block> _blocks = const [];
   double _baseSize = 11;
@@ -85,6 +88,7 @@ class _DocumentViewerScreenState extends ConsumerState<DocumentViewerScreen> {
 
   @override
   void dispose() {
+    disposeReadAloud();
     _job?.call();
     _saveTimer?.cancel();
     unawaited(_save());
@@ -200,13 +204,10 @@ class _DocumentViewerScreenState extends ConsumerState<DocumentViewerScreen> {
       });
       return;
     }
-    _blockText ??= [
-      for (final b in _blocks)
-        if (b is Paragraph) b.plainText else _deepText(b),
-    ];
+    final texts = _texts;
     final found = <BlockMatch>[];
-    for (var i = 0; i < _blockText!.length && found.length < 2000; i++) {
-      final hay = _blockText![i].toLowerCase();
+    for (var i = 0; i < texts.length && found.length < 2000; i++) {
+      final hay = texts[i].toLowerCase();
       var at = hay.indexOf(term);
       while (at >= 0) {
         found.add(BlockMatch(i, at, at + term.length));
@@ -218,6 +219,33 @@ class _DocumentViewerScreenState extends ConsumerState<DocumentViewerScreen> {
       _active = found.isEmpty ? -1 : 0;
     });
     if (found.isNotEmpty) unawaited(_scrollToBlock(found.first.block));
+  }
+
+  List<String> get _texts => _blockText ??= [
+    for (final b in _blocks)
+      if (b is Paragraph) b.plainText else _deepText(b),
+  ];
+
+  // ---------------------------------------------------------- read aloud
+
+  void _readAloud() => unawaited(
+    startReadAloud(TextListSource(_texts), fromUnit: _firstVisible),
+  );
+
+  @override
+  void followReadAloud(ReadAloudSpot spot) {
+    final context = _keys[spot.unit]?.currentContext;
+    if (context == null || !context.mounted) {
+      unawaited(_scrollToBlock(spot.unit));
+      return;
+    }
+    final length = _texts[spot.unit].length;
+    unawaited(
+      revealIfOffscreen(
+        context,
+        fraction: length == 0 ? 0 : spot.start / length,
+      ),
+    );
   }
 
   static String _deepText(Block b) => DocModel(
@@ -328,12 +356,20 @@ class _DocumentViewerScreenState extends ConsumerState<DocumentViewerScreen> {
       baseFontSize: _baseSize,
     );
     final matchesByBlock = <int, List<BlockMatch>>{};
-    for (final m in _matches) {
-      (matchesByBlock[m.block] ??= []).add(m);
+    BlockMatch? activeMatch;
+    final spot = readAloudSpot;
+    if (spot != null) {
+      // Read Aloud: the sentence being read is the only highlight.
+      activeMatch = BlockMatch(spot.unit, spot.start, spot.end);
+      matchesByBlock[spot.unit] = [activeMatch];
+    } else {
+      for (final m in _matches) {
+        (matchesByBlock[m.block] ??= []).add(m);
+      }
+      activeMatch = _active >= 0 && _active < _matches.length
+          ? _matches[_active]
+          : null;
     }
-    final activeMatch = _active >= 0 && _active < _matches.length
-        ? _matches[_active]
-        : null;
     final banner =
         widget.banner ??
         (model?.simplified == true && !_bannerDismissed
@@ -381,6 +417,12 @@ class _DocumentViewerScreenState extends ConsumerState<DocumentViewerScreen> {
               ViewerOverflowMenu(
                 items: [
                   ...widget.extraActions,
+                  if (model != null)
+                    (
+                      l.actionReadAloud,
+                      PhosphorIconsRegular.speakerHigh,
+                      _readAloud,
+                    ),
                   if (model != null)
                     (
                       l.pdfOutline,
@@ -472,6 +514,7 @@ class _DocumentViewerScreenState extends ConsumerState<DocumentViewerScreen> {
                     ),
                   ),
           ),
+          readAloudBar(),
         ],
       ),
     );

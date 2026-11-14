@@ -110,11 +110,14 @@ abstract final class PhosphorIconsRegular {
   static const shareNetwork = IconData(0xe408, fontFamily: 'PhosphorRegular');
   static const shieldCheck = IconData(0xe40c, fontFamily: 'PhosphorRegular');
   static const signature = IconData(0xebac, fontFamily: 'PhosphorRegular');
+  static const skipBack = IconData(0xe5a4, fontFamily: 'PhosphorRegular');
+  static const skipForward = IconData(0xe5a6, fontFamily: 'PhosphorRegular');
   static const slidersHorizontal = IconData(
     0xe434,
     fontFamily: 'PhosphorRegular',
   );
   static const sortAscending = IconData(0xe444, fontFamily: 'PhosphorRegular');
+  static const speakerHigh = IconData(0xe44a, fontFamily: 'PhosphorRegular');
   static const square = IconData(0xe45e, fontFamily: 'PhosphorRegular');
   static const squaresFour = IconData(0xe464, fontFamily: 'PhosphorRegular');
   static const stack = IconData(0xe466, fontFamily: 'PhosphorRegular');
@@ -143,6 +146,8 @@ abstract final class PhosphorIconsFill {
   static const folder = IconData(0xe24a, fontFamily: 'PhosphorFill');
   static const house = IconData(0xe2c2, fontFamily: 'PhosphorFill');
   static const note = IconData(0xe348, fontFamily: 'PhosphorFill');
+  static const pause = IconData(0xe39e, fontFamily: 'PhosphorFill');
+  static const play = IconData(0xe3d0, fontFamily: 'PhosphorFill');
   static const star = IconData(0xe46a, fontFamily: 'PhosphorFill');
   static const wrench = IconData(0xe5d4, fontFamily: 'PhosphorFill');
 }

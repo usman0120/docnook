@@ -247,8 +247,9 @@ class PlatformChannel {
   Future<bool> requestAllFilesAccess() async =>
       (await _call<bool>('requestAllFilesAccess')).valueOrNull ?? false;
 
-  Future<void> setSecure({required bool on}) =>
-      _call<void>('setSecure', {'on': on});
+  /// Keeps the screen awake (FLAG_KEEP_SCREEN_ON) while [on].
+  Future<void> setKeepScreenOn({required bool on}) =>
+      _call<void>('setKeepScreenOn', {'on': on});
 
   /// Tesseract OCR (direct APK only). Null when unavailable or failed.
   Future<OcrPage?> ocrTesseract(String path) async {
@@ -278,6 +279,18 @@ class PlatformChannel {
 
   Future<int> totalMemoryMb() async =>
       (await _call<int>('totalMemoryMb')).valueOrNull ?? 0;
+
+  /// The app's store page (Play flavor: "Rate DocNook").
+  Future<bool> openStore() async =>
+      (await _call<bool>('openStore')).valueOrNull ?? false;
+
+  /// Starts an email in the user's mail app.
+  Future<bool> sendEmail({required String to, String subject = ''}) async =>
+      (await _call<bool>('sendEmail', {
+        'to': to,
+        'subject': subject,
+      })).valueOrNull ??
+      false;
 
   Future<bool> openTtsSettings() async =>
       (await _call<bool>('openTtsSettings')).valueOrNull ?? false;

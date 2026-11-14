@@ -57,9 +57,6 @@ Future<List<Override>> bootstrap() async {
   final memory = await platform.totalMemoryMb();
   final settings = SettingsRepository(db);
   final onboarded = await settings.getBool(SettingsRepository.keyOnboarded);
-  if (await settings.getBool(SettingsRepository.keyBlockScreenshots)) {
-    await platform.setSecure(on: true);
-  }
   // Housekeeping never delays the first frame.
   Future<void>(() async {
     await paths.sweep();

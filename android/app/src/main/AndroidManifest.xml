@@ -15,7 +15,6 @@
         tools:ignore="ScopedStorage" />
     <!-- Fallback scanner only; the ML Kit scanner needs no camera permission here. -->
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
 
     <!-- DocNook is offline by construction. Plugins sometimes merge these in;
          strip them. tool/check.sh fails if either survives in the merged manifest. -->

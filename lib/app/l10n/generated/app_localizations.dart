@@ -1510,24 +1510,6 @@ abstract class AppLocalizations {
   /// **'Library'**
   String get settingsLibrary;
 
-  /// No description provided for @settingsPrivacy.
-  ///
-  /// In en, this message translates to:
-  /// **'Privacy and security'**
-  String get settingsPrivacy;
-
-  /// No description provided for @settingsBlockScreenshots.
-  ///
-  /// In en, this message translates to:
-  /// **'Block screenshots'**
-  String get settingsBlockScreenshots;
-
-  /// No description provided for @settingsBlockScreenshotsBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Hides DocNook in the recent apps list too'**
-  String get settingsBlockScreenshotsBody;
-
   /// No description provided for @settingsStorage.
   ///
   /// In en, this message translates to:
@@ -1563,12 +1545,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Version'**
   String get settingsVersion;
-
-  /// No description provided for @settingsLicenses.
-  ///
-  /// In en, this message translates to:
-  /// **'Open-source licences'**
-  String get settingsLicenses;
 
   /// No description provided for @settingsPrivacyPromise.
   ///
@@ -3807,6 +3783,420 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Makes one CSV file for each sheet.'**
   String get convToCsv;
+
+  /// No description provided for @actionReadAloud.
+  ///
+  /// In en, this message translates to:
+  /// **'Read aloud'**
+  String get actionReadAloud;
+
+  /// No description provided for @readAloudTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Read aloud'**
+  String get readAloudTitle;
+
+  /// No description provided for @readAloudPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Play'**
+  String get readAloudPlay;
+
+  /// No description provided for @readAloudPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get readAloudPause;
+
+  /// No description provided for @readAloudAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Read again from the start'**
+  String get readAloudAgain;
+
+  /// No description provided for @readAloudNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next sentence'**
+  String get readAloudNext;
+
+  /// No description provided for @readAloudPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous sentence'**
+  String get readAloudPrevious;
+
+  /// No description provided for @readAloudSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Speed {speed}'**
+  String readAloudSpeed(String speed);
+
+  /// No description provided for @readAloudNoVoiceShort.
+  ///
+  /// In en, this message translates to:
+  /// **'No offline voice is installed on this phone.'**
+  String get readAloudNoVoiceShort;
+
+  /// No description provided for @readAloudHowTo.
+  ///
+  /// In en, this message translates to:
+  /// **'How to add one'**
+  String get readAloudHowTo;
+
+  /// No description provided for @readAloudFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The phone\'s voice stopped working. Close and try again.'**
+  String get readAloudFailed;
+
+  /// No description provided for @readAloudNoVoiceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a reading voice'**
+  String get readAloudNoVoiceTitle;
+
+  /// No description provided for @readAloudNoVoiceBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Read Aloud uses your phone\'s own text-to-speech voices, so it works without internet. Open the voice settings, choose a speech engine (for example Speech Services by Google), then download an English voice under Install voice data.'**
+  String get readAloudNoVoiceBody;
+
+  /// No description provided for @readAloudOpenVoiceSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open voice settings'**
+  String get readAloudOpenVoiceSettings;
+
+  /// No description provided for @readAloudNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'There\'s no text to read here.'**
+  String get readAloudNothing;
+
+  /// No description provided for @settingsReadAloudVoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Read Aloud voice'**
+  String get settingsReadAloudVoice;
+
+  /// No description provided for @settingsReadAloudVoiceBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose or download a voice in Android settings'**
+  String get settingsReadAloudVoiceBody;
+
+  /// No description provided for @settingsFileNaming.
+  ///
+  /// In en, this message translates to:
+  /// **'File naming'**
+  String get settingsFileNaming;
+
+  /// No description provided for @namingSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'Name and action (Report_signed)'**
+  String get namingSuffix;
+
+  /// No description provided for @namingDated.
+  ///
+  /// In en, this message translates to:
+  /// **'Name, action and date (Report_signed_2026-11-14)'**
+  String get namingDated;
+
+  /// No description provided for @settingsFindDocs.
+  ///
+  /// In en, this message translates to:
+  /// **'Find my documents'**
+  String get settingsFindDocs;
+
+  /// No description provided for @settingsFindDocsOn.
+  ///
+  /// In en, this message translates to:
+  /// **'On: DocNook lists documents on this phone'**
+  String get settingsFindDocsOn;
+
+  /// No description provided for @settingsFindDocsOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off: only documents you open appear'**
+  String get settingsFindDocsOff;
+
+  /// No description provided for @settingsFolders.
+  ///
+  /// In en, this message translates to:
+  /// **'Folders'**
+  String get settingsFolders;
+
+  /// No description provided for @settingsFoldersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =0{No folders added} =1{1 folder} other{{n} folders}}'**
+  String settingsFoldersCount(int n);
+
+  /// No description provided for @settingsAddFolder.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get settingsAddFolder;
+
+  /// No description provided for @settingsRescan.
+  ///
+  /// In en, this message translates to:
+  /// **'Look for new documents'**
+  String get settingsRescan;
+
+  /// No description provided for @settingsRescanBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Checks your phone and added folders again'**
+  String get settingsRescanBody;
+
+  /// No description provided for @settingsRescanRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Looking… {n} found'**
+  String settingsRescanRunning(int n);
+
+  /// No description provided for @settingsShowHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Show hidden files'**
+  String get settingsShowHidden;
+
+  /// No description provided for @settingsShowHiddenBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Include files in folders whose names start with a dot'**
+  String get settingsShowHiddenBody;
+
+  /// No description provided for @settingsRebuildIndex.
+  ///
+  /// In en, this message translates to:
+  /// **'Rebuild search index'**
+  String get settingsRebuildIndex;
+
+  /// No description provided for @settingsRebuildIndexBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this if search misses text you know is there'**
+  String get settingsRebuildIndexBody;
+
+  /// No description provided for @settingsRebuildIndexDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Search index will be rebuilt in the background.'**
+  String get settingsRebuildIndexDone;
+
+  /// No description provided for @settingsPrivacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy policy'**
+  String get settingsPrivacyPolicy;
+
+  /// No description provided for @settingsTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of use'**
+  String get settingsTerms;
+
+  /// No description provided for @settingsRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate DocNook'**
+  String get settingsRate;
+
+  /// No description provided for @settingsFeedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Send feedback'**
+  String get settingsFeedback;
+
+  /// No description provided for @legalUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Last updated: {date}'**
+  String legalUpdated(String date);
+
+  /// No description provided for @legalNotices.
+  ///
+  /// In en, this message translates to:
+  /// **'Open-source notices'**
+  String get legalNotices;
+
+  /// No description provided for @privacyH1.
+  ///
+  /// In en, this message translates to:
+  /// **'The short version'**
+  String get privacyH1;
+
+  /// No description provided for @privacyB1.
+  ///
+  /// In en, this message translates to:
+  /// **'DocNook works entirely on your phone. There are no accounts, no ads and no tracking. DocNook does not collect, store or share personal data on any server, and it does not have permission to use the internet.'**
+  String get privacyB1;
+
+  /// No description provided for @privacyH2.
+  ///
+  /// In en, this message translates to:
+  /// **'Your documents'**
+  String get privacyH2;
+
+  /// No description provided for @privacyB2.
+  ///
+  /// In en, this message translates to:
+  /// **'Files you open, scan, convert or edit stay on your phone. To show recent files, reading positions, bookmarks and search results, DocNook keeps a private list of the documents you have used and your settings in its own storage on the phone. This list never leaves your phone.'**
+  String get privacyB2;
+
+  /// No description provided for @privacyH3.
+  ///
+  /// In en, this message translates to:
+  /// **'Permissions'**
+  String get privacyH3;
+
+  /// No description provided for @privacyB3.
+  ///
+  /// In en, this message translates to:
+  /// **'Storage: only if you turn on Find my documents, so DocNook can list the documents on your phone. Camera: only for DocNook\'s own scanner, used when your phone\'s document scanner is not available. You can withdraw either permission at any time in Android settings.'**
+  String get privacyB3;
+
+  /// No description provided for @privacyH4.
+  ///
+  /// In en, this message translates to:
+  /// **'Services already on your phone'**
+  String get privacyH4;
+
+  /// No description provided for @privacyB4.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning and text recognition can use Google Play services, and Read Aloud uses your phone\'s text-to-speech voices. These are parts of your phone provided by Google or your phone maker, and their own terms apply to them. DocNook does not send them your documents for anything other than the task you start.'**
+  String get privacyB4;
+
+  /// No description provided for @privacyH5.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharing'**
+  String get privacyH5;
+
+  /// No description provided for @privacyB5.
+  ///
+  /// In en, this message translates to:
+  /// **'A file leaves DocNook only when you choose Share or Open with another app, and it goes only to the app you pick.'**
+  String get privacyB5;
+
+  /// No description provided for @privacyH6.
+  ///
+  /// In en, this message translates to:
+  /// **'Children'**
+  String get privacyH6;
+
+  /// No description provided for @privacyB6.
+  ///
+  /// In en, this message translates to:
+  /// **'DocNook does not collect information from anyone, including children.'**
+  String get privacyB6;
+
+  /// No description provided for @privacyH7.
+  ///
+  /// In en, this message translates to:
+  /// **'Removing your data'**
+  String get privacyH7;
+
+  /// No description provided for @privacyB7.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings → Storage → Clear removes DocNook\'s cached copies. Uninstalling DocNook removes its private list and settings. Files you saved in Documents/DocNook stay until you delete them.'**
+  String get privacyB7;
+
+  /// No description provided for @privacyH8.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes and contact'**
+  String get privacyH8;
+
+  /// No description provided for @privacyB8.
+  ///
+  /// In en, this message translates to:
+  /// **'If this policy changes, the new version will appear here with a new date. Questions: {publisher}, {email}.'**
+  String privacyB8(String publisher, String email);
+
+  /// No description provided for @termsH1.
+  ///
+  /// In en, this message translates to:
+  /// **'Using DocNook'**
+  String get termsH1;
+
+  /// No description provided for @termsB1.
+  ///
+  /// In en, this message translates to:
+  /// **'DocNook is provided by {publisher} for viewing, scanning, converting and editing documents on your phone. By using DocNook you agree to these terms.'**
+  String termsB1(String publisher);
+
+  /// No description provided for @termsH2.
+  ///
+  /// In en, this message translates to:
+  /// **'Your files'**
+  String get termsH2;
+
+  /// No description provided for @termsB2.
+  ///
+  /// In en, this message translates to:
+  /// **'You keep all rights to your documents. You are responsible for having the right to open, convert or change the files you use, and for keeping your own copies of important files.'**
+  String get termsB2;
+
+  /// No description provided for @termsH3.
+  ///
+  /// In en, this message translates to:
+  /// **'Converted and edited files'**
+  String get termsH3;
+
+  /// No description provided for @termsB3.
+  ///
+  /// In en, this message translates to:
+  /// **'DocNook makes converted and edited files with its own engines. Layout, fonts and formatting can differ from the original, as the quality label shows before each conversion. Check important results before you rely on them.'**
+  String get termsB3;
+
+  /// No description provided for @termsH4.
+  ///
+  /// In en, this message translates to:
+  /// **'No warranty'**
+  String get termsH4;
+
+  /// No description provided for @termsB4.
+  ///
+  /// In en, this message translates to:
+  /// **'DocNook is provided as is, without warranties of any kind. As far as the law allows, {publisher} is not liable for lost data or any other loss that comes from using the app.'**
+  String termsB4(String publisher);
+
+  /// No description provided for @termsH5.
+  ///
+  /// In en, this message translates to:
+  /// **'Open-source software'**
+  String get termsH5;
+
+  /// No description provided for @termsB5.
+  ///
+  /// In en, this message translates to:
+  /// **'DocNook is built with open-source software. Each component\'s licence and notice is listed under Open-source notices below.'**
+  String get termsB5;
+
+  /// No description provided for @termsH6.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes and contact'**
+  String get termsH6;
+
+  /// No description provided for @termsB6.
+  ///
+  /// In en, this message translates to:
+  /// **'These terms may change in a new version of the app; using DocNook after a change means you accept the new terms. Contact: {email}.'**
+  String termsB6(String email);
+
+  /// No description provided for @legalContactPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'[contact email]'**
+  String get legalContactPlaceholder;
 }
 
 class _AppLocalizationsDelegate

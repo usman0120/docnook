@@ -19,9 +19,8 @@ class SettingsRepository {
   static const keyNightDefault = 'night_default';
   static const keyKeepScreenOn = 'keep_screen_on';
   static const keyQuality = 'output_quality';
-  static const keyBlockScreenshots = 'block_screenshots';
-  static const keyAppLock = 'app_lock';
-  static const keyAutoLockMinutes = 'auto_lock_minutes';
+  static const keyFileNaming = 'file_naming';
+  static const keyReadAloudRate = 'read_aloud_rate';
   static const keyShowHidden = 'show_hidden';
   static const keyRecentSearches = 'recent_searches';
   static const keyLibraryView = 'library_view';
