@@ -250,6 +250,15 @@ abstract final class PdfiumEditor {
   extractImages(PdfSource source, int page) =>
       _run(_extractImages, (modulePath, source.path, source.password, page));
 
+  /// The characters of page [page] with their boxes and font, for PDF →
+  /// Word. Boxes are four numbers per character (left, bottom, right, top)
+  /// in points from the visible box's bottom-left corner; `sizes` holds
+  /// each character's font size, negative when the font is bold.
+  static Future<(String, Float64List, Float64List)> pageChars(
+    PdfSource source,
+    int page,
+  ) => _run(_pageChars, (modulePath, source.path, source.password, page));
+
   /// A full re-save (no incremental updates). With [removeSecurity] the
   /// output has no password (Unlock).
   static Future<void> resave({
@@ -1282,6 +1291,67 @@ bool _loadJpeg(
       ..free(pages);
   }
 }
+
+Future<(String?, (String, Float64List, Float64List)?)> _pageChars(
+  (String?, String, String?, int) m,
+) => _guard(() {
+  final pdf = _pdfium(m.$1);
+  final doc = _load(pdf, m.$2, m.$3);
+  try {
+    final page = pdf.FPDF_LoadPage(doc, m.$4);
+    if (page == nullptr) return ('', Float64List(0), Float64List(0));
+    final textPage = pdf.FPDFText_LoadPage(page);
+    try {
+      if (textPage == nullptr) return ('', Float64List(0), Float64List(0));
+      final box = _box(pdf, page);
+      final count = math.max(0, pdf.FPDFText_CountChars(textPage));
+      final text = StringBuffer();
+      final boxes = Float64List(count * 4);
+      final sizes = Float64List(count);
+      using((arena) {
+        final l = arena<Double>();
+        final r = arena<Double>();
+        final b = arena<Double>();
+        final t = arena<Double>();
+        final name = arena<Uint8>(96);
+        final flags = arena<Int>();
+        for (var i = 0; i < count; i++) {
+          text.writeCharCode(pdf.FPDFText_GetUnicode(textPage, i));
+          if (pdf.FPDFText_GetCharBox(textPage, i, l, r, b, t) != 0) {
+            boxes
+              ..[i * 4] = l.value - box.x0
+              ..[i * 4 + 1] = b.value - box.y0
+              ..[i * 4 + 2] = r.value - box.x0
+              ..[i * 4 + 3] = t.value - box.y0;
+          }
+          final size = pdf.FPDFText_GetFontSize(textPage, i);
+          var bold = pdf.FPDFText_GetFontWeight(textPage, i) >= 600;
+          if (!bold) {
+            final n = pdf.FPDFText_GetFontInfo(
+              textPage,
+              i,
+              name.cast(),
+              96,
+              flags,
+            );
+            // n counts the closing zero; a longer name is not copied.
+            if (n > 1 && n <= 96) {
+              final s = String.fromCharCodes(name.asTypedList(n - 1));
+              bold = s.toLowerCase().contains('bold');
+            }
+          }
+          sizes[i] = bold ? -size : size;
+        }
+      });
+      return (text.toString(), boxes, sizes);
+    } finally {
+      if (textPage != nullptr) pdf.FPDFText_ClosePage(textPage);
+      pdf.FPDF_ClosePage(page);
+    }
+  } finally {
+    pdf.FPDF_CloseDocument(doc);
+  }
+});
 
 Future<(String?, List<(Uint8List, double, double, double, double)>?)>
 _extractImages((String?, String, String?, int) m) => _guard(() {

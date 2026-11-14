@@ -371,46 +371,38 @@ class ConvertService {
     final path = await _tools.localPath(input);
     final source = PdfSource(path, password: password);
     final info = await PdfiumEditor.inspect(source);
-    final doc = await PdfDocument.openFile(
-      path,
-      passwordProvider: password == null ? null : () => password,
-    );
     final pages = <PdfPageContent>[];
-    try {
-      final count = doc.pages.length;
-      for (var i = 0; i < count; i++) {
-        control.check();
-        final pageInfo = info.pages[i];
-        final vw = pageInfo.visibleWidth;
-        final vh = pageInfo.visibleHeight;
-        final text = await doc.pages[i].loadStructuredText();
-        final boxes = <(double, double, double, double)>[];
-        for (final r in text.charRects) {
-          final (l, t) = pageInfo.toVisible(r.left, r.top);
-          final (rr, b) = pageInfo.toVisible(r.right, r.bottom);
-          boxes.add((
-            math.min(l, rr) * vw,
-            math.min(t, b) * vh,
-            math.max(l, rr) * vw,
-            math.max(t, b) * vh,
-          ));
-        }
-        final pictures = await PdfiumEditor.extractImages(source, i);
-        pages.add(
-          PdfPageContent(
-            width: vw,
-            height: vh,
-            lines: linesFromChars(text.fullText, boxes),
-            pictures: [
-              for (final (jpeg, x, y, w, h) in pictures)
-                PdfPagePicture(jpeg, x, y, w, h),
-            ],
-          ),
-        );
-        control.report(0.7 * (i + 1) / count, page: i + 1, of: count);
+    final count = info.pageCount;
+    for (var i = 0; i < count; i++) {
+      control.check();
+      final pageInfo = info.pages[i];
+      final vw = pageInfo.visibleWidth;
+      final vh = pageInfo.visibleHeight;
+      final (text, raw, sizes) = await PdfiumEditor.pageChars(source, i);
+      final boxes = <(double, double, double, double)>[];
+      for (var c = 0; c + 3 < raw.length; c += 4) {
+        final (l, t) = pageInfo.toVisible(raw[c], raw[c + 3]);
+        final (rr, b) = pageInfo.toVisible(raw[c + 2], raw[c + 1]);
+        boxes.add((
+          math.min(l, rr) * vw,
+          math.min(t, b) * vh,
+          math.max(l, rr) * vw,
+          math.max(t, b) * vh,
+        ));
       }
-    } finally {
-      await doc.dispose();
+      final pictures = await PdfiumEditor.extractImages(source, i);
+      pages.add(
+        PdfPageContent(
+          width: vw,
+          height: vh,
+          lines: linesFromChars(text, boxes, sizes: sizes),
+          pictures: [
+            for (final (jpeg, x, y, w, h) in pictures)
+              PdfPagePicture(jpeg, x, y, w, h),
+          ],
+        ),
+      );
+      control.report(0.7 * (i + 1) / count, page: i + 1, of: count);
     }
     final out = p.join(work.path, 'out.docx');
     (await _jobs

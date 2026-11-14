@@ -166,4 +166,15 @@ final class DocFonts {
 }
 
 /// Points for PDF output from a `0xAARRGGBB` colour.
-PdfColor pdfColor(int argb) => PdfColor.fromInt(argb | 0xFF000000);
+PdfColor pdfColor(int argb) {
+  final a = (argb >>> 24) & 0xFF;
+  if (a == 0xFF || a == 0) return PdfColor.fromInt(argb | 0xFF000000);
+  // Translucent colours (code backgrounds, tints) are blended over white.
+  int mix(int c) => (c * a + 255 * (255 - a)) ~/ 255;
+  return PdfColor.fromInt(
+    0xFF000000 |
+        mix((argb >> 16) & 0xFF) << 16 |
+        mix((argb >> 8) & 0xFF) << 8 |
+        mix(argb & 0xFF),
+  );
+}

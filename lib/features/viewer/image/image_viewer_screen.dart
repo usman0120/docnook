@@ -92,11 +92,15 @@ class _ImageViewerScreenState extends ConsumerState<ImageViewerScreen> {
       512,
       4096,
     );
-    // The picture on screen as a tool input (a local path).
+    // The picture on screen as a tool input (a local path). A file opened
+    // from another app sits in the cache under a hashed name, so it keeps
+    // the name it was opened with.
+    final single = _index == 0 && _images.length == 1;
+    final currentName = single ? widget.document.name : p.basename(current);
     void tool(ToolId id) => unawaited(
       context.push(
         '/tool/${id.name}',
-        extra: [ToolInput(uri: current, name: p.basename(current))],
+        extra: [ToolInput(uri: current, name: currentName)],
       ),
     );
 
@@ -107,11 +111,7 @@ class _ImageViewerScreenState extends ConsumerState<ImageViewerScreen> {
           ViewerTopBar(
             visible: _chrome,
             night: true,
-            title: p.basename(
-              _index == 0 && _images.length == 1
-                  ? widget.document.name
-                  : current,
-            ),
+            title: currentName,
             actions: [
               IconAction(
                 icon: PhosphorIconsRegular.arrowClockwise,

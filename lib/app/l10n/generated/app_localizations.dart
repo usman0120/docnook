@@ -850,11 +850,29 @@ abstract class AppLocalizations {
   /// **'{n, plural, =1{File deleted} other{{n} files deleted}}'**
   String deleted(int n);
 
-  /// No description provided for @deleteFailed.
+  /// No description provided for @removeMissingTitle.
   ///
   /// In en, this message translates to:
-  /// **'DocNook couldn\'t delete this file. It may belong to another app.'**
-  String get deleteFailed;
+  /// **'Remove from DocNook?'**
+  String get removeMissingTitle;
+
+  /// No description provided for @deleteFailedOffer.
+  ///
+  /// In en, this message translates to:
+  /// **'DocNook couldn\'t delete this file. It may belong to another app or already be gone. You can still remove it from DocNook\'s lists.'**
+  String get deleteFailedOffer;
+
+  /// No description provided for @removeMissingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is no longer on your phone. Removing it only clears it from DocNook\'s lists.'**
+  String get removeMissingBody;
+
+  /// No description provided for @removedMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{Removed from DocNook} other{{n} files removed from DocNook}}'**
+  String removedMissing(int n);
 
   /// No description provided for @renameTitle.
   ///
@@ -3555,6 +3573,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose a file'**
   String get toolPickFile;
+
+  /// No description provided for @toolPickFiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose one or more files'**
+  String get toolPickFiles;
 
   /// No description provided for @toolCopyText.
   ///

@@ -69,9 +69,20 @@ enum ToolId {
 
   /// MIME types for the system picker.
   List<String> get pickerMimes => {
-    for (final f in accepts) f.mime,
+    for (final f in accepts) ...[f.mime, ...?_mimeAliases[f]],
     if (accepts.any(_images.contains)) 'image/*',
   }.toList();
+
+  /// Other names Android and file managers use for the same formats.
+  static const _mimeAliases = <DocFormat, List<String>>{
+    DocFormat.csv: [
+      'text/comma-separated-values',
+      'application/csv',
+      'text/x-csv',
+    ],
+    DocFormat.rtf: ['text/rtf'],
+    DocFormat.markdown: ['text/x-markdown'],
+  };
 
   /// Several files at once: Merge and Images → PDF combine them; the
   /// converters run them as a batch (BLUEPRINT 2.3).

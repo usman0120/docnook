@@ -284,10 +284,7 @@ class _Renderer {
         children: [
           pw.SizedBox(
             width: list.marker.length > 3 ? 12.0 + list.marker.length * 6 : 16,
-            child: pw.Text(
-              list.marker,
-              style: _style(RunStyle.plain, body * scale),
-            ),
+            child: _marker(list.marker, body * scale),
           ),
           pw.Expanded(child: text),
         ],
@@ -303,6 +300,56 @@ class _Renderer {
       child: ps.background == null
           ? child
           : pw.Container(color: pdfColor(ps.background!), child: child),
+    );
+  }
+
+  /// A list marker. Hollow bullets and check boxes are drawn as shapes,
+  /// since the bundled fonts have no glyphs for them.
+  pw.Widget _marker(String marker, double size) {
+    final m = marker.replaceAll('︎', '').replaceAll('️', '');
+    final box = size * 0.62;
+    final shape = switch (m) {
+      '◦' || '○' => 0,
+      '☐' => 1,
+      '☑' || '☒' => 2,
+      '▪' || '■' => 3,
+      _ => -1,
+    };
+    if (shape < 0) return pw.Text(m, style: _style(RunStyle.plain, size));
+    final d = shape == 0 ? box * 0.55 : box;
+    return pw.Padding(
+      padding: pw.EdgeInsets.only(top: (size * 1.2 - d) / 2),
+      child: pw.CustomPaint(
+        size: PdfPoint(d, d),
+        painter: (canvas, area) {
+          const ink = PdfColors.grey800;
+          canvas
+            ..setStrokeColor(ink)
+            ..setFillColor(ink)
+            ..setLineWidth(math.max(0.5, size * 0.06));
+          switch (shape) {
+            case 0:
+              canvas
+                ..drawEllipse(d / 2, d / 2, d / 2 - 0.4, d / 2 - 0.4)
+                ..strokePath();
+            case 3:
+              canvas
+                ..drawRect(d * 0.2, d * 0.2, d * 0.6, d * 0.6)
+                ..fillPath();
+            default:
+              canvas
+                ..drawRect(0.4, 0.4, d - 0.8, d - 0.8)
+                ..strokePath();
+              if (shape == 2) {
+                canvas
+                  ..moveTo(d * 0.22, d * 0.5)
+                  ..lineTo(d * 0.42, d * 0.28)
+                  ..lineTo(d * 0.8, d * 0.75)
+                  ..strokePath();
+              }
+          }
+        },
+      ),
     );
   }
 

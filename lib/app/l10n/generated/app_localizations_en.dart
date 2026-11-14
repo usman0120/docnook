@@ -422,8 +422,26 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deleteFailed =>
-      'DocNook couldn\'t delete this file. It may belong to another app.';
+  String get removeMissingTitle => 'Remove from DocNook?';
+
+  @override
+  String get deleteFailedOffer =>
+      'DocNook couldn\'t delete this file. It may belong to another app or already be gone. You can still remove it from DocNook\'s lists.';
+
+  @override
+  String get removeMissingBody =>
+      'This file is no longer on your phone. Removing it only clears it from DocNook\'s lists.';
+
+  @override
+  String removedMissing(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n files removed from DocNook',
+      one: 'Removed from DocNook',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get renameTitle => 'Rename';
@@ -2030,6 +2048,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get toolPickFile => 'Choose a file';
+
+  @override
+  String get toolPickFiles => 'Choose one or more files';
 
   @override
   String get toolCopyText => 'Copy text';

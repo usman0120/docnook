@@ -281,7 +281,9 @@ class _ToolPickerState extends ConsumerState<ToolPicker> {
                 Space.x2,
               ),
               child: Text(
-                widget.tool.multiple
+                widget.tool.batch
+                    ? l.toolPickFiles
+                    : widget.tool.multiple
                     ? l.toolPickMany
                     : (accepts.length == 1 && accepts.single == DocFormat.pdf
                           ? l.toolPickOne

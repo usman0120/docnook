@@ -31,37 +31,42 @@ Future<void> showFileActions(
   bool inRecents = false,
 }) async {
   final l = AppLocalizations.of(context);
+  // A file deleted or moved outside DocNook can only be looked up or
+  // cleared from the lists.
+  final present = !doc.missing;
   final actions = <(IconData, String, Future<void> Function(), bool)>[
-    (
-      PhosphorIconsRegular.arrowSquareOut,
-      l.actionOpenWith,
-      () => _openWith(context, ref, doc),
-      false,
-    ),
-    (
-      PhosphorIconsRegular.shareNetwork,
-      l.actionShare,
-      () => shareDocuments(context, ref, [doc]),
-      false,
-    ),
-    (
-      PhosphorIconsRegular.pencilSimple,
-      l.actionRename,
-      () => renameDocument(context, ref, doc),
-      false,
-    ),
-    (
-      doc.starred ? PhosphorIconsFill.star : PhosphorIconsRegular.star,
-      doc.starred ? l.actionUnstar : l.actionStar,
-      () => setStarred(context, ref, [doc], starred: !doc.starred),
-      false,
-    ),
-    (
-      PhosphorIconsRegular.folderPlus,
-      l.actionAddToCollection,
-      () => addToCollection(context, ref, [doc]),
-      false,
-    ),
+    if (present) ...[
+      (
+        PhosphorIconsRegular.arrowSquareOut,
+        l.actionOpenWith,
+        () => _openWith(context, ref, doc),
+        false,
+      ),
+      (
+        PhosphorIconsRegular.shareNetwork,
+        l.actionShare,
+        () => shareDocuments(context, ref, [doc]),
+        false,
+      ),
+      (
+        PhosphorIconsRegular.pencilSimple,
+        l.actionRename,
+        () => renameDocument(context, ref, doc),
+        false,
+      ),
+      (
+        doc.starred ? PhosphorIconsFill.star : PhosphorIconsRegular.star,
+        doc.starred ? l.actionUnstar : l.actionStar,
+        () => setStarred(context, ref, [doc], starred: !doc.starred),
+        false,
+      ),
+      (
+        PhosphorIconsRegular.folderPlus,
+        l.actionAddToCollection,
+        () => addToCollection(context, ref, [doc]),
+        false,
+      ),
+    ],
     if (collectionId != null)
       (
         PhosphorIconsRegular.folderMinus,
@@ -79,9 +84,10 @@ Future<void> showFileActions(
         () => ref.read(documentRepositoryProvider).clearRecent(doc.id),
         false,
       ),
-    if (toolsFor(
-      ToolInput(uri: doc.uri, name: doc.name, mime: doc.mime),
-    ).isNotEmpty)
+    if (present &&
+        toolsFor(
+          ToolInput(uri: doc.uri, name: doc.name, mime: doc.mime),
+        ).isNotEmpty)
       (
         doc.type == DocType.pdf
             ? PhosphorIconsRegular.wrench
@@ -98,7 +104,7 @@ Future<void> showFileActions(
     ),
     (
       PhosphorIconsRegular.trash,
-      l.actionDelete,
+      present ? l.actionDelete : l.actionRemove,
       () => deleteDocuments(context, ref, [doc]),
       true,
     ),
@@ -299,18 +305,22 @@ Future<bool> deleteDocuments(
   List<DocumentInfo> docs,
 ) async {
   final l = AppLocalizations.of(context);
+  // Files already gone from the phone only leave DocNook's lists.
+  final onlyMissing = docs.every((d) => d.missing);
   final confirmed = await showDialog<bool>(
     context: context,
     builder: (context) => AlertDialog(
-      title: Text(l.deleteTitle(docs.length)),
-      content: Text(l.deleteBody),
+      title: Text(
+        onlyMissing ? l.removeMissingTitle : l.deleteTitle(docs.length),
+      ),
+      content: Text(onlyMissing ? l.removeMissingBody : l.deleteBody),
       actions: [
         QuietButton(
           label: l.actionCancel,
           onPressed: () => Navigator.of(context).pop(false),
         ),
         QuietButton(
-          label: l.actionDelete,
+          label: onlyMissing ? l.actionRemove : l.actionDelete,
           color: context.colors.danger,
           onPressed: () => Navigator.of(context).pop(true),
         ),
@@ -322,17 +332,48 @@ Future<bool> deleteDocuments(
   final platform = ref.read(platformProvider);
   final repo = ref.read(documentRepositoryProvider);
   var deleted = 0;
+  final failed = <DocumentInfo>[];
   for (final d in docs) {
-    if (await platform.deleteDocument(d.uri)) {
+    if (d.missing || await platform.deleteDocument(d.uri)) {
       await repo.remove(d.id);
       deleted++;
+    } else {
+      failed.add(d);
     }
   }
-  if (context.mounted) {
+  if (!context.mounted) return deleted > 0;
+  if (failed.isEmpty) {
     _snack(
       context,
-      deleted == docs.length ? l.deleted(deleted) : l.deleteFailed,
+      onlyMissing ? l.removedMissing(deleted) : l.deleted(deleted),
     );
+    return true;
+  }
+  // The file couldn't be deleted (another app's, or already gone without
+  // DocNook being able to tell): offer to clear it from the lists.
+  final remove = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(l.removeMissingTitle),
+      content: Text(l.deleteFailedOffer),
+      actions: [
+        QuietButton(
+          label: l.actionCancel,
+          onPressed: () => Navigator.of(context).pop(false),
+        ),
+        QuietButton(
+          label: l.actionRemove,
+          onPressed: () => Navigator.of(context).pop(true),
+        ),
+      ],
+    ),
+  );
+  if (remove == true) {
+    for (final d in failed) {
+      await repo.remove(d.id);
+    }
+    if (context.mounted) _snack(context, l.removedMissing(failed.length));
+    return true;
   }
   return deleted > 0;
 }

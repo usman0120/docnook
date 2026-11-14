@@ -202,6 +202,59 @@ void main() {
     );
   });
 
+  test('PDF → Word keeps whole paragraphs and real headings', () async {
+    if (!pdfium) return;
+    final model = DocxParser.parseFile('test/fixtures/handbook_30p.docx');
+    final pdf = p.join(dir.path, 'handbook.pdf');
+    await docModelToPdf(
+      DocToPdfRequest(model: model, fonts: _fonts(), output: pdf),
+      JobContext.detached(),
+    );
+    final info = await PdfiumEditor.inspect(PdfSource(pdf));
+    final pages = <PdfPageContent>[];
+    for (var i = 0; i < 2; i++) {
+      final page = info.pages[i];
+      final (text, raw, sizes) = await PdfiumEditor.pageChars(
+        PdfSource(pdf),
+        i,
+      );
+      final boxes = [
+        for (var c = 0; c + 3 < raw.length; c += 4)
+          (
+            raw[c],
+            page.height - raw[c + 3],
+            raw[c + 2],
+            page.height - raw[c + 1],
+          ),
+      ];
+      pages.add(
+        PdfPageContent(
+          width: page.width,
+          height: page.height,
+          lines: linesFromChars(text, boxes, sizes: sizes),
+        ),
+      );
+    }
+    final paragraphs = pdfPagesToDocModel(
+      pages,
+    ).blocks.whereType<Paragraph>().toList();
+    String find(String start) =>
+        paragraphs.firstWhere((x) => x.plainText.startsWith(start)).plainText;
+    // A paragraph's short last line stays with it.
+    expect(find('The quarterly review'), endsWith('month end.'));
+    expect(paragraphs.where((x) => x.plainText == 'month end.'), isEmpty);
+    // One larger word does not turn a body line into a heading.
+    final important = paragraphs.firstWhere(
+      (x) => x.plainText.startsWith('Important:'),
+    );
+    expect(important.headingLevel, 0);
+    final section = paragraphs.firstWhere(
+      (x) => x.plainText.startsWith('1.1 Section detail'),
+    );
+    expect(section.headingLevel, greaterThan(0));
+    expect(paragraphs.first.headingLevel, 1);
+  });
+
   test('characters group into lines', () {
     final lines = linesFromChars('ab\ncd', const [
       (0, 0, 5, 10),

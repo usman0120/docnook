@@ -25,49 +25,56 @@ class AppShell extends ConsumerWidget {
     final selecting = ref.watch(selectionActiveProvider);
     final showScan = shell.currentIndex != 2 && !selecting;
 
-    return Scaffold(
-      // Tabs scroll edge to edge; a paper strip keeps content from showing
-      // through the status bar.
-      body: Stack(
-        children: [
-          shell,
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: MediaQuery.paddingOf(context).top,
-            child: ColoredBox(color: context.colors.paper),
-          ),
-        ],
-      ),
-      floatingActionButton: showScan
-          ? _ScanButton(
-              label: l.actionScan,
-              onPressed: () =>
-                  unawaited(startScan(context, ref, ScanMode.document)),
-            )
-          : null,
-      bottomNavigationBar: DocNookTabBar(
-        currentIndex: shell.currentIndex,
-        onSelect: (i) =>
-            shell.goBranch(i, initialLocation: i == shell.currentIndex),
-        items: [
-          TabItem(
-            icon: PhosphorIconsRegular.house,
-            activeIcon: PhosphorIconsFill.house,
-            label: l.tabHome,
-          ),
-          TabItem(
-            icon: PhosphorIconsRegular.folder,
-            activeIcon: PhosphorIconsFill.folder,
-            label: l.tabFiles,
-          ),
-          TabItem(
-            icon: PhosphorIconsRegular.wrench,
-            activeIcon: PhosphorIconsFill.wrench,
-            label: l.tabTools,
-          ),
-        ],
+    // Back on Files or Tools returns to Home before it leaves the app.
+    return PopScope(
+      canPop: shell.currentIndex == 0,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop && shell.currentIndex != 0) shell.goBranch(0);
+      },
+      child: Scaffold(
+        // Tabs scroll edge to edge; a paper strip keeps content from showing
+        // through the status bar.
+        body: Stack(
+          children: [
+            shell,
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: MediaQuery.paddingOf(context).top,
+              child: ColoredBox(color: context.colors.paper),
+            ),
+          ],
+        ),
+        floatingActionButton: showScan
+            ? _ScanButton(
+                label: l.actionScan,
+                onPressed: () =>
+                    unawaited(startScan(context, ref, ScanMode.document)),
+              )
+            : null,
+        bottomNavigationBar: DocNookTabBar(
+          currentIndex: shell.currentIndex,
+          onSelect: (i) =>
+              shell.goBranch(i, initialLocation: i == shell.currentIndex),
+          items: [
+            TabItem(
+              icon: PhosphorIconsRegular.house,
+              activeIcon: PhosphorIconsFill.house,
+              label: l.tabHome,
+            ),
+            TabItem(
+              icon: PhosphorIconsRegular.folder,
+              activeIcon: PhosphorIconsFill.folder,
+              label: l.tabFiles,
+            ),
+            TabItem(
+              icon: PhosphorIconsRegular.wrench,
+              activeIcon: PhosphorIconsFill.wrench,
+              label: l.tabTools,
+            ),
+          ],
+        ),
       ),
     );
   }

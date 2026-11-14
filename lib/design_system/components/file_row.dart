@@ -49,17 +49,24 @@ class TypeBadge extends StatelessWidget {
         color: color.withValues(alpha: context.colors.isDark ? 0.20 : 0.10),
         borderRadius: const BorderRadius.all(Radius.circular(4)),
       ),
-      child: Text(
-        label ?? docTypeMark(type),
-        // The badge is a mark, not reading text: it keeps its size so rows
-        // stay aligned at large font scales.
-        textScaler: TextScaler.noScaling,
-        style: DocNookText.caption.copyWith(
-          fontSize: 10,
-          height: 12 / 10,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.3,
-          color: color,
+      // One line always: in narrow thumbnails a long mark ("EPUB") shrinks
+      // rather than wrapping.
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          label ?? docTypeMark(type),
+          maxLines: 1,
+          softWrap: false,
+          // The badge is a mark, not reading text: it keeps its size so rows
+          // stay aligned at large font scales.
+          textScaler: TextScaler.noScaling,
+          style: DocNookText.caption.copyWith(
+            fontSize: 10,
+            height: 12 / 10,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.3,
+            color: color,
+          ),
         ),
       ),
     );
