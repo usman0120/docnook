@@ -513,3 +513,4 @@ ask first). Fallback path still needs an emulator without Play services.
   TalkBack's double-tap could fail. Fixed in all 13 wrappers (the label now carries
   the tap and long-press actions) and the accessibility test now fails if any
   enabled button lacks a tap action. Confirmed on the phone afterwards.
+- 2026-11-14: publisher set to Voryent Solutions, support email contact@voryentsolutions.com (owner). "Send feedback" in Settings now appears and opens an email to that address.

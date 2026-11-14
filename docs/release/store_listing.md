@@ -61,7 +61,7 @@ DocNook does not collect any data. Your files stay on your phone and leave it on
 
 - App category: Productivity
 - Tags: PDF reader, Document scanner, Office viewer (pick the closest offered)
-- Email: [support email]
+- Email: contact@voryentsolutions.com
 - Website: optional, leave empty
 - Privacy policy URL: the Google Sites page made from `privacy_policy.html`
 
